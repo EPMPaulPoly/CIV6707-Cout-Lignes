@@ -2,8 +2,8 @@
 Estimations du cout de nouvelles infrastructures de transport à partir du rôle foncier 
 
 ## Installation requirements
-node.js latest installation file: https://nodejs.org/dist/v20.17.0/node-v20.17.0-x64.msi \n
-docker latest installation file: https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module&_gl=1*1q71v3*_gcl_au*MjQzMTQ2MTguMTcyNjk0MDM3Ng..*_ga*MTYzMTYzMjQ2My4xNzI2OTMxNDY2*_ga_XJWPQMJYHQ*MTcyNjk3Nzg4MC40LjEuMTcyNjk3Nzg4My41Ny4wLjA. \n
+node.js latest installation file: https://nodejs.org/dist/v20.17.0/node-v20.17.0-x64.msi \
+docker latest installation file: https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module&_gl=1*1q71v3*_gcl_au*MjQzMTQ2MTguMTcyNjk0MDM3Ng..*_ga*MTYzMTYzMjQ2My4xNzI2OTMxNDY2*_ga_XJWPQMJYHQ*MTcyNjk3Nzg4MC40LjEuMTcyNjk3Nzg4My41Ny4wLjA. \
 git : https://git-scm.com/download/win
 
 ## Comment le faire marcher:

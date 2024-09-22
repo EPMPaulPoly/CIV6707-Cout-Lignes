@@ -14,5 +14,10 @@ La procédure a été pas mal chiante de mon côté donc je vais essayer de fair
 3. Faites un clic droit et selectionnez "Open GIT bash here"
    ![image](https://github.com/user-attachments/assets/798fd80f-210f-4be2-aa3c-52fbc0981625)
 4. Allez à ce Github sur la page de landing de ce projet. En haut à droite, il y a un bouton code <>Code. Cliquez dessus et copiez le lien qui est donné.
-5. Retournez à la fenetre git entrez: git clone <l'adresse copiée de code>
-6. 
+5. Retournez à la fenetre git entrez: git clone https://github.com/EPMPaulPoly/CIV6707-Cout-Lignes.git
+6. Vous devriez maintenant avoir les fichiers dans votre dossier
+7. Dans votre dossier faites clic droit-> ouvrir dans terminal
+8. entrez la commande docker-compose build
+9. Une fois la commande completée entrez la commande docker-compose up
+
+Vous devriez maintenant avoir une fenêtre ouverte qui montre notre application

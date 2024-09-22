@@ -1,0 +1,35 @@
+{
+  "name": "docker-map-frontend",
+  "version": "1.0.0",
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest",
+    "react-leaflet": "latest",
+    "leaflet": "latest"
+  },
+  "devDependencies": {
+    "react-scripts": "latest",
+    "typescript":"latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "apk":"latest",
+    "@types/leaflet": "latest",
+    "@babel/plugin-proposal-private-property-in-object": "latest"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

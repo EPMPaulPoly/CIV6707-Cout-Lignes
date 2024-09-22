@@ -1,0 +1,17 @@
+
+.app {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .map-container {
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  /* Ensure Leaflet styles are applied */
+  .leaflet-container {
+    height: 100%;
+    width: 100%;
+  }

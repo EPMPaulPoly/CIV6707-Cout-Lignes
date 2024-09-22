@@ -1,6 +1,8 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
 
-module.exports = {
+dotenv.config();
+
+export default {
   database: {
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -9,6 +11,6 @@ module.exports = {
     port: parseInt(process.env.DB_PORT || '5432'),
   },
   server: {
-    port: parseInt(process.env.SERVER_PORT || '5000'),
+    port: parseInt(process.env.SERVER_PORT || '3001'),
   }
 };

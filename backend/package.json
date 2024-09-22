@@ -1,0 +1,33 @@
+{
+    "name": "transit-map-backend",
+    "version": "1.0.0",
+    "description": "Backend for transit map application",
+    "main": "dist/server.js",
+    "scripts": {
+      "start": "node dist/server.js",
+      "dev": "nodemon src/server.ts",
+      "build": "tsc",
+      "lint": "eslint . --ext .ts",
+      "test": "jest"
+    },
+    "dependencies": {
+      "cors": "latest",
+      "dotenv": "latest",
+      "express": "latest",
+      "pg": "latest"
+    },
+    "devDependencies": {
+      "@types/cors": "latest",
+      "@types/express": "latest",
+      "@types/node": "latest",
+      "@types/pg": "latest",
+      "@typescript-eslint/eslint-plugin": "latest",
+      "@typescript-eslint/parser": "latest",
+      "eslint": "latest",
+      "jest": "latest",
+      "nodemon": "latest",
+      "ts-jest": "latest",
+      "ts-node": "latest",
+      "typescript": "latest"
+    }
+  }

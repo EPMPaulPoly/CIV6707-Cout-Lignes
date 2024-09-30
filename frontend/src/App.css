@@ -1,17 +1,87 @@
-
 .app {
-    text-align: center;
-    padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 20px;
+  height: calc(100vh - 100px); /* Adjust based on your header height */
+}
+
+.left-column, .right-column {
+  width: 25%;
+  overflow-y: auto;
+}
+
+.center-column {
+  width: 50%;
+}
+
+.map-container {
+  height: 100%;
+  border: 1px solid #ddd;
+}
+
+.table-wrapper {
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+button {
+  margin: 5px;
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+input {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .content-wrapper {
+    flex-direction: column;
+    height: auto;
   }
-  
+
+  .left-column, .center-column, .right-column {
+    width: 100%;
+  }
+
   .map-container {
-    height: 100%;
-    width: 100%;
-    margin: 0 auto;
+    height: 400px; /* Fixed height for smaller screens */
   }
-  
-  /* Ensure Leaflet styles are applied */
-  .leaflet-container {
-    height: 100%;
-    width: 100%;
-  }
+}

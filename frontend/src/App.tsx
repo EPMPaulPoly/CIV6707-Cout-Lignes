@@ -41,20 +41,31 @@ const App: React.FC = () => {
 
   const [transitStops, setTransitStops] = useState<TransitStop[]>([
     { id: 1, name: 'Montreal Central', latitude: 45.549152, longitude: -73.61368, isComplete: true },
+    { id: 2, name: 'EO 1', latitude: 45.53, longitude: -73.63, isComplete: true },
+    { id: 3, name: 'EO 2', latitude: 45.57, longitude: -73.6, isComplete: true },
+    { id: 4, name: 'NS 1', latitude: 45.56, longitude: -73.64, isComplete: true },
+    { id: 5, name: 'NS 1', latitude: 45.54, longitude: -73.59, isComplete: true },
   ]);
 
   const [transitLines, setTransitLines] = useState<TransitLine[]>([
     { id: 1, name: 'Green Line', description: 'East-West Line', mode: 'Metro' },
+    { id: 2, name: 'Yellow Line', description: 'NS Line', mode: 'Tram' },
   ]);
 
   const [transportModes, setTransportModes] = useState<TransportMode[]>([
-    { id: 1, name: 'Metro', costPerKm: 100, costPerStation: 1000000, footprint: 50 },
+    { id: 1, name: 'Metro', costPerKm: 1000, costPerStation: 0.2, footprint: 50 },
+    { id: 2, name: 'Tran', costPerKm: 70, costPerStation: 0.07, footprint: 20 },
   ]);
 
   const [editingItem, setEditingItem] = useState<{ table: string; id: number | null }>({ table: '', id: null });
 
   const [lineStops, setLineStops] = useState<LineStop[]>([
-    { id: 1, line_id: 1, stop_id: 1, order_of_stop: 1, is_station: true },
+    { id: 1, line_id: 1, stop_id: 2, order_of_stop: 1, is_station: true },
+    { id: 2, line_id: 1, stop_id: 1, order_of_stop: 2, is_station: true },
+    { id: 3, line_id: 1, stop_id: 3, order_of_stop: 3, is_station: true },
+    { id: 4, line_id: 2, stop_id: 4, order_of_stop: 1, is_station: true },
+    { id: 5, line_id: 2, stop_id: 1, order_of_stop: 2, is_station: true },
+    { id: 6, line_id: 2, stop_id: 5, order_of_stop: 3, is_station: true },
   ]);
 
   const [selectedLine, setSelectedLine] = useState<number | null>(null);

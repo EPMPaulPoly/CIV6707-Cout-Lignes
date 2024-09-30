@@ -85,3 +85,18 @@ h2 {
     height: 400px; /* Fixed height for smaller screens */
   }
 }
+
+.right-column select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.right-column .table-wrapper {
+  margin-top: 10px;
+}
+
+/* Style for checkbox */
+input[type="checkbox"] {
+  width: auto;
+}

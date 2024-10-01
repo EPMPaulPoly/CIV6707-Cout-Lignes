@@ -25,7 +25,7 @@ const App: React.FC = () => {
 
   const [transportModes, setTransportModes] = useState<TransportMode[]>([
     { id: 1, name: 'Metro', costPerKm: 1000, costPerStation: 0.2, footprint: 50 },
-    { id: 2, name: 'Tran', costPerKm: 70, costPerStation: 0.07, footprint: 20 },
+    { id: 2, name: 'Tram', costPerKm: 70, costPerStation: 0.07, footprint: 20 },
   ]);
 
 

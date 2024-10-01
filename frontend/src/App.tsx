@@ -79,7 +79,12 @@ const App: React.FC = () => {
           />
         </div>
         <div className="center-column">
-          <Map transitStops={transitStops} position={position} />
+        <Map 
+            transitStops={transitStops} 
+            transitLines={transitLines}
+            lineStops={lineStops}
+            position={position} 
+          />
         </div>
         <div className="right-column">
           <h2>Transit Stops</h2>

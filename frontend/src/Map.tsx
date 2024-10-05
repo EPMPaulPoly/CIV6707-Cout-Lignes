@@ -1,15 +1,17 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { LatLngExpression } from 'leaflet';
-import { TransitStop } from './types';
+import { TransitStop, TransitLine,LineStop } from './types';
 
 interface MapProps {
   transitStops: TransitStop[];
   position: LatLngExpression;
+  lineStops: LineStop[];
+  transitLines: TransitLine[];
 }
 
-const Map: React.FC<MapProps> = ({ transitStops, position }) => {
+const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLines }) => {
   const largerIcon = L.icon({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     iconSize: [30, 45],
@@ -20,6 +22,16 @@ const Map: React.FC<MapProps> = ({ transitStops, position }) => {
     shadowAnchor: [13, 41]
   });
 
+  const getLineCoordinates = (lineId: number): LatLngExpression[] => {
+    const stops = lineStops
+      .filter(ls => ls.line_id === lineId)
+      .sort((a, b) => a.order_of_stop - b.order_of_stop)
+      .map(ls => transitStops.find(ts => ts.id === ls.stop_id))
+      .filter((stop): stop is TransitStop => stop !== undefined);
+
+    return stops.map(stop => [stop.latitude!, stop.longitude!]);
+  };
+  
   return (
     <div className="map-container">
       <MapContainer
@@ -40,6 +52,14 @@ const Map: React.FC<MapProps> = ({ transitStops, position }) => {
             <Popup>{stop.name}</Popup>
           </Marker>
         ))}
+        {transitLines.map(line => (
+          <Polyline
+            key={line.id}
+            positions={getLineCoordinates(line.id)}
+            color={line.name.toLowerCase().includes('green') ? 'green' : 'yellow'}
+          />
+        ))}
+        
       </MapContainer>
     </div>
   );

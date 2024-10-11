@@ -11,8 +11,6 @@ interface MapProps {
   transitLines: TransitLine[];
   lineStops: LineStop[];
   position: LatLngExpression;
-  lineStops: LineStop[];
-  transitLines: TransitLine[];
 }
 
 

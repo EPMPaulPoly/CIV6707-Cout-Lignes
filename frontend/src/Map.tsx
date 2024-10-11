@@ -1,17 +1,23 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { LatLngExpression } from 'leaflet';
-import { TransitStop, TransitLine, LineStop } from './types';
+import { TransitStop, TransitLine,LineStop } from './types';
+
 
 interface MapProps {
   transitStops: TransitStop[];
   transitLines: TransitLine[];
   lineStops: LineStop[];
   position: LatLngExpression;
+  lineStops: LineStop[];
+  transitLines: TransitLine[];
 }
 
-const Map: React.FC<MapProps> = ({ transitStops, transitLines, lineStops, position }) => {
+
+const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLines }) => {
+
   const largerIcon = L.icon({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     iconSize: [30, 45],
@@ -22,21 +28,17 @@ const Map: React.FC<MapProps> = ({ transitStops, transitLines, lineStops, positi
     shadowAnchor: [13, 41]
   });
 
-  const getLineCoordinates = (lineId: number) => {
-    const stopsForLine = lineStops
+
+  const getLineCoordinates = (lineId: number): LatLngExpression[] => {
+    const stops = lineStops
       .filter(ls => ls.line_id === lineId)
-      .sort((a, b) => a.order_of_stop - b.order_of_stop);
+      .sort((a, b) => a.order_of_stop - b.order_of_stop)
+      .map(ls => transitStops.find(ts => ts.id === ls.stop_id))
+      .filter((stop): stop is TransitStop => stop !== undefined);
 
-    return stopsForLine.map(ls => {
-      const stop = transitStops.find(s => s.id === ls.stop_id);
-      return stop ? [stop.latitude, stop.longitude] as LatLngExpression : null;
-    }).filter((coord): coord is LatLngExpression => coord !== null);
+    return stops.map(stop => [stop.latitude!, stop.longitude!]);
   };
-
-  const getLineColor = (index: number) => {
-    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
-    return colors[index % colors.length];
-  };
+  
 
   return (
     <div className="map-container">
@@ -58,17 +60,15 @@ const Map: React.FC<MapProps> = ({ transitStops, transitLines, lineStops, positi
             <Popup>{stop.name}</Popup>
           </Marker>
         ))}
-        {transitLines.map((line, index) => (
+        {transitLines.map(line => (
           <Polyline
             key={line.id}
             positions={getLineCoordinates(line.id)}
-            color={getLineColor(index)}
-            weight={4}
-            opacity={0.7}
-          >
-            <Popup>{line.name}</Popup>
-          </Polyline>
+            color={line.name.toLowerCase().includes('green') ? 'green' : 'yellow'}
+          />
         ))}
+        
+
       </MapContainer>
     </div>
   );

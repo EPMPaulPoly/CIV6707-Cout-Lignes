@@ -49,6 +49,23 @@ const App: React.FC = () => {
     }
   }, [transitLines, selectedLine]);
 
+
+
+  const handleLineStopsSave = (updatedLineStops: LineStop[]) => {
+    
+    setLineStops(updatedLineStops);
+    setEditingItem({ table: '', id: null });
+    
+  };
+
+  const handleLineStopsChange = (id: number, field: string, value: string | number | boolean) => {
+    
+    const updatedLineStops = lineStops.map(stop => 
+      stop.id === id ? { ...stop, [field]: field === 'stop_id' ? parseInt(value as string) : value } : stop
+    );
+    setLineStops(updatedLineStops);
+  };
+  
   return (
     <div className="app">
       <h1>Transit Planning Application</h1>
@@ -79,11 +96,11 @@ const App: React.FC = () => {
           />
         </div>
         <div className="center-column">
-        <Map 
+          <Map 
             transitStops={transitStops} 
-            transitLines={transitLines}
+            position={position}
             lineStops={lineStops}
-            position={position} 
+            transitLines={transitLines}
           />
         </div>
         <div className="right-column">
@@ -111,7 +128,7 @@ const App: React.FC = () => {
             data={lineStops.filter(stop => stop.line_id === selectedLine)}
             columns={['stop_id', 'order_of_stop', 'is_station']}
             editingItem={editingItem}
-            handleChange={(id, field, value) => handleChange('lineStops', id, field, value, setLineStops)}
+            handleChange={handleLineStopsChange}
             handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
             handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem)}
             handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, { line_id: selectedLine })}

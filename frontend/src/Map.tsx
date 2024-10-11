@@ -1,17 +1,23 @@
+
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { LatLngExpression } from 'leaflet';
 import { TransitStop, TransitLine,LineStop } from './types';
 
+
 interface MapProps {
   transitStops: TransitStop[];
+  transitLines: TransitLine[];
+  lineStops: LineStop[];
   position: LatLngExpression;
   lineStops: LineStop[];
   transitLines: TransitLine[];
 }
 
+
 const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLines }) => {
+
   const largerIcon = L.icon({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     iconSize: [30, 45],
@@ -21,6 +27,7 @@ const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLin
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
   });
+
 
   const getLineCoordinates = (lineId: number): LatLngExpression[] => {
     const stops = lineStops
@@ -32,6 +39,7 @@ const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLin
     return stops.map(stop => [stop.latitude!, stop.longitude!]);
   };
   
+
   return (
     <div className="map-container">
       <MapContainer
@@ -60,6 +68,7 @@ const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLin
           />
         ))}
         
+
       </MapContainer>
     </div>
   );

@@ -1,6 +1,6 @@
 # File: CIV6707-Couts-Lignes/Dockerfile
 
-FROM node:latest
+FROM node:20
 WORKDIR /app
 COPY package*.json ./
 RUN npm install

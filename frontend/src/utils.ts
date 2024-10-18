@@ -1,5 +1,41 @@
 import { EditingItem, TransitStop, TransitLine, TransportMode, LineStop } from './types';
 
+export const isValidLatitude = (lat: number | string | null | undefined): boolean => {
+  if (lat === null || lat === undefined) return false;
+  const num = typeof lat === 'string' ? parseFloat(lat) : lat;
+  return !isNaN(num) && num >= -90 && num <= 90;
+};
+
+export const isValidLongitude = (lon: number | string | null | undefined): boolean => {
+  if (lon === null || lon === undefined) return false;
+  const num = typeof lon === 'string' ? parseFloat(lon) : lon;
+  return !isNaN(num) && num >= -180 && num <= 180;
+};
+
+export const handleTempChange = (
+  id: number,
+  field: string,
+  value: string | number | boolean,
+  setTempValues: React.Dispatch<React.SetStateAction<{[key: string]: any}>>
+) => {
+  setTempValues(prev => ({
+    ...prev,
+    [id]: {
+      ...prev[id],
+      [field]: value
+    }
+  }));
+};
+
+export const isValidInput = (item: any, table: string, tempValues: {[key: string]: any}) => {
+  if (table === 'transitStops') {
+    const lat = tempValues[item.id]?.latitude ?? item.latitude;
+    const lon = tempValues[item.id]?.longitude ?? item.longitude;
+    return isValidLatitude(lat) && isValidLongitude(lon);
+  }
+  return true;
+};
+
 export const handleChange = (
   table: string,
   id: number,
@@ -49,20 +85,47 @@ export const handleSave = (
   table: string,
   editingItem: EditingItem,
   setFunction: React.Dispatch<React.SetStateAction<any[]>>,
-  setEditingItem: React.Dispatch<React.SetStateAction<EditingItem>>
+  setEditingItem: React.Dispatch<React.SetStateAction<EditingItem>>,
+  tempValues: {[key: string]: any}
 ) => {
-  if (table === 'transitStops') {
-    setFunction(prevData =>
-      prevData.map(item =>
-        item.id === editingItem.id
-          ? {
-              ...item,
-              isComplete: item.name !== '' && item.latitude !== null && item.longitude !== null,
-            }
-          : item
-      )
+  setFunction(prevData => {
+    if (editingItem.id === null) {
+      console.error("Editing item id is null");
+      return prevData;
+    }
+
+    const editingItemId = editingItem.id;
+    const tempValue = tempValues[editingItemId] || {};
+
+    const updatedData = prevData.map(item =>
+      item.id === editingItemId
+        ? {
+            ...item,
+            ...tempValue,
+            isComplete: table === 'transitStops' 
+              ? !!(tempValue.name) && 
+                isValidLatitude(tempValue.latitude) && 
+                isValidLongitude(tempValue.longitude)
+              : true,
+          }
+        : item
     );
-  }
+    if (!prevData.find(item => item.id === editingItemId)) {
+      const newItem = {
+        ...getDefaultValues(table),
+        ...tempValue,
+        id: editingItemId,
+        isComplete: table === 'transitStops' 
+          ? !!(tempValue.name) && 
+            isValidLatitude(tempValue.latitude) && 
+            isValidLongitude(tempValue.longitude)
+          : true,
+      };
+      updatedData.push(newItem);
+    }
+
+    return updatedData;
+  });
   setEditingItem({ table: '', id: null });
 };
 
@@ -111,5 +174,4 @@ export const formatDataForDisplay = (data: any, table: string): string => {
   }
 };
 
-// This empty export makes the file a module
 export {};

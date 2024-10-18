@@ -66,6 +66,28 @@ const App: React.FC = () => {
     setLineStops(updatedLineStops);
   };
   
+  const handleSaveWrapper = (table: string) => (tempValues: {[key: string]: any}) => {
+    handleSave(
+      table, 
+      editingItem, 
+      table === 'transitStops' ? setTransitStops :
+      table === 'transitLines' ? setTransitLines :
+      table === 'transportModes' ? setTransportModes :
+      setLineStops, 
+      setEditingItem,
+      tempValues
+    );
+    if (table === 'transitStops') {
+      setTransitStops(prev => [...prev]);
+    } else if (table === 'transitLines') {
+      setTransitLines(prev => [...prev]);
+    } else if (table === 'transportModes') {
+      setTransportModes(prev => [...prev]);
+    } else if (table === 'lineStops') {
+      setLineStops(prev => [...prev]);
+    }
+  };
+
   return (
     <div className="app">
       <h1>Transit Planning Application</h1>
@@ -79,7 +101,7 @@ const App: React.FC = () => {
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transitLines', id, field, value, setTransitLines)}
             handleEdit={(id) => handleEdit('transitLines', id, setEditingItem)}
-            handleSave={() => handleSave('transitLines', editingItem, setTransitLines, setEditingItem)}
+            handleSave={handleSaveWrapper('transitLines')}
             handleAdd={() => handleAdd('transitLines', transitLines, setTransitLines, setEditingItem)}
             transportModes={transportModes}
           />
@@ -91,7 +113,7 @@ const App: React.FC = () => {
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transportModes', id, field, value, setTransportModes)}
             handleEdit={(id) => handleEdit('transportModes', id, setEditingItem)}
-            handleSave={() => handleSave('transportModes', editingItem, setTransportModes, setEditingItem)}
+            handleSave={handleSaveWrapper('transportModes')}
             handleAdd={() => handleAdd('transportModes', transportModes, setTransportModes, setEditingItem)}
           />
         </div>
@@ -112,7 +134,7 @@ const App: React.FC = () => {
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transitStops', id, field, value, setTransitStops)}
             handleEdit={(id) => handleEdit('transitStops', id, setEditingItem)}
-            handleSave={() => handleSave('transitStops', editingItem, setTransitStops, setEditingItem)}
+            handleSave={handleSaveWrapper('transitStops')}
             handleAdd={() => handleAdd('transitStops', transitStops, setTransitStops, setEditingItem)}
           />
           <h2>Line Stops</h2>
@@ -130,7 +152,7 @@ const App: React.FC = () => {
             editingItem={editingItem}
             handleChange={handleLineStopsChange}
             handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
-            handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem)}
+            handleSave={handleSaveWrapper('lineStops')}
             handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, { line_id: selectedLine })}
             transitStops={transitStops}
           />
@@ -139,5 +161,7 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+
 
 export default App;

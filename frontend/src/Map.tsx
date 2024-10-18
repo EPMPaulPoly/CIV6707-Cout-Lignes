@@ -1,10 +1,8 @@
-
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
+import React, { useEffect, useState, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import { LatLngExpression } from 'leaflet';
-import { TransitStop, TransitLine,LineStop } from './types';
-
+import { TransitStop, TransitLine, LineStop } from './types';
 
 interface MapProps {
   transitStops: TransitStop[];
@@ -13,8 +11,14 @@ interface MapProps {
   position: LatLngExpression;
 }
 
-
 const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLines }) => {
+  const mapRef = useRef<L.Map | null>(null);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.invalidateSize();
+    }
+  }, [transitStops]);
 
   const largerIcon = L.icon({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -26,7 +30,6 @@ const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLin
     shadowAnchor: [13, 41]
   });
 
-
   const getLineCoordinates = (lineId: number): LatLngExpression[] => {
     const stops = lineStops
       .filter(ls => ls.line_id === lineId)
@@ -36,7 +39,6 @@ const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLin
 
     return stops.map(stop => [stop.latitude!, stop.longitude!]);
   };
-  
 
   return (
     <div className="map-container">
@@ -44,6 +46,7 @@ const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLin
         center={position}
         zoom={13}
         style={{ height: '100%', width: '100%' }}
+        ref={mapRef}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -65,8 +68,6 @@ const Map: React.FC<MapProps> = ({ transitStops, position, lineStops, transitLin
             color={line.name.toLowerCase().includes('green') ? 'green' : 'yellow'}
           />
         ))}
-        
-
       </MapContainer>
     </div>
   );

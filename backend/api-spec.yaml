@@ -1,0 +1,259 @@
+openapi: 3.0.0
+info:
+  title: Transit Planning API
+  version: 1.4.0
+paths:
+  /stops:
+    get:
+      summary: Get all stops
+    post:
+      summary: Create a new stop
+    put:
+      summary: Update a stop
+    delete:
+      summary: Delete a stop
+
+  /lines:
+    get:
+      summary: Get all lines or a subset based on spatial query
+      parameters:
+        - in: query
+          name: bbox
+          schema:
+            type: string
+          description: Bounding box for spatial query (minLon,minLat,maxLon,maxLat)
+        - in: query
+          name: polygon
+          schema:
+            type: string
+          description: WKT representation of a polygon for spatial query
+    post:
+      summary: Create a new line
+    put:
+      summary: Update a line
+    delete:
+      summary: Delete a line
+
+  /lines/{lineId}:
+    get:
+      summary: Get a specific line
+      parameters:
+        - in: path
+          name: lineId
+          required: true
+          schema:
+            type: string
+
+  /lines/{lineId}/route-points:
+    get:
+      summary: Get all route points (stops and waypoints) for a line
+    post:
+      summary: Add a new route point to a line
+    put:
+      summary: Update a route point
+    delete:
+      summary: Remove a route point from a line
+
+  /lines/{lineId}/geometry:
+    get:
+      summary: Get line geometry
+    put:
+      summary: Update line geometry
+
+  /lines/{lineId}/price:
+    get:
+      summary: Calculate line price
+
+  /lines/{lineId}/lots:
+    get:
+      summary: Get lots intersecting with a specific line
+      parameters:
+        - in: path
+          name: lineId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lot'
+
+  /lots:
+    get:
+      summary: Get all lots
+    post:
+      summary: Create a new lot
+    put:
+      summary: Update a lot
+    delete:
+      summary: Delete a lot
+
+  /lots/{lotId}:
+    get:
+      summary: Get a specific lot
+      parameters:
+        - in: path
+          name: lotId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lot'
+
+  /modes:
+    get:
+      summary: Get all transit modes
+    post:
+      summary: Create a new transit mode
+    put:
+      summary: Update a transit mode
+    delete:
+      summary: Delete a transit mode
+
+  /modes/{modeId}:
+    get:
+      summary: Get a specific transit mode
+      parameters:
+        - in: path
+          name: modeId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransitMode'
+
+components:
+  schemas:
+    RoutePoint:
+      type: object
+      properties:
+        id: 
+          type: string
+        name: 
+          type: string
+        location:
+          $ref: '#/components/schemas/GeoPoint'
+        isStop:
+          type: boolean
+        sequence:
+          type: integer
+
+    Line:
+      type: object
+      properties:
+        id: 
+          type: string
+        name: 
+          type: string
+        mode: 
+          type: string
+        routePoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutePoint'
+        geometry:
+          $ref: '#/components/schemas/GeoLineString'
+
+    Lot:
+      type: object
+      properties:
+        id: 
+          type: string
+        geometry:
+          $ref: '#/components/schemas/GeoPolygon'
+        aggregatedPrice:
+          type: number
+        acquisitionType:
+          type: string
+          enum: [full, partial]
+        taxDataPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxDataPoint'
+
+    TaxDataPoint:
+      type: object
+      properties:
+        id:
+          type: string
+        location:
+          $ref: '#/components/schemas/GeoPoint'
+        price:
+          type: number
+
+    TransitMode:
+      type: object
+      properties:
+        id: 
+          type: string
+        name: 
+          type: string
+        costFactors:
+          type: object
+          properties:
+            infrastructureCost:
+              type: number
+            stationCost:
+              type: number
+            infrastructureWidth:
+              type: number
+
+    GeoPoint:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Point]
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+
+    GeoLineString:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [LineString]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+
+    GeoPolygon:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Polygon]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2

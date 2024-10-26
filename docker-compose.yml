@@ -9,6 +9,9 @@ services:
       - backend
     environment:
       - REACT_APP_API_URL=http://localhost:5000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
   backend:
     build:
@@ -16,6 +19,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
+      - "9229:9229"
     depends_on:
       - db
     environment:
@@ -25,6 +29,9 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_PORT=5432
       - SERVER_PORT=5000
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
 
   db:
     image: postgres:13

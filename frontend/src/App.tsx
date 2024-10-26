@@ -109,9 +109,11 @@ const App: React.FC = () => {
           position={position}
           lineStops={lineStops}
           transitLines={transitLines}
-          onStopAdd={mapHandlers.handleStopAdd}
+          onStopAdd={mapHandlers.handleStopAdd}  // Changed to match
           onStopMove={mapHandlers.handleStopMove}
           onStopDelete={mapHandlers.handleStopDelete}
+          isAddingNewStop={editingItem.table === 'transitStops' && editingItem.id !== null}
+          editingItem={editingItem}
         />
         </div>
         <div className="right-column">

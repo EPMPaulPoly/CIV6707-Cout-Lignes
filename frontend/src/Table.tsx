@@ -26,6 +26,24 @@ const Table: React.FC<TableProps> = ({
   transportModes,
   transitStops
 }) => {
+  // For transit stops, only show editable name field
+
+  // format the lat long for 4 digits
+  const formatValue = (value: any, column: string) => {
+    if (table === 'transitStops' && ['latitude', 'longitude'].includes(column)) {
+      return value !== null ? value.toFixed(4) : '';
+    }
+    return value;
+  };
+
+  // Helper to determine if a field should be editable
+  const isEditable = (column: string) => {
+    if (table === 'transitStops') {
+      return column === 'name';
+    }
+    return true;
+  };
+
   return (
     <div className="table-wrapper">
       <table>
@@ -40,7 +58,7 @@ const Table: React.FC<TableProps> = ({
             <tr key={item.id}>
               {columns.map(col => (
                 <td key={col}>
-                  {editingItem.table === table && editingItem.id === item.id ? (
+                  {editingItem.table === table && editingItem.id === item.id && isEditable(col)? (
                     col === 'mode' && table === 'transitLines' ? (
                       <select
                         value={item[col]}
@@ -79,7 +97,7 @@ const Table: React.FC<TableProps> = ({
                   ) : (
                     col === 'stop_id' && table === 'lineStops' 
                       ? transitStops?.find(stop => stop.id === item[col])?.name 
-                      : item[col]
+                      : formatValue(item[col], col)
                   )}
                 </td>
               ))}
@@ -94,7 +112,19 @@ const Table: React.FC<TableProps> = ({
           ))}
         </tbody>
       </table>
-      <button onClick={handleAdd}>Add New</button>
+      <div className="table-controls">
+        <button 
+          onClick={handleAdd}
+          className={table === 'transitStops' && editingItem.table === 'transitStops' ? 'active' : ''}
+        >
+          {table === 'transitStops' && editingItem.table === 'transitStops' 
+            ? 'Click on map to place stop' 
+            : 'Add New'}
+        </button>
+        {table === 'transitStops' && editingItem.table === 'transitStops' && (
+          <div className="help-text">Click anywhere on the map to place the new stop</div>
+        )}
+      </div>
     </div>
   );
 };

@@ -9,9 +9,16 @@ interface MapProps {
   transitLines: TransitLine[];
   lineStops: LineStop[];
   position: LatLngExpression;
-  onStopAdd: MapHandlers['handleStopAdd'];
-  onStopMove: MapHandlers['handleStopMove'];
-  onStopDelete: MapHandlers['handleStopDelete'];
+  onStopAdd: (lat: number, lng: number) => void;  // Changed to onStopAdd
+  onStopMove: (stopId: number, lat: number, lng: number) => void;
+  onStopDelete: (stopId: number) => void;
+  isAddingNewStop: boolean;
+  editingItem: { table: string; id: number | null };
+}
+
+interface MapInteractionHandlerProps {
+  isAddingNewStop: boolean;
+  onStopAdd: (lat: number, lng: number) => void;  // Changed to match
 }
 
 const StationIcon = L.icon({
@@ -25,20 +32,17 @@ const StationIcon = L.icon({
 });
 
 const MapInteractionHandler: React.FC<{
+  isAddingNewStop: boolean;  // Changed from isAddingStop
   onStopAdd: (lat: number, lng: number) => void;
-  isAddingStop: boolean;
-  setIsAddingStop: (value: boolean) => void;
-}> = ({ onStopAdd, isAddingStop, setIsAddingStop }) => {
+}> = ({ isAddingNewStop, onStopAdd }) => {  // Changed from isAddingStop
   const map = useMapEvents({
     click: (e: LeafletMouseEvent) => {
-      if (isAddingStop) {
+      if (isAddingNewStop) {  // Changed from isAddingStop
         onStopAdd(e.latlng.lat, e.latlng.lng);
-        setIsAddingStop(false);
       }
     },
     mousemove: (e: LeafletMouseEvent) => {
-      if (isAddingStop) {
-        // You could add visual feedback here if desired
+      if (isAddingNewStop) {  // Changed from isAddingStop
         map.getContainer().style.cursor = 'crosshair';
       } else {
         map.getContainer().style.cursor = '';
@@ -56,8 +60,9 @@ const Map: React.FC<MapProps> = ({
   onStopAdd,
   onStopMove,
   onStopDelete,
+  isAddingNewStop,
+  editingItem
 }) => {
-  const [isAddingStop, setIsAddingStop] = useState(false);
 
   const getLineCoordinates = (lineId: number): LatLngExpression[] => {
     const stops = lineStops
@@ -67,6 +72,10 @@ const Map: React.FC<MapProps> = ({
       .filter((stop): stop is TransitStop => stop !== undefined);
 
     return stops.map(stop => [stop.latitude!, stop.longitude!]);
+  };
+
+  const isStopBeingEdited = (stopId: number): boolean => {
+    return editingItem.table === 'transitStops' && editingItem.id === stopId;
   };
 
   const getLineColor = (line: TransitLine): string => {
@@ -80,20 +89,11 @@ const Map: React.FC<MapProps> = ({
 
   return (
     <div className="map-container">
-      <div className="map-controls">
-        <button
-          className={`add-stop-btn ${isAddingStop ? 'active' : ''}`}
-          onClick={() => setIsAddingStop(!isAddingStop)}
-        >
-          {isAddingStop ? 'Cancel Adding Stop' : 'Add New Stop'}
-        </button>
-        {isAddingStop && (
-          <div className="map-controls-help">
-            Click anywhere on the map to add a stop
-          </div>
-        )}
-      </div>
-      
+      {isAddingNewStop && (
+        <div className="map-helper-text">
+          Click on the map to place the new stop
+        </div>
+      )}
       <MapContainer
         center={position}
         zoom={13}
@@ -106,8 +106,7 @@ const Map: React.FC<MapProps> = ({
         
         <MapInteractionHandler
           onStopAdd={onStopAdd}
-          isAddingStop={isAddingStop}
-          setIsAddingStop={setIsAddingStop}
+          isAddingNewStop={isAddingNewStop}
         />
 
         {/* Render transit lines first so they appear under the stops */}
@@ -131,55 +130,31 @@ const Map: React.FC<MapProps> = ({
           </Polyline>
         ))}
 
-        {/* Render transit stops */}
-        {transitStops.filter(stop => stop.isComplete).map(stop => {
-          const connectedLines = transitLines.filter(line =>
-            lineStops.some(ls => ls.line_id === line.id && ls.stop_id === stop.id)
-          );
-
-          return (
-            <Marker
-              key={stop.id}
-              position={[stop.latitude!, stop.longitude!]}
-              icon={StationIcon}
-              draggable={true}
-              eventHandlers={{
-                dragend: (e) => {
+        {transitStops.filter(stop => stop.isComplete).map(stop => (
+          <Marker
+            key={stop.id}
+            position={[stop.latitude!, stop.longitude!]}
+            icon={StationIcon}
+            draggable={isStopBeingEdited(stop.id)}  // Only draggable when being edited
+            eventHandlers={{
+              dragend: (e) => {
+                if (isStopBeingEdited(stop.id)) {  // Double-check before allowing move
                   const marker = e.target;
                   const position = marker.getLatLng();
                   onStopMove(stop.id, position.lat, position.lng);
-                },
-              }}
-            >
-              <Popup>
-                <div className="stop-popup">
-                  <strong>{stop.name}</strong>
-                  <br />
-                  {connectedLines.length > 0 && (
-                    <>
-                      <div className="connected-lines">
-                        Lines:
-                        <ul>
-                          {connectedLines.map(line => (
-                            <li key={line.id} style={{ color: getLineColor(line) }}>
-                              {line.name}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </>
-                  )}
-                  <button 
-                    className="delete-stop-btn"
-                    onClick={() => onStopDelete(stop.id)}
-                  >
-                    Delete Stop
-                  </button>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
+                }
+              },
+            }}
+          >
+            <Popup>
+              <div>
+                <strong>{stop.name}</strong>
+                <br />
+                <button onClick={() => onStopDelete(stop.id)}>Delete Stop</button>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
     </div>
   );

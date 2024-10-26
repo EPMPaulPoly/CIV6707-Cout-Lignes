@@ -25,18 +25,33 @@ export const handleChange = (
   );
 };
 
+export interface MapHandlers {
+  handleStopAdd: (lat: number, lng: number) => void;  // Changed to handleStopAdd
+  handleStopMove: (stopId: number, lat: number, lng: number) => void;
+  handleStopDelete: (stopId: number) => void;
+}
+
+
 export const handleAdd = (
   table: string,
   data: any[],
-  setFunction: React.Dispatch<React.SetStateAction<any[]>>,
-  setEditingItem: React.Dispatch<React.SetStateAction<EditingItem>>,
+  setFunction: Dispatch<SetStateAction<any[]>>,
+  setEditingItem: Dispatch<SetStateAction<EditingItem>>,
   additionalProps: Record<string, any> = {}
 ) => {
   const newId = Math.max(...data.map(item => item.id), 0) + 1;
-  const newItem = { id: newId, ...getDefaultValues(table), ...additionalProps };
-  setFunction([...data, newItem]);
-  setEditingItem({ table, id: newId });
+  
+  if (table === 'transitStops') {
+    // Just set the editing item - actual stop will be added when map is clicked
+    setEditingItem({ table, id: newId });
+  } else {
+    // For other tables, add immediately
+    const newItem = { id: newId, ...getDefaultValues(table), ...additionalProps };
+    setFunction([...data, newItem]);
+    setEditingItem({ table, id: newId });
+  }
 };
+
 
 export const handleEdit = (
   table: string,
@@ -126,20 +141,20 @@ export const createMapHandlers = (
   editingItem: EditingItem,
   setEditingItem: Dispatch<SetStateAction<EditingItem>>
 ): MapHandlers => ({
-  handleStopAdd: (latitude: number, longitude: number) => {
-    const newId = Math.max(...transitStops.map(stop => stop.id), 0) + 1;
-    const newStop: TransitStop = {
-      id: newId,
-      name: `New Stop ${newId}`,
-      latitude,
-      longitude,
-      isComplete: true
-    };
-    setTransitStops([...transitStops, newStop]);
-    // Automatically start editing the new stop's name
-    setEditingItem({ table: 'transitStops', id: newId });
+  handleStopAdd: (latitude: number, longitude: number) => {  // Changed to handleStopAdd
+    if (editingItem.table === 'transitStops' && editingItem.id !== null) {
+      const newStop: TransitStop = {
+        id: editingItem.id,
+        name: `New Stop ${editingItem.id}`,
+        latitude,
+        longitude,
+        isComplete: true
+      };
+      
+      setTransitStops(prevStops => [...prevStops, newStop]);
+      setEditingItem({ table: '', id: null });
+    }
   },
-
   handleStopMove: (stopId: number, latitude: number, longitude: number) => {
     setTransitStops(prevStops =>
       prevStops.map(stop =>

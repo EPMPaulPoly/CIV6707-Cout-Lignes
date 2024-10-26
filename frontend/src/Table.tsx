@@ -15,6 +15,8 @@ interface TableProps {
   transportModes?: TransportMode[];
   transitStops?: TransitStop[];
   mapHandlers?: MapHandlers; 
+  isSelectingLineStops: boolean,
+  setSelectingStops: (state:boolean)=>void;
 }
 
 const Table: React.FC<TableProps> = ({ 
@@ -29,7 +31,9 @@ const Table: React.FC<TableProps> = ({
   handleDelete,
   transportModes,
   transitStops,
-  mapHandlers
+  mapHandlers,
+  isSelectingLineStops,
+  setSelectingStops
 }) => {
   // For transit stops, only show editable name field
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,35 +70,60 @@ const Table: React.FC<TableProps> = ({
   }, [table, editingItem]);
 
   const renderStopControls = () => {
-    if (editingItem.table === 'transitStops') {
-      if (editingItem.id === null) {
+    switch (table){
+      case 'transitStops':
+        if (editingItem.table === 'transitStops') {
+          if (editingItem.id === null) {
+            return (
+              <input
+                type="text"
+                placeholder="Enter stop name and click on map to place"
+                onChange={handleNameChange}
+                className="stop-name-input"
+              />
+            );
+          } else {
+            return (
+              <div className="edit-instruction">
+                Drag point to modify position
+              </div>
+            );}
+        } else {
+          return (
+            <button 
+              onClick={handleAdd}
+              className="stop-add-button"
+            >
+              Add
+            </button>);}
+    case 'lineStops':
+      if (isSelectingLineStops === false) {
         return (
-          <input
-            type="text"
-            placeholder="Enter stop name and click on map to place"
-            onChange={handleNameChange}
-            className="stop-name-input"
-          />
-        );
-      } else {
-        return (
-          <div className="edit-instruction">
-            Drag point to modify position
-          </div>
-        );
-      }
-    }
-    
-    return (
-      <button 
-        onClick={handleAdd}
-        className="stop-add-button"
-      >
-        Add New Stop
-      </button>
-    );
+        <button 
+            onClick={handleAdd}
+            className="standard-add-button"
+          >
+            Add New
+          </button>);
+        } else {
+          return(
+          <button 
+            onClick={()=>setSelectingStops(false)}
+            className="standard-add-button"
+          >
+            Cancel
+          </button>);
+        }
+      default:
+        return(
+        <button 
+            onClick={handleAdd}
+            className="standard-add-button"
+          >
+            Add New
+          </button>);
   };
-  
+};
 
   return (
     <div className="table-wrapper">
@@ -173,22 +202,9 @@ const Table: React.FC<TableProps> = ({
           ))}
         </tbody>
       </table>
-      <div className="table-controls">
-        {table === 'transitStops' ? (
-          <div className="stop-controls">
-            <div className="stop-edit-message">
-              {renderStopControls()}
-            </div>
-          </div>
-        ) : (
-          <button 
-            onClick={handleAdd}
-            className="standard-add-button"
-          >
-            Add New
-          </button>
-        )}
-      </div>
+      {<div className="table-controls">
+        {renderStopControls()}
+      </div>}
     </div>
   );
 };

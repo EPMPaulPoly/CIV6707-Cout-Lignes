@@ -55,6 +55,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   const [isResizing, setIsResizing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeTable, setActiveTable] = useState<string>('transitLines');
+  const [isSelectingStops, setIsSelectingStops] = useState(false);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsResizing(true);
@@ -98,6 +99,39 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
     };
   }, [isResizing, handleMouseMove, handleMouseUp]);
 
+  const handleStopSelect = useCallback((stopId: number) => {
+    if (!selectedLine) {
+      alert('Please select a line first');
+      return;
+    }
+
+    // Find the highest order in the current line
+    const currentLineStops = lineStops.filter(ls => ls.line_id === selectedLine);
+    const maxOrder = Math.max(...currentLineStops.map(ls => ls.order_of_stop), 0);
+
+    // Check if stop is already in the line
+    const stopExists = lineStops.some(
+      ls => ls.line_id === selectedLine && ls.stop_id === stopId
+    );
+
+    if (stopExists) {
+      alert('This stop is already part of the line.');
+      return;
+    }
+
+    // Create new line stop
+    const newLineStop: LineStop = {
+      id: Math.max(...lineStops.map(ls => ls.id), 0) + 1,
+      line_id: selectedLine,
+      stop_id: stopId,
+      order_of_stop: maxOrder + 1,
+      is_station: true
+    };
+
+    setLineStops(prev => [...prev, newLineStop]);
+    setIsSelectingStops(false);
+  }, [selectedLine, lineStops, setLineStops]);
+
   const handleLineStopsChange = (id: number, field: string, value: string | number | boolean) => {
     setLineStops(prevStops => 
       prevStops.map(stop => 
@@ -122,6 +156,8 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             handleDelete={(id) => handleDelete('transitLines', id, setTransitLines)}
             transportModes={transportModes}
             mapHandlers={mapHandlers}
+            isSelectingLineStops={isSelectingStops}
+            setSelectingStops={setIsSelectingStops}
           />
         );
       case 'transportModes':
@@ -137,6 +173,8 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             handleAdd={() => handleAdd('transportModes', transportModes, setTransportModes, setEditingItem)}
             handleDelete={(id) => handleDelete('transportModes', id, setTransportModes)}
             mapHandlers={mapHandlers}
+            isSelectingLineStops={isSelectingStops}
+            setSelectingStops={setIsSelectingStops}
           />
         );
       case 'transitStops':
@@ -152,37 +190,40 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             handleAdd={() => handleAdd('transitStops', transitStops, setTransitStops, setEditingItem)}
             handleDelete={(id) => handleDelete('transitStops', id, setTransitStops)}
             mapHandlers={mapHandlers}
+            isSelectingLineStops={isSelectingStops}
+            setSelectingStops={setIsSelectingStops}
           />
         );
-      case 'lineStops':
-        return (
-          <>
-            <select 
-              value={selectedLine || ''} 
-              onChange={(e) => setSelectedLine(Number(e.target.value))}
-              className="mb-4"
-            >
-              {transitLines.map(line => (
-                <option key={line.id} value={line.id}>
-                  {line.name}
-                </option>
-              ))}
-            </select>
-            <Table
-              table="lineStops"
-              data={lineStops.filter(stop => stop.line_id === selectedLine)}
-              columns={['stop_id', 'order_of_stop', 'is_station']}
-              editingItem={editingItem}
-              handleChange={handleLineStopsChange}
-              handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
-              handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem)}
-              handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, { line_id: selectedLine })}
-              handleDelete={(id) => handleDelete('lineStops', id, setLineStops)}
-              transitStops={transitStops}
-              mapHandlers={mapHandlers}
-            />
-          </>
-        );
+        case 'lineStops':
+            return (
+              <>
+                <select 
+                  value={selectedLine || ''} 
+                  onChange={(e) => setSelectedLine(Number(e.target.value))}
+                  className="mb-4"
+                >
+                  {transitLines.map(line => (
+                    <option key={line.id} value={line.id}>
+                      {line.name}
+                    </option>
+                  ))}
+                </select>
+                <Table
+                  table="lineStops"
+                  data={lineStops.filter(stop => stop.line_id === selectedLine)}
+                  columns={['stop_id', 'order_of_stop', 'is_station']}
+                  editingItem={editingItem}
+                  handleChange={handleLineStopsChange}
+                  handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
+                  handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem)}
+                  handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, { line_id: selectedLine }, setIsSelectingStops)}
+                  handleDelete={(id) => handleDelete('lineStops', id, setLineStops)}
+                  transitStops={transitStops}
+                  isSelectingLineStops = {isSelectingStops}
+                  setSelectingStops={setIsSelectingStops}
+                />
+              </>
+            );
       default:
         return null;
     }
@@ -192,16 +233,19 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
     <div className="resizable-layout">
       <div className="resizable-left">
         <Map
-            transitStops={transitStops}
-            position={position}
-            lineStops={lineStops}
-            transitLines={transitLines}
-            onStopAdd={mapHandlers.handleStopAdd}
-            onStopMove={mapHandlers.handleStopMove}
-            onStopDelete={mapHandlers.handleStopDelete}
-            isAddingNewStop={editingItem.table === 'transitStops' && editingItem.id === null}
-            editingItem={editingItem}
-            />      
+          transitStops={transitStops}
+          position={position}
+          lineStops={lineStops}
+          transitLines={transitLines}
+          onStopAdd={mapHandlers.handleStopAdd}
+          onStopMove={mapHandlers.handleStopMove}
+          onStopDelete={mapHandlers.handleStopDelete}
+          isAddingNewStop={editingItem.table === 'transitStops' && editingItem.id === null}
+          editingItem={editingItem}
+          selectedLine={selectedLine}
+          onStopSelect={handleStopSelect}
+          isSelectingStops={isSelectingStops}
+        />
     </div>
     <div 
         className={`resize-handle ${isResizing ? 'active' : ''}`}
@@ -247,9 +291,9 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
               Line Stops
             </button>
           </div>
-          <div className="active-table">
+          <div className="active-table"> 
             {renderActiveTable()}
-          </div>
+        </div>
         </div>
       </div>
     </div>

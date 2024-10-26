@@ -56,7 +56,8 @@ export const handleAdd = (
   data: any[],
   setFunction: Dispatch<SetStateAction<any[]>>,
   setEditingItem: Dispatch<SetStateAction<EditingItem>>,
-  additionalProps: Record<string, any> = {}
+  additionalProps: Record<string, any> = {},
+  setIsSelectingStops?: Dispatch<SetStateAction<boolean>>
 ) => {
   console.log('handleAdd called:', {
     table,
@@ -67,6 +68,11 @@ export const handleAdd = (
     // For transit stops, we'll set editing state with null ID to indicate new stop
     console.log('Setting editing state for new transit stop');
     setEditingItem({ table, id: null });
+  } else if (table === 'lineStops') {
+    // For line stops, toggle selection mode
+    if (setIsSelectingStops) {
+      setIsSelectingStops((prevState: boolean): boolean => !prevState);
+    }
   } else {
     // For other tables, add immediately
     const newId = Math.max(...data.map(item => item.id), 0) + 1;
@@ -167,7 +173,7 @@ const getDefaultValues = (table: string): Partial<TransitStop | TransitLine | Tr
     case 'transportModes':
       return { name: '', costPerKm: 0, costPerStation: 0, footprint: 0 };
     case 'lineStops':
-      return { stop_id: 0, order_of_stop: 0, is_station: false };
+      return { stop_id: 0, order_of_stop: 0, is_station: true };
     default:
       return {};
   }

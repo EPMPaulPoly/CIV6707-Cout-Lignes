@@ -14,6 +14,9 @@ interface MapProps {
   onStopDelete: (stopId: number) => void;
   isAddingNewStop: boolean;
   editingItem: { table: string; id: number | null };
+  selectedLine: number | null;
+  onStopSelect?: (stopId: number) => void;
+  isSelectingStops?: boolean;
 }
 
 interface MapInteractionHandlerProps {
@@ -66,7 +69,10 @@ const Map: React.FC<MapProps> = ({
   onStopMove,
   onStopDelete,
   isAddingNewStop,
-  editingItem
+  editingItem,
+  selectedLine,
+  onStopSelect,
+  isSelectingStops
 }) => {
 
   const getLineCoordinates = (lineId: number): LatLngExpression[] => {
@@ -91,12 +97,17 @@ const Map: React.FC<MapProps> = ({
     if (name.includes('blue')) return '#0000FF';
     return '#808080'; // Default gray
   };
-
+  
   return (
     <div className="map-container">
       {isAddingNewStop && (
         <div className="map-helper-text">
           Click on the map to place the new stop
+        </div>
+      )}
+      {isSelectingStops && (
+        <div className="map-helper-text">
+          Click on stops to add them to the selected line
         </div>
       )}
       <MapContainer
@@ -124,13 +135,11 @@ const Map: React.FC<MapProps> = ({
             opacity={0.8}
           >
             <Popup>
-              <div>
-                <strong>{line.name}</strong>
+              <strong>{line.name}</strong>
                 <br />
                 {line.description}
                 <br />
                 Mode: {line.mode}
-              </div>
             </Popup>
           </Polyline>
         ))}
@@ -142,6 +151,13 @@ const Map: React.FC<MapProps> = ({
             icon={StationIcon}
             draggable={isStopBeingEdited(stop.id)}  // Only draggable when being edited
             eventHandlers={{
+              click: (e) => {
+                if (isSelectingStops && onStopSelect) {
+                  e.originalEvent.preventDefault();
+                  e.originalEvent.stopPropagation();
+                  onStopSelect(stop.id);
+                }
+              },
               dragend: (e) => {
                 if (isStopBeingEdited(stop.id)) {  // Double-check before allowing move
                   const marker = e.target;
@@ -152,11 +168,27 @@ const Map: React.FC<MapProps> = ({
             }}
           >
             <Popup>
-              <div>
-                <strong>{stop.name}</strong>
-                <br />
-                <button onClick={() => onStopDelete(stop.id)}>Delete Stop</button>
-              </div>
+            <div>
+              <strong>{stop.name}</strong>
+              <br />
+              {isSelectingStops ? (
+                <button onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onStopSelect?.(stop.id);
+                }}>
+                  Add to Line
+                </button>
+              ) : (
+                <button onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onStopDelete(stop.id);
+                }}>
+                  Delete Stop
+                </button>
+              )}
+            </div>
             </Popup>
           </Marker>
         ))}

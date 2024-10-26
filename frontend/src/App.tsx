@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { LatLngExpression } from 'leaflet';
 import Map from './Map';
 import Table from './Table';
 import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem } from './types';
-import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers } from './utils';
+import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils';
 import './App.css';
 
 const App: React.FC = () => {
@@ -65,6 +65,19 @@ const App: React.FC = () => {
     setEditingItem({ table: '', id: null });
     
   };
+  const commonDeleteHandler = (table: string, id: number, setFunction: Dispatch<SetStateAction<any[]>>) => {
+    handleDelete({
+      table,
+      id,
+      setFunction,
+      lineStops,
+      transitStops,
+      transitLines,
+      transportModes,
+      editingItem,
+      setEditingItem
+    });
+  };
 
   const handleLineStopsChange = (id: number, field: string, value: string | number | boolean) => {
     
@@ -89,18 +102,21 @@ const App: React.FC = () => {
             handleEdit={(id) => handleEdit('transitLines', id, setEditingItem)}
             handleSave={() => handleSave('transitLines', editingItem, setTransitLines, setEditingItem)}
             handleAdd={() => handleAdd('transitLines', transitLines, setTransitLines, setEditingItem)}
+            handleDelete={(id) => commonDeleteHandler('transitLines', id, setTransitLines)}
             transportModes={transportModes}
-          />
+        />
+
           <h2>Transport Modes</h2>
           <Table
             table="transportModes"
             data={transportModes}
-            columns={['name', 'costPerKm', 'costPerStation', 'footprint']}
+            columns={['name', 'costPerKm', 'costPerStation','footprint']}
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transportModes', id, field, value, setTransportModes)}
             handleEdit={(id) => handleEdit('transportModes', id, setEditingItem)}
             handleSave={() => handleSave('transportModes', editingItem, setTransportModes, setEditingItem)}
             handleAdd={() => handleAdd('transportModes', transportModes, setTransportModes, setEditingItem)}
+            handleDelete={(id) => commonDeleteHandler('transportModes', id, setTransportModes)}
           />
         </div>
         <div className="center-column">
@@ -127,6 +143,7 @@ const App: React.FC = () => {
             handleEdit={(id) => handleEdit('transitStops', id, setEditingItem)}
             handleSave={() => handleSave('transitStops', editingItem, setTransitStops, setEditingItem)}
             handleAdd={() => handleAdd('transitStops', transitStops, setTransitStops, setEditingItem)}
+            handleDelete={(id) => commonDeleteHandler('transitStops', id, setTransitStops)}
           />
           <h2>Line Stops</h2>
           <select value={selectedLine || ''} onChange={(e) => setSelectedLine(Number(e.target.value))}>
@@ -145,6 +162,7 @@ const App: React.FC = () => {
             handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
             handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem)}
             handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, { line_id: selectedLine })}
+            handleDelete={(id) => commonDeleteHandler('lineStops', id, setLineStops)}
             transitStops={transitStops}
           />
         </div>

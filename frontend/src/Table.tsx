@@ -10,6 +10,7 @@ interface TableProps {
   handleEdit: (id: number) => void;
   handleSave: () => void;
   handleAdd: () => void;
+  handleDelete:(id:number) =>void;
   transportModes?: TransportMode[];
   transitStops?: TransitStop[];
 }
@@ -23,6 +24,7 @@ const Table: React.FC<TableProps> = ({
   handleEdit, 
   handleSave, 
   handleAdd,
+  handleDelete,
   transportModes,
   transitStops
 }) => {
@@ -50,7 +52,8 @@ const Table: React.FC<TableProps> = ({
         <thead>
           <tr>
             {columns.map(col => <th key={col}>{col}</th>)}
-            <th>Action</th>
+            <th>Act</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -107,6 +110,14 @@ const Table: React.FC<TableProps> = ({
                 ) : (
                   <button onClick={() => handleEdit(item.id)}>Edit</button>
                 )}
+              </td>
+              <td>
+                <button 
+                  onClick={() => handleDelete(item.id)}
+                  className="delete-button"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}

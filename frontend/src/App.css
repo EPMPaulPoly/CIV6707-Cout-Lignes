@@ -234,3 +234,14 @@ input[type="checkbox"] {
 .table-wrapper td button:hover {
   background-color: #45a049;
 }
+
+.delete-button {
+  background-color: #dc3545 !important;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+}
+
+.delete-button:hover {
+  background-color: #c82333 !important;
+}

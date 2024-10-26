@@ -82,6 +82,59 @@ export const handleSave = (
   setEditingItem({ table: '', id: null });
 };
 
+export interface DeleteHandlerParams {
+  table: string;
+  id: number;
+  setFunction: Dispatch<SetStateAction<any[]>>;
+  lineStops: LineStop[];
+  transitStops: TransitStop[];
+  transitLines: TransitLine[];
+  transportModes: TransportMode[];
+  editingItem: EditingItem;
+  setEditingItem: Dispatch<SetStateAction<EditingItem>>;
+}
+
+
+export const handleDelete = ({
+  table,
+  id,
+  setFunction,
+  lineStops,
+  transitStops,
+  transitLines,
+  transportModes,
+  editingItem,
+  setEditingItem
+}: DeleteHandlerParams) => {
+  if (table === 'transitLines') {
+    const lineHasStops = lineStops.some(ls => ls.line_id === id);
+    if (lineHasStops) {
+      alert('Cannot delete line that has stops. Remove all stops from the line first.');
+      return;
+    }
+  } else if (table === 'transitStops') {
+    const stopInUse = lineStops.some(ls => ls.stop_id === id);
+    if (stopInUse) {
+      alert('Cannot delete stop that is part of a line. Remove it from all lines first.');
+      return;
+    }
+  } else if (table === 'transportModes') {
+    const mode = transportModes.find(m => m.id === id);
+    const modeInUse = transitLines.some(line => line.mode === mode?.name);
+    if (modeInUse) {
+      alert('Cannot delete transport mode that is in use by a line.');
+      return;
+    }
+  }
+
+  // If we're currently editing this item, cancel the edit
+  if (editingItem.table === table && editingItem.id === id) {
+    setEditingItem({ table: '', id: null });
+  }
+
+  setFunction(prev => prev.filter(item => item.id !== id));
+};
+
 const getDefaultValues = (table: string): Partial<TransitStop | TransitLine | TransportMode | LineStop> => {
   switch (table) {
     case 'transitStops':

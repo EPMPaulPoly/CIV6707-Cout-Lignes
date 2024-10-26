@@ -1,4 +1,5 @@
 import { EditingItem, TransitStop, TransitLine, TransportMode, LineStop } from './types';
+import { Dispatch, SetStateAction } from 'react';
 
 export const handleChange = (
   table: string,
@@ -110,6 +111,71 @@ export const formatDataForDisplay = (data: any, table: string): string => {
       return JSON.stringify(data);
   }
 };
+
+// add Map handlers in order to interactively modify transit stops
+export interface MapHandlers {
+  handleStopAdd: (latitude: number, longitude: number) => void;
+  handleStopMove: (stopId: number, latitude: number, longitude: number) => void;
+  handleStopDelete: (stopId: number) => void;
+}
+
+export const createMapHandlers = (
+  transitStops: TransitStop[],
+  setTransitStops: Dispatch<SetStateAction<TransitStop[]>>,
+  lineStops: LineStop[],
+  editingItem: EditingItem,
+  setEditingItem: Dispatch<SetStateAction<EditingItem>>
+): MapHandlers => ({
+  handleStopAdd: (latitude: number, longitude: number) => {
+    const newId = Math.max(...transitStops.map(stop => stop.id), 0) + 1;
+    const newStop: TransitStop = {
+      id: newId,
+      name: `New Stop ${newId}`,
+      latitude,
+      longitude,
+      isComplete: true
+    };
+    setTransitStops([...transitStops, newStop]);
+    // Automatically start editing the new stop's name
+    setEditingItem({ table: 'transitStops', id: newId });
+  },
+
+  handleStopMove: (stopId: number, latitude: number, longitude: number) => {
+    setTransitStops(prevStops =>
+      prevStops.map(stop =>
+        stop.id === stopId
+          ? { ...stop, latitude, longitude, isComplete: true }
+          : stop
+      )
+    );
+    
+    // If the stop is being edited in the table, update the input fields
+    if (editingItem.table === 'transitStops' && editingItem.id === stopId) {
+      // Force a re-render of the editing inputs
+      setEditingItem({ ...editingItem });
+    }
+  },
+
+  handleStopDelete: (stopId: number) => {
+    // Check if the stop is used in any line
+    const stopInUse = lineStops.some(ls => ls.stop_id === stopId);
+    
+    if (stopInUse) {
+      alert('Cannot delete stop that is part of a line. Remove it from all lines first.');
+      return;
+    }
+    
+    // If we're currently editing this stop, cancel the edit
+    if (editingItem.table === 'transitStops' && editingItem.id === stopId) {
+      setEditingItem({ table: '', id: null });
+    }
+    
+    setTransitStops(prevStops =>
+      prevStops.filter(stop => stop.id !== stopId)
+    );
+  }
+});
+
 
 // This empty export makes the file a module
 export {};

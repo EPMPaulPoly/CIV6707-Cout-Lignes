@@ -3,7 +3,7 @@ import { LatLngExpression } from 'leaflet';
 import Map from './Map';
 import Table from './Table';
 import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem } from './types';
-import { handleChange, handleAdd, handleEdit, handleSave } from './utils';
+import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers } from './utils';
 import './App.css';
 
 const App: React.FC = () => {
@@ -42,6 +42,14 @@ const App: React.FC = () => {
   const [editingItem, setEditingItem] = useState<EditingItem>({ table: '', id: null });
 
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
+
+  const mapHandlers = createMapHandlers(
+    transitStops,
+    setTransitStops,
+    lineStops,
+    editingItem,
+    setEditingItem
+  );
 
   useEffect(() => {
     if (transitLines.length > 0 && selectedLine === null) {
@@ -96,12 +104,15 @@ const App: React.FC = () => {
           />
         </div>
         <div className="center-column">
-          <Map 
-            transitStops={transitStops} 
-            position={position}
-            lineStops={lineStops}
-            transitLines={transitLines}
-          />
+        <Map
+          transitStops={transitStops}
+          position={position}
+          lineStops={lineStops}
+          transitLines={transitLines}
+          onStopAdd={mapHandlers.handleStopAdd}
+          onStopMove={mapHandlers.handleStopMove}
+          onStopDelete={mapHandlers.handleStopDelete}
+        />
         </div>
         <div className="right-column">
           <h2>Transit Stops</h2>

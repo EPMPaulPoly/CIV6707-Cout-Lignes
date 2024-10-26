@@ -50,9 +50,6 @@ th {
 button {
   margin: 5px;
   padding: 5px 10px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
   cursor: pointer;
 }
 
@@ -200,4 +197,40 @@ input[type="checkbox"] {
   padding: 8px;
   border: 1px solid #ddd;
   background: #f5f5f5;
+}
+
+.table-controls .add-button {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: 1px solid #45a049;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.table-controls .add-button:hover {
+  background-color: #45a049;
+}
+
+.table-controls .add-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #0056b3;
+}
+
+.table-controls .add-button.active:hover {
+  background-color: #0056b3;
+}
+
+/* Style for edit/save buttons in table */
+.table-wrapper td button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+}
+
+.table-wrapper td button:hover {
+  background-color: #45a049;
 }

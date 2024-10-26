@@ -5,6 +5,7 @@ import Table from './Table';
 import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem } from './types';
 import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils';
 import './App.css';
+import ResizableLayout from './ResizableLayout';
 
 const App: React.FC = () => {
   const position: LatLngExpression = [45.549152, -73.61368]; // Montreal coordinates
@@ -42,6 +43,8 @@ const App: React.FC = () => {
   const [editingItem, setEditingItem] = useState<EditingItem>({ table: '', id: null });
 
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
+
+  const [activeTable, setActiveTable] = useState<string>('transitLines');
 
   const mapHandlers = createMapHandlers(
     transitStops,
@@ -86,87 +89,27 @@ const App: React.FC = () => {
     );
     setLineStops(updatedLineStops);
   };
-  
-  return (
+
+    return (
     <div className="app">
       <h1>Transit Planning Application</h1>
-      <div className="content-wrapper">
-        <div className="left-column">
-          <h2>Transit Lines</h2>
-          <Table
-            table="transitLines"
-            data={transitLines}
-            columns={['name', 'description', 'mode']}
-            editingItem={editingItem}
-            handleChange={(id, field, value) => handleChange('transitLines', id, field, value, setTransitLines)}
-            handleEdit={(id) => handleEdit('transitLines', id, setEditingItem)}
-            handleSave={() => handleSave('transitLines', editingItem, setTransitLines, setEditingItem)}
-            handleAdd={() => handleAdd('transitLines', transitLines, setTransitLines, setEditingItem)}
-            handleDelete={(id) => commonDeleteHandler('transitLines', id, setTransitLines)}
-            transportModes={transportModes}
-        />
-
-          <h2>Transport Modes</h2>
-          <Table
-            table="transportModes"
-            data={transportModes}
-            columns={['name', 'costPerKm', 'costPerStation','footprint']}
-            editingItem={editingItem}
-            handleChange={(id, field, value) => handleChange('transportModes', id, field, value, setTransportModes)}
-            handleEdit={(id) => handleEdit('transportModes', id, setEditingItem)}
-            handleSave={() => handleSave('transportModes', editingItem, setTransportModes, setEditingItem)}
-            handleAdd={() => handleAdd('transportModes', transportModes, setTransportModes, setEditingItem)}
-            handleDelete={(id) => commonDeleteHandler('transportModes', id, setTransportModes)}
-          />
-        </div>
-        <div className="center-column">
-        <Map
-          transitStops={transitStops}
-          position={position}
-          lineStops={lineStops}
-          transitLines={transitLines}
-          onStopAdd={mapHandlers.handleStopAdd}  // Changed to match
-          onStopMove={mapHandlers.handleStopMove}
-          onStopDelete={mapHandlers.handleStopDelete}
-          isAddingNewStop={editingItem.table === 'transitStops' && editingItem.id !== null}
-          editingItem={editingItem}
-        />
-        </div>
-        <div className="right-column">
-          <h2>Transit Stops</h2>
-          <Table
-            table="transitStops"
-            data={transitStops}
-            columns={['name', 'latitude', 'longitude']}
-            editingItem={editingItem}
-            handleChange={(id, field, value) => handleChange('transitStops', id, field, value, setTransitStops)}
-            handleEdit={(id) => handleEdit('transitStops', id, setEditingItem)}
-            handleSave={() => handleSave('transitStops', editingItem, setTransitStops, setEditingItem)}
-            handleAdd={() => handleAdd('transitStops', transitStops, setTransitStops, setEditingItem)}
-            handleDelete={(id) => commonDeleteHandler('transitStops', id, setTransitStops)}
-          />
-          <h2>Line Stops</h2>
-          <select value={selectedLine || ''} onChange={(e) => setSelectedLine(Number(e.target.value))}>
-            {transitLines.map(line => (
-              <option key={line.id} value={line.id}>
-                {line.name}
-              </option>
-            ))}
-          </select>
-          <Table
-            table="lineStops"
-            data={lineStops.filter(stop => stop.line_id === selectedLine)}
-            columns={['stop_id', 'order_of_stop', 'is_station']}
-            editingItem={editingItem}
-            handleChange={handleLineStopsChange}
-            handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
-            handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem)}
-            handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, { line_id: selectedLine })}
-            handleDelete={(id) => commonDeleteHandler('lineStops', id, setLineStops)}
-            transitStops={transitStops}
-          />
-        </div>
-      </div>
+      <ResizableLayout
+        transitLines={transitLines}
+        transportModes={transportModes}
+        transitStops={transitStops}
+        lineStops={lineStops}
+        editingItem={editingItem}
+        selectedLine={selectedLine}
+        position={position}
+        mapHandlers={mapHandlers}
+        setSelectedLine={setSelectedLine}
+        setTransitLines={setTransitLines}
+        setTransportModes={setTransportModes}
+        setTransitStops={setTransitStops}
+        setLineStops={setLineStops}
+        setEditingItem={setEditingItem}
+        handleDelete={commonDeleteHandler}
+      />
     </div>
   );
 };

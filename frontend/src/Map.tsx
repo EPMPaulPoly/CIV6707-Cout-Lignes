@@ -37,6 +37,11 @@ const MapInteractionHandler: React.FC<{
 }> = ({ isAddingNewStop, onStopAdd }) => {  // Changed from isAddingStop
   const map = useMapEvents({
     click: (e: LeafletMouseEvent) => {
+      console.log('Map clicked:', { 
+        isAddingNewStop,
+        lat: e.latlng.lat,
+        lng: e.latlng.lng 
+      });
       if (isAddingNewStop) {  // Changed from isAddingStop
         onStopAdd(e.latlng.lat, e.latlng.lng);
       }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditingItem, TransportMode, TransitStop } from './types';
+import {MapHandlers} from './utils';
 
 interface TableProps {
   table: string;
@@ -13,6 +14,7 @@ interface TableProps {
   handleDelete:(id:number) =>void;
   transportModes?: TransportMode[];
   transitStops?: TransitStop[];
+  mapHandlers?: MapHandlers; 
 }
 
 const Table: React.FC<TableProps> = ({ 
@@ -26,10 +28,17 @@ const Table: React.FC<TableProps> = ({
   handleAdd,
   handleDelete,
   transportModes,
-  transitStops
+  transitStops,
+  mapHandlers
 }) => {
   // For transit stops, only show editable name field
-
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Safely access mapHandlers
+    mapHandlers?.setNewStopName(value);
+    handleChange(0, 'name', value);
+  };
   // format the lat long for 4 digits
   const formatValue = (value: any, column: string) => {
     if (table === 'transitStops' && ['latitude', 'longitude'].includes(column)) {
@@ -45,6 +54,47 @@ const Table: React.FC<TableProps> = ({
     }
     return true;
   };
+
+  React.useEffect(() => {
+    console.log('Table state:', {
+      table,
+      editingItem,
+      isTransitStops: table === 'transitStops',
+      isEditing: editingItem.table === 'transitStops',
+      editingId: editingItem.id
+    });
+  }, [table, editingItem]);
+
+  const renderStopControls = () => {
+    if (editingItem.table === 'transitStops') {
+      if (editingItem.id === null) {
+        return (
+          <input
+            type="text"
+            placeholder="Enter stop name and click on map to place"
+            onChange={handleNameChange}
+            className="stop-name-input"
+          />
+        );
+      } else {
+        return (
+          <div className="edit-instruction">
+            Drag point to modify position
+          </div>
+        );
+      }
+    }
+    
+    return (
+      <button 
+        onClick={handleAdd}
+        className="stop-add-button"
+      >
+        Add New Stop
+      </button>
+    );
+  };
+  
 
   return (
     <div className="table-wrapper">
@@ -124,16 +174,19 @@ const Table: React.FC<TableProps> = ({
         </tbody>
       </table>
       <div className="table-controls">
-        <button 
-          onClick={handleAdd}
-          className={table === 'transitStops' && editingItem.table === 'transitStops' ? 'active' : ''}
-        >
-          {table === 'transitStops' && editingItem.table === 'transitStops' 
-            ? 'Click on map to place stop' 
-            : 'Add New'}
-        </button>
-        {table === 'transitStops' && editingItem.table === 'transitStops' && (
-          <div className="help-text">Click anywhere on the map to place the new stop</div>
+        {table === 'transitStops' ? (
+          <div className="stop-controls">
+            <div className="stop-edit-message">
+              {renderStopControls()}
+            </div>
+          </div>
+        ) : (
+          <button 
+            onClick={handleAdd}
+            className="standard-add-button"
+          >
+            Add New
+          </button>
         )}
       </div>
     </div>

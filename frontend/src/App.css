@@ -1,57 +1,165 @@
-/* Basic layout */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .app {
-  max-width: 2000px;
-  margin: 10px auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-header {
+  padding: 20px 20px 0 20px;
+  background: white;
+  z-index: 1000;
+}
+
+.app-content {
+  flex: 1;
   padding: 20px;
+  min-height: 0; /* Important for nested flex scrolling */
+  display: flex;
+  flex-direction: column;
 }
 
 h1 {
-  text-align: center;
+  margin: 0 0 20px 0;
 }
 
-h2 {
-  margin-top: 0;
-}
-
-/* Content layout */
-.content-wrapper {
+.resizable-layout {
   display: flex;
-  gap: 20px;
-  height: calc(100vh - 100px);
-}
-
-.left-column, .right-column {
-  width: 25%;
-  overflow-y: auto;
-}
-
-.center-column {
-  width: 50%;
-}
-
-/* Map styles */
-.map-container {
-  height: 100%;
-  border: 1px solid #ddd;
+  flex: 1;
+  min-height: 0;
   position: relative;
 }
 
-.map-helper-text {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  z-index: 1000;
-  font-size: 14px;
+.resizable-left {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
 }
 
-/* Table styles */
+.resizable-left > div {
+  flex: 1;
+  height: 100%;
+}
+
+.map-container {
+  height: 100%;
+  width: 100%;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+.resizable-right {
+  height: 100%;
+  min-width: 300px;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  background: white;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.resizable-right.collapsed {
+  width: 0 !important;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.resize-handle {
+  width: 24px;
+  height: 100%;
+  cursor: col-resize;
+  position: absolute;
+  top: 0;
+  background: transparent;
+  transition: background 0.2s;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resize-handle:hover {
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.resize-handle.active {
+  background: rgba(0, 123, 255, 0.2);
+}
+
+.toggle-button {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.tables-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.table-tabs {
+  padding: 0 0 16px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: white;
+}
+
+.table-tabs button {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  cursor: pointer;
+  border-radius: 4px;
+  white-space: nowrap;
+  min-width: min-content;
+  flex: 1;
+}
+
+.table-tabs button.active {
+  background: #007bff;
+  color: white;
+  border-color: #0056b3;
+}
+
+.active-table {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .table-wrapper {
-  margin-bottom: 20px;
+  height: 100%;
+  padding: 16px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 table {
@@ -60,102 +168,123 @@ table {
 }
 
 th, td {
-  border: 1px solid #ddd;
   padding: 8px;
+  border: 1px solid #ddd;
   text-align: left;
 }
 
 th {
-  background-color: #f5f5f5;
+  background: #f5f5f5;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
-/* Form controls */
-input {
-  width: 100%;
-  padding: 5px;
-  box-sizing: border-box;
+.table-controls {
+  margin-top: 16px;
 }
 
-input[type="checkbox"] {
-  width: auto;
+button {
+  padding: 6px 12px;
+  margin: 0 4px;
+  cursor: pointer;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  color: #212529;
+}
+
+button:hover {
+  background: #e9ecef;
+}
+
+.delete-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.delete-button:hover {
+  background: #c82333;
 }
 
 select {
   width: 100%;
-  padding: 5px;
-}
-
-/* Button styles */
-button {
-  padding: 5px 10px;
-  cursor: pointer;
-  border: none;
+  padding: 8px;
+  margin-bottom: 16px;
   border-radius: 4px;
-  background-color: #4CAF50;
+  border: 1px solid #ccc;
+}
+
+/* Style for the edit button */
+button[onClick*="handleEdit"] {
+  background: #007bff;
   color: white;
-  margin: 5px;
+  border: none;
 }
 
-button:hover {
-  background-color: #45a049;
+button[onClick*="handleEdit"]:hover {
+  background: #0056b3;
 }
 
-/* Table control buttons */
-.table-controls {
-  margin-top: 10px;
-}
-
-.table-controls .add-button {
-  padding: 8px 16px;
-  background-color: #4CAF50;
+/* Style for the save button */
+button[onClick*="handleSave"] {
+  background: #28a745;
   color: white;
-  border: 1px solid #45a049;
-  margin: 5px;
+  border: none;
 }
 
-.table-controls .add-button:hover {
-  background-color: #45a049;
+button[onClick*="handleSave"]:hover {
+  background: #218838;
 }
 
-.table-controls .add-button.active {
-  background-color: #007bff;
-  border-color: #0056b3;
-}
-
-.table-controls .add-button.active:hover {
-  background-color: #0056b3;
-}
-
-/* Delete button */
-.delete-button {
-  background-color: #dc3545 !important;
+/* Style for the add button */
+button[onClick*="handleAdd"] {
+  background: #17a2b8;
   color: white;
-}
-
-.delete-button:hover {
-  background-color: #c82333 !important;
-}
-
-/* Help text */
-.help-text {
+  border: none;
   margin-top: 8px;
-  color: #666;
-  font-style: italic;
-  font-size: 0.9em;
 }
 
-/* Responsive design */
-@media (max-width: 1200px) {
-  .content-wrapper {
-    flex-direction: column;
-    height: auto;
-  }
+button[onClick*="handleAdd"]:hover {
+  background: #138496;
+}
 
-  .left-column, .center-column, .right-column {
-    width: 100%;
-  }
+/* Additional table row styling */
+tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
 
-  .map-container {
-    height: 400px;
-  }
+tr:hover {
+  background-color: #f2f2f2;
+}
+
+/* Input styling */
+input {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: calc(100% - 16px);
+}
+
+input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
+/* Table header sticky positioning */
+thead {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
 }

@@ -1,5 +1,5 @@
-import React from 'react';
-import { EditingItem, TransportMode, TransitStop } from './types';
+import React, { useState } from 'react';
+import { EditingItem, TransportMode, TransitStop,InsertPosition } from './types';
 import {MapHandlers} from './utils';
 
 interface TableProps {
@@ -10,13 +10,15 @@ interface TableProps {
   handleChange: (id: number, field: string, value: string | number | boolean) => void;
   handleEdit: (id: number) => void;
   handleSave: () => void;
-  handleAdd: () => void;
+  handleAdd: (insertPosition?: { type: 'first' | 'last' | 'after', afterStopId?: number }) => void;  // Updated this line
   handleDelete:(id:number) =>void;
   transportModes?: TransportMode[];
   transitStops?: TransitStop[];
   mapHandlers?: MapHandlers; 
   isSelectingLineStops: boolean,
   setSelectingStops: (state:boolean)=>void;
+  onStopAdd?: (stopId: number, position: InsertPosition) => void;
+  onInsertPositionChange?: (position: InsertPosition) => void;
 }
 
 const Table: React.FC<TableProps> = ({ 
@@ -33,7 +35,8 @@ const Table: React.FC<TableProps> = ({
   transitStops,
   mapHandlers,
   isSelectingLineStops,
-  setSelectingStops
+  setSelectingStops,
+  onInsertPositionChange
 }) => {
   // For transit stops, only show editable name field
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,6 +72,43 @@ const Table: React.FC<TableProps> = ({
     });
   }, [table, editingItem]);
 
+  // Add state for insert position
+  interface InsertPosition {
+    type: 'first' | 'last' | 'after';
+    afterStopId?: number;
+  }
+
+  const [insertPosition, setInsertPosition] = useState<InsertPosition>({ type: 'last' });
+
+  const calculateNewOrder = (position: InsertPosition) => {
+    const currentLineStops = data;
+    
+    switch (position.type) {
+      case 'first':
+        return Math.min(...currentLineStops.map(ls => ls.order_of_stop), 1) - 1;
+        
+      case 'after':
+        if (position.afterStopId) {
+          const afterStop = currentLineStops.find(ls => ls.id === position.afterStopId);
+          if (afterStop) {
+            return afterStop.order_of_stop + 1;
+          }
+        }
+        return currentLineStops.length + 1;
+        
+      case 'last':
+      default:
+        return Math.max(...currentLineStops.map(ls => ls.order_of_stop), 0) + 1;
+    }
+  };
+
+  const handleAddWithPosition = () => {
+    const additionalProps = {
+      order_of_stop: calculateNewOrder(insertPosition)
+    };
+    handleAdd(insertPosition);
+  };
+
   const renderStopControls = () => {
     switch (table){
       case 'transitStops':
@@ -91,7 +131,7 @@ const Table: React.FC<TableProps> = ({
         } else {
           return (
             <button 
-              onClick={handleAdd}
+              onClick={(e: React.MouseEvent) => handleAdd()}
               className="stop-add-button"
             >
               Add
@@ -99,25 +139,54 @@ const Table: React.FC<TableProps> = ({
     case 'lineStops':
       if (isSelectingLineStops === false) {
         return (
-        <button 
-            onClick={handleAdd}
+          <button 
+            onClick={(e: React.MouseEvent) => {
+              e.preventDefault();
+              handleAdd(insertPosition);
+            }}
             className="standard-add-button"
           >
             Add New
-          </button>);
-        } else {
-          return(
-          <button 
-            onClick={()=>setSelectingStops(false)}
-            className="standard-add-button"
-          >
-            Cancel
-          </button>);
-        }
+          </button>
+        );
+      } else {
+        return (
+          <div className="flex gap-2 items-center">
+            <select 
+              className="p-2 border rounded"
+              value={`${insertPosition.type}${insertPosition.afterStopId ? '-' + insertPosition.afterStopId : ''}`}
+              onChange={(e) => {
+                const [type, stopId] = e.target.value.split('-');
+                const newPosition = { 
+                  type: type as 'first' | 'last' | 'after',
+                  afterStopId: stopId ? parseInt(stopId) : undefined 
+                };
+                console.log('Selected position:', newPosition);
+                setInsertPosition(newPosition);
+                onInsertPositionChange?.(newPosition);
+              }}
+            >
+              <option value="last">Add to End</option>
+              <option value="first">Add to Start</option>
+              {data.map(stop => (
+                <option key={stop.id} value={`after-${stop.id}`}>
+                  After {transitStops?.find(ts => ts.id === stop.stop_id)?.name || `Stop #${stop.stop_id}`}
+                </option>
+              ))}
+            </select>
+            <button 
+              onClick={() => setSelectingStops(false)}
+              className="standard-add-button"
+            >
+              Cancel
+            </button>
+          </div>
+        );
+      }
       default:
         return(
         <button 
-            onClick={handleAdd}
+            onClick={(e: React.MouseEvent) => handleAdd()}
             className="standard-add-button"
           >
             Add New

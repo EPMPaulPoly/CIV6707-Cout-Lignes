@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Table from './Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot } from './types';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot,InsertPosition } from './types';
 import { handleChange, handleAdd, handleEdit, handleSave } from './utils';
 import { LatLngExpression } from 'leaflet';
 import Map from './Map'
@@ -58,6 +58,12 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeTable, setActiveTable] = useState<string>('transitLines');
   const [isSelectingStops, setIsSelectingStops] = useState(false);
+  
+
+  const [insertPosition, setInsertPosition] = useState<InsertPosition>({ type: 'last' });
+  const handleInsertPositionChange = useCallback((newPosition: InsertPosition) => {
+    setInsertPosition(newPosition);
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsResizing(true);
@@ -101,37 +107,74 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
     };
   }, [isResizing, handleMouseMove, handleMouseUp]);
 
-  const handleStopSelect = useCallback((stopId: number) => {
+  const handleStopSelect = useCallback((stopId: number,insertPositionfunc:InsertPosition) => {
+    console.log('handleStopSelect called with:', { stopId,insertPositionfunc });
     if (!selectedLine) {
       alert('Please select a line first');
       return;
     }
-
-    // Find the highest order in the current line
-    const currentLineStops = lineStops.filter(ls => ls.line_id === selectedLine);
-    const maxOrder = Math.max(...currentLineStops.map(ls => ls.order_of_stop), 0);
-
-    // Check if stop is already in the line
+  
     const stopExists = lineStops.some(
       ls => ls.line_id === selectedLine && ls.stop_id === stopId
     );
-
+  
     if (stopExists) {
       alert('This stop is already part of the line.');
       return;
     }
-
-    // Create new line stop
-    const newLineStop: LineStop = {
-      id: Math.max(...lineStops.map(ls => ls.id), 0) + 1,
-      line_id: selectedLine,
-      stop_id: stopId,
-      order_of_stop: maxOrder + 1,
-      is_station: true
-    };
-
+  
+    // Add the stop with the next available order
+    const currentLineStops = lineStops.filter(ls => ls.line_id === selectedLine);
+    let newOrder:number;
+  
+    switch (insertPositionfunc.type) {
+        case 'first':
+          newOrder = 1;
+          // Shift all other stops up by 1
+          setLineStops(prev => 
+            prev.map(ls => 
+              ls.line_id === selectedLine 
+                ? { ...ls, order_of_stop: ls.order_of_stop + 1 }
+                : ls
+            )
+          );
+          break;
+    
+        case 'after':
+          if (insertPositionfunc.afterStopId) {
+            const afterStop = currentLineStops.find(ls => ls.id === insertPositionfunc.afterStopId);
+            if (afterStop) {
+              newOrder = afterStop.order_of_stop + 1;
+              // Shift subsequent stops up by 1
+              setLineStops(prev => 
+                prev.map(ls => 
+                  ls.line_id === selectedLine && ls.order_of_stop > afterStop.order_of_stop
+                    ? { ...ls, order_of_stop: ls.order_of_stop + 1 }
+                    : ls
+                )
+              );
+            } else {
+              newOrder = currentLineStops.length + 1;
+            }
+          } else {
+            newOrder = currentLineStops.length + 1;
+          }
+          break;
+    
+        case 'last':
+        default:
+          newOrder = currentLineStops.length + 1;
+          break;
+      }
+      const newLineStop: LineStop = {
+        id: Math.max(...lineStops.map(ls => ls.id), 0) + 1,
+        line_id: selectedLine,
+        stop_id: stopId,
+        order_of_stop: newOrder,
+        is_station: true
+      };
+    
     setLineStops(prev => [...prev, newLineStop]);
-    setIsSelectingStops(false);
   }, [selectedLine, lineStops, setLineStops]);
 
   const handleLineStopsChange = (id: number, field: string, value: string | number | boolean) => {
@@ -198,34 +241,35 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
         );
         case 'lineStops':
             return (
-              <>
-                <select 
-                  value={selectedLine || ''} 
-                  onChange={(e) => setSelectedLine(Number(e.target.value))}
-                  className="mb-4"
-                >
-                  {transitLines.map(line => (
-                    <option key={line.id} value={line.id}>
-                      {line.name}
-                    </option>
-                  ))}
-                </select>
-                <Table
-                  table="lineStops"
-                  data={lineStops.filter(stop => stop.line_id === selectedLine)}
-                  columns={['stop_id', 'order_of_stop', 'is_station']}
-                  editingItem={editingItem}
-                  handleChange={handleLineStopsChange}
-                  handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
-                  handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem)}
-                  handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, { line_id: selectedLine }, setIsSelectingStops)}
-                  handleDelete={(id) => handleDelete('lineStops', id, setLineStops)}
-                  transitStops={transitStops}
-                  isSelectingLineStops = {isSelectingStops}
-                  setSelectingStops={setIsSelectingStops}
-                />
-              </>
-            );
+                <div>
+                  <select 
+                    value={selectedLine || ''} 
+                    onChange={(e) => setSelectedLine(Number(e.target.value))}
+                    className="mb-4"
+                  >
+                    {transitLines.map(line => (
+                      <option key={line.id} value={line.id}>
+                        {line.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Table
+                    table="lineStops"
+                    data={lineStops.filter(stop => stop.line_id === selectedLine)}
+                    columns={['stop_id', 'order_of_stop', 'is_station']}
+                    editingItem={editingItem}
+                    handleChange={handleLineStopsChange}
+                    handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
+                    handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem)}
+                    handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, { line_id: selectedLine }, setIsSelectingStops)}
+                    handleDelete={(id) => handleDelete('lineStops', id, setLineStops)}
+                    transitStops={transitStops}
+                    isSelectingLineStops={isSelectingStops}
+                    setSelectingStops={setIsSelectingStops}
+                    onInsertPositionChange={handleInsertPositionChange}
+                  />
+                </div>
+              );
       default:
         return null;
     }
@@ -248,6 +292,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           onStopSelect={handleStopSelect}
           isSelectingStops={isSelectingStops}
           TaxLotData={TaxLotDataLay}
+          insertPosition={insertPosition}
         />
     </div>
     <div 

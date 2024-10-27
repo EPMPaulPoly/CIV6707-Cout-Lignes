@@ -56,6 +56,11 @@ const App: React.FC = () => {
 
   const [activeTable, setActiveTable] = useState<string>('transitLines');
 
+  const [insertPosition, setInsertPosition] = useState<{ 
+    type: 'first' | 'last' | 'after'; 
+    afterStopId?: number 
+  }>({ type: 'last' });
+
   useEffect(() => {
     const nearby = queryLotsNearLines(allLots, transitLines, transitStops, lineStops);
     setNearbyLots(nearby);

@@ -43,3 +43,8 @@ export interface TransitStop {
     taxBillNumbers: string[];
     polygon: LatLng[]; // Array of coordinates forming the polygon
   }
+
+  export interface InsertPosition {
+    type: 'first' | 'last' | 'after';
+    afterStopId?: number;
+  }

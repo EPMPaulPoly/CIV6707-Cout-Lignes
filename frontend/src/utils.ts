@@ -71,7 +71,7 @@ export const handleAdd = (
   } else if (table === 'lineStops') {
     // For line stops, toggle selection mode
     if (setIsSelectingStops) {
-      setIsSelectingStops((prevState: boolean): boolean => !prevState);
+      setIsSelectingStops(true);
     }
   } else {
     // For other tables, add immediately

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents,Polygon } from 'react-leaflet';
 import L, { LatLngExpression, LeafletMouseEvent } from 'leaflet';
-import { TransitStop, TransitLine, LineStop, TaxLot } from './types';
+import { TransitStop, TransitLine, LineStop, TaxLot,InsertPosition } from './types';
 import { MapHandlers } from './utils';
 
 interface MapProps {
@@ -15,9 +15,10 @@ interface MapProps {
   isAddingNewStop: boolean;
   editingItem: { table: string; id: number | null };
   selectedLine: number | null;
-  onStopSelect?: (stopId: number) => void;
+  onStopSelect?: (stopId: number, position: { type: 'first' | 'last' | 'after'; afterStopId?: number }) => void;
   isSelectingStops?: boolean;
   TaxLotData?: TaxLot[];
+  insertPosition?: InsertPosition;
 }
 
 interface MapInteractionHandlerProps {
@@ -74,7 +75,8 @@ const Map: React.FC<MapProps> = ({
   selectedLine,
   onStopSelect,
   isSelectingStops,
-  TaxLotData = []
+  TaxLotData = [],
+  insertPosition
 }) => {
 
   const getLineCoordinates = (lineId: number): LatLngExpression[] => {
@@ -178,10 +180,11 @@ const Map: React.FC<MapProps> = ({
             draggable={isStopBeingEdited(stop.id)}  // Only draggable when being edited
             eventHandlers={{
               click: (e) => {
-                if (isSelectingStops && onStopSelect) {
+                if (isSelectingStops && onStopSelect && insertPosition) {
+                  console.log('Clicking stop with position:', insertPosition);
                   e.originalEvent.preventDefault();
                   e.originalEvent.stopPropagation();
-                  onStopSelect(stop.id);
+                  onStopSelect(stop.id, insertPosition);
                 }
               },
               dragend: (e) => {
@@ -211,7 +214,7 @@ const Map: React.FC<MapProps> = ({
                 <button onClick={(e: React.MouseEvent) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  onStopSelect?.(stop.id);
+                  onStopSelect?.(stop.id, insertPosition || { type: 'last' });
                 }}>
                   Add to Line
                 </button>

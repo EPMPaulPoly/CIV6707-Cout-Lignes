@@ -1,3 +1,5 @@
+import { LatLng } from "leaflet";
+
 export interface TransitStop {
     id: number;
     name: string;
@@ -32,4 +34,17 @@ export interface TransitStop {
   export interface EditingItem {
     table: string;
     id: number | null;
+  }
+
+  export interface TaxLot {
+    id: string;
+    propertyCost: number;
+    housingUnits: number;
+    taxBillNumbers: string[];
+    polygon: LatLng[]; // Array of coordinates forming the polygon
+  }
+
+  export interface InsertPosition {
+    type: 'first' | 'last' | 'after';
+    afterStopId?: number;
   }

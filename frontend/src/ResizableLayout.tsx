@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Table from './Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem } from './types';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot } from './types';
 import { handleChange, handleAdd, handleEdit, handleSave } from './utils';
 import { LatLngExpression } from 'leaflet';
 import Map from './Map'
@@ -29,6 +29,7 @@ interface ResizableLayoutProps {
   initialRightWidth?: number;
   minRightWidth?: number;
   maxRightWidth?: number;
+  TaxLotDataLay?: TaxLot[];
 }
 
 const ResizableLayout: React.FC<ResizableLayoutProps> = ({
@@ -50,6 +51,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   initialRightWidth = 400,
   minRightWidth = 300,
   maxRightWidth = 800,
+  TaxLotDataLay
 }) => {
   const [rightWidth, setRightWidth] = useState(initialRightWidth);
   const [isResizing, setIsResizing] = useState(false);
@@ -245,6 +247,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           selectedLine={selectedLine}
           onStopSelect={handleStopSelect}
           isSelectingStops={isSelectingStops}
+          TaxLotData={TaxLotDataLay}
         />
     </div>
     <div 

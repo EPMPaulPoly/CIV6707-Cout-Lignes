@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents,Polygon } from 'react-leaflet';
 import L, { LatLngExpression, LeafletMouseEvent } from 'leaflet';
-import { TransitStop, TransitLine, LineStop } from './types';
+import { TransitStop, TransitLine, LineStop, TaxLot } from './types';
 import { MapHandlers } from './utils';
 
 interface MapProps {
@@ -17,6 +17,7 @@ interface MapProps {
   selectedLine: number | null;
   onStopSelect?: (stopId: number) => void;
   isSelectingStops?: boolean;
+  TaxLotData?: TaxLot[];
 }
 
 interface MapInteractionHandlerProps {
@@ -72,7 +73,8 @@ const Map: React.FC<MapProps> = ({
   editingItem,
   selectedLine,
   onStopSelect,
-  isSelectingStops
+  isSelectingStops,
+  TaxLotData = []
 }) => {
 
   const getLineCoordinates = (lineId: number): LatLngExpression[] => {
@@ -125,6 +127,30 @@ const Map: React.FC<MapProps> = ({
           isAddingNewStop={isAddingNewStop}
         />
 
+        {/* Render tax lots first so they appear under everything else */}
+        {TaxLotData.map(lot => (
+          <Polygon
+            key={lot.id}
+            positions={lot.polygon}
+            pathOptions={{
+              color: '#8B4513', // Brown color for lots
+              weight: 1,
+              fillColor: '#DEB887', // Lighter brown fill
+              fillOpacity: 0.3,
+              opacity: 0.7
+            }}
+          >
+            <Popup>
+              <div>
+                <strong>Lot ID: {lot.id}</strong><br />
+                Property Cost: ${lot.propertyCost.toLocaleString()}<br />
+                Housing Units: {lot.housingUnits}<br />
+                Tax Bills: {lot.taxBillNumbers.join(', ')}
+              </div>
+            </Popup>
+          </Polygon>
+        ))}
+
         {/* Render transit lines first so they appear under the stops */}
         {transitLines.map(line => (
           <Polyline
@@ -171,6 +197,16 @@ const Map: React.FC<MapProps> = ({
             <div>
               <strong>{stop.name}</strong>
               <br />
+              {lineStops
+                .filter(ls => ls.stop_id === stop.id)
+                .map(ls => {
+                  const line = transitLines.find(l => l.id === ls.line_id);
+                  return line ? (
+                    <div key={line.id} className="ml-2">
+                      • {line.name} ({line.mode})
+                    </div>
+                  ) : null;
+                })}
               {isSelectingStops ? (
                 <button onClick={(e: React.MouseEvent) => {
                   e.preventDefault();

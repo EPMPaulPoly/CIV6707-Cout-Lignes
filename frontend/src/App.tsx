@@ -2,10 +2,11 @@ import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { LatLngExpression } from 'leaflet';
 import Map from './Map';
 import Table from './Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem } from './types';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem,TaxLot } from './types';
 import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils';
 import './App.css';
 import ResizableLayout from './ResizableLayout';
+import { generateFullGrid, queryLotsNearLines } from './generateTaxLots';
 
 const App: React.FC = () => {
   const position: LatLngExpression = [45.549152, -73.61368]; // Montreal coordinates
@@ -15,7 +16,7 @@ const App: React.FC = () => {
     { id: 2, name: 'EO 1', latitude: 45.53, longitude: -73.63, isComplete: true },
     { id: 3, name: 'EO 2', latitude: 45.57, longitude: -73.6, isComplete: true },
     { id: 4, name: 'NS 1', latitude: 45.56, longitude: -73.64, isComplete: true },
-    { id: 5, name: 'NS 1', latitude: 45.54, longitude: -73.59, isComplete: true },
+    { id: 5, name: 'NS 2', latitude: 45.54, longitude: -73.59, isComplete: true },
     { id: 6, name: 'Random', latitude: 45.56, longitude: -73.57, isComplete: true }
   ]);
 
@@ -40,11 +41,25 @@ const App: React.FC = () => {
     { id: 7, line_id: 1, stop_id: 6, order_of_stop: 4, is_station: true },
   ]);
 
+  
+  // In your App component, initialize taxLots with the generated data:
+ 
+  // Generate all lots once
+  const [allLots] = useState(() => generateFullGrid());
+  
+  // Query and update nearby lots whenever lines/stops change
+  const [nearbyLots, setNearbyLots] = useState<TaxLot[]>([]);
+
   const [editingItem, setEditingItem] = useState<EditingItem>({ table: '', id: null });
 
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
 
   const [activeTable, setActiveTable] = useState<string>('transitLines');
+
+  useEffect(() => {
+    const nearby = queryLotsNearLines(allLots, transitLines, transitStops, lineStops);
+    setNearbyLots(nearby);
+  }, [allLots, transitLines, transitStops, lineStops]);
 
   const mapHandlers = createMapHandlers(
     transitStops,
@@ -109,6 +124,7 @@ const App: React.FC = () => {
         setLineStops={setLineStops}
         setEditingItem={setEditingItem}
         handleDelete={commonDeleteHandler}
+        TaxLotDataLay={nearbyLots}
       />
     </div>
   );

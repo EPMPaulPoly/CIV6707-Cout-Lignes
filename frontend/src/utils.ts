@@ -1,57 +1,53 @@
 import { EditingItem, TransitStop, TransitLine, TransportMode, LineStop } from './types';
 import { Dispatch, SetStateAction } from 'react';
+import { stopService, lineService, modeService } from './services';
 
-export const handleChange = (
+export const handleChange = async (
   table: string,
   id: number,
   field: string,
   value: string | number | boolean,
   setFunction: React.Dispatch<React.SetStateAction<any[]>>
 ) => {
-  if (table === 'transitStops') {
-    setFunction(prevData => {
-      // Find the stop we're editing
-      const stopToUpdate = prevData.find(item => item.id === id);
-      
-      if (!stopToUpdate) return prevData;
+  try {
+    let response;
+    
+    if (table === 'transitStops') {
+      response = await stopService.update(id, {
+        [field]: value,
+        isComplete: field === 'name' ? Boolean(value) : undefined
+      });
+    } else {
+      switch (table) {
+        case 'transitLines':
+          response = await lineService.update(id, { [field]: value });
+          break;
+        case 'transportModes':
+          response = await modeService.update(id, { [field]: value });
+          break;
+      }
+    }
 
-      return prevData.map(item =>
-        item.id === id
-          ? {
-              ...item,
-              [field]: value,
-              isComplete: field === 'name' ? Boolean(value) && item.latitude !== null : item.isComplete
-            }
-          : item
+    if (response) {
+      setFunction(prevData =>
+        prevData.map(item =>
+          item.id === id ? response.data : item
+        )
       );
-    });
-  } else {
-    setFunction(prevData =>
-      prevData.map(item =>
-        item.id === id
-          ? {
-              ...item,
-              [field]:
-                field === 'is_station'
-                  ? Boolean(value)
-                  : ['latitude', 'longitude', 'costPerKm', 'costPerStation', 'footprint', 'order_of_stop'].includes(field)
-                  ? Number(value)
-                  : value,
-            }
-          : item
-      )
-    );
+    }
+  } catch (error) {
+    console.error(`Error updating ${table}:`, error);
   }
 };
 
 export interface MapHandlers {
-  handleStopAdd: (lat: number, lng: number) => void;  // Changed to handleStopAdd
+  handleStopAdd: (lat: number, lng: number) => void;
   handleStopMove: (stopId: number, lat: number, lng: number) => void;
   handleStopDelete: (stopId: number) => void;
+  setNewStopName: (name: string) => void;
 }
 
-
-export const handleAdd = (
+export const handleAdd = async (
   table: string,
   data: any[],
   setFunction: Dispatch<SetStateAction<any[]>>,
@@ -59,56 +55,78 @@ export const handleAdd = (
   additionalProps: Record<string, any> = {},
   setIsSelectingStops?: Dispatch<SetStateAction<boolean>>
 ) => {
-  console.log('handleAdd called:', {
-    table,
-    currentData: data.length,
-    additionalProps
-  });
-  if (table === 'transitStops') {
-    // For transit stops, we'll set editing state with null ID to indicate new stop
-    console.log('Setting editing state for new transit stop');
-    setEditingItem({ table, id: null });
-  } else if (table === 'lineStops') {
-    // For line stops, toggle selection mode
-    if (setIsSelectingStops) {
-      setIsSelectingStops(true);
+  try {
+    if (table === 'transitStops') {
+      setEditingItem({ table, id: null });
+    } else if (table === 'lineStops') {
+      if (setIsSelectingStops) {
+        setIsSelectingStops(true);
+      }
+    } else {
+      let response;
+      const newItem = { ...getDefaultValues(table), ...additionalProps };
+
+      switch (table) {
+        case 'transitLines':
+          response = await lineService.create(newItem);
+          break;
+        case 'transportModes':
+          response = await modeService.create(newItem);
+          break;
+      }
+
+      if (response) {
+        setFunction([...data, response.data]);
+        setEditingItem({ table, id: response.data.id });
+      }
     }
-  } else {
-    // For other tables, add immediately
-    const newId = Math.max(...data.map(item => item.id), 0) + 1;
-    const newItem = { id: newId, ...getDefaultValues(table), ...additionalProps };
-    setFunction([...data, newItem]);
-    setEditingItem({ table, id: newId });
+  } catch (error) {
+    console.error(`Error adding to ${table}:`, error);
   }
 };
 
 export const handleEdit = (
   table: string,
   id: number,
-  setEditingItem: React.Dispatch<React.SetStateAction<EditingItem>>
+  setEditingItem: Dispatch<SetStateAction<EditingItem>>
 ) => {
   setEditingItem({ table, id });
 };
 
-export const handleSave = (
+export const handleSave = async (
   table: string,
   editingItem: EditingItem,
-  setFunction: React.Dispatch<React.SetStateAction<any[]>>,
-  setEditingItem: React.Dispatch<React.SetStateAction<EditingItem>>
+  setFunction: Dispatch<SetStateAction<any[]>>,
+  setEditingItem: Dispatch<SetStateAction<EditingItem>>
 ) => {
-  if (table === 'transitStops') {
-    setFunction(prevData =>
-      prevData.map(item =>
-        item.id === editingItem.id
-          ? {
-              ...item,
-              isComplete: item.name !== '' && item.latitude !== null && item.longitude !== null,
-            }
-          : item
-      )
-    );
+  try {
+    if (editingItem.id === null) return;
+
+    let response;
+    switch (table) {
+      case 'transitStops':
+        response = await stopService.update(editingItem.id, { isComplete: true });
+        break;
+      case 'transitLines':
+        response = await lineService.getById(editingItem.id);
+        break;
+      case 'transportModes':
+        response = await modeService.getById(editingItem.id);
+        break;
+    }
+
+    if (response) {
+      setFunction(prevData =>
+        prevData.map(item =>
+          item.id === editingItem.id ? response.data : item
+        )
+      );
+    }
+  } catch (error) {
+    console.error(`Error saving ${table}:`, error);
+  } finally {
+    setEditingItem({ table: '', id: null });
   }
-  setEditingItem({ table: '', id: null });
 };
 
 export interface DeleteHandlerParams {
@@ -123,8 +141,7 @@ export interface DeleteHandlerParams {
   setEditingItem: Dispatch<SetStateAction<EditingItem>>;
 }
 
-
-export const handleDelete = ({
+export const handleDelete = async ({
   table,
   id,
   setFunction,
@@ -135,33 +152,52 @@ export const handleDelete = ({
   editingItem,
   setEditingItem
 }: DeleteHandlerParams) => {
-  if (table === 'transitLines') {
-    const lineHasStops = lineStops.some(ls => ls.line_id === id);
-    if (lineHasStops) {
-      alert('Cannot delete line that has stops. Remove all stops from the line first.');
-      return;
+  try {
+    // Vérifications avant suppression
+    if (table === 'transitLines') {
+      const lineHasStops = lineStops.some(ls => ls.line_id === id);
+      if (lineHasStops) {
+        alert('Cannot delete line that has stops. Remove all stops from the line first.');
+        return;
+      }
+    } else if (table === 'transitStops') {
+      const stopInUse = lineStops.some(ls => ls.stop_id === id);
+      if (stopInUse) {
+        alert('Cannot delete stop that is part of a line. Remove it from all lines first.');
+        return;
+      }
+    } else if (table === 'transportModes') {
+      const mode = transportModes.find(m => m.id === id);
+      const modeInUse = transitLines.some(line => line.mode === mode?.name);
+      if (modeInUse) {
+        alert('Cannot delete transport mode that is in use by a line.');
+        return;
+      }
     }
-  } else if (table === 'transitStops') {
-    const stopInUse = lineStops.some(ls => ls.stop_id === id);
-    if (stopInUse) {
-      alert('Cannot delete stop that is part of a line. Remove it from all lines first.');
-      return;
-    }
-  } else if (table === 'transportModes') {
-    const mode = transportModes.find(m => m.id === id);
-    const modeInUse = transitLines.some(line => line.mode === mode?.name);
-    if (modeInUse) {
-      alert('Cannot delete transport mode that is in use by a line.');
-      return;
-    }
-  }
 
-  // If we're currently editing this item, cancel the edit
-  if (editingItem.table === table && editingItem.id === id) {
-    setEditingItem({ table: '', id: null });
-  }
+    // Suppression dans la base de données
+    let response;
+    switch (table) {
+      case 'transitStops':
+        response = await stopService.delete(id);
+        break;
+      case 'transitLines':
+        response = await lineService.delete(id);
+        break;
+      case 'transportModes':
+        response = await modeService.delete(id);
+        break;
+    }
 
-  setFunction(prev => prev.filter(item => item.id !== id));
+    // Mise à jour du state
+    if (editingItem.table === table && editingItem.id === id) {
+      setEditingItem({ table: '', id: null });
+    }
+    setFunction(prev => prev.filter(item => item.id !== id));
+
+  } catch (error) {
+    console.error(`Error deleting from ${table}:`, error);
+  }
 };
 
 const getDefaultValues = (table: string): Partial<TransitStop | TransitLine | TransportMode | LineStop> => {
@@ -179,44 +215,6 @@ const getDefaultValues = (table: string): Partial<TransitStop | TransitLine | Tr
   }
 };
 
-export const validateData = (data: any, table: string): boolean => {
-  switch (table) {
-    case 'transitStops':
-      return data.name !== '' && data.latitude !== null && data.longitude !== null;
-    case 'transitLines':
-      return data.name !== '' && data.description !== '' && data.mode !== '';
-    case 'transportModes':
-      return data.name !== '' && data.costPerKm >= 0 && data.costPerStation >= 0 && data.footprint >= 0;
-    case 'lineStops':
-      return data.stop_id > 0 && data.order_of_stop > 0;
-    default:
-      return false;
-  }
-};
-
-export const formatDataForDisplay = (data: any, table: string): string => {
-  switch (table) {
-    case 'transitStops':
-      return `${data.name} (${data.latitude}, ${data.longitude})`;
-    case 'transitLines':
-      return `${data.name} - ${data.description} (${data.mode})`;
-    case 'transportModes':
-      return `${data.name} - $${data.costPerKm}/km, $${data.costPerStation}/station, ${data.footprint} footprint`;
-    case 'lineStops':
-      return `Stop ${data.stop_id}, Order: ${data.order_of_stop}, ${data.is_station ? 'Station' : 'Stop'}`;
-    default:
-      return JSON.stringify(data);
-  }
-};
-
-// add Map handlers in order to interactively modify transit stops
-export interface MapHandlers {
-  handleStopAdd: (latitude: number, longitude: number) => void;
-  handleStopMove: (stopId: number, latitude: number, longitude: number) => void;
-  handleStopDelete: (stopId: number) => void;
-  setNewStopName: (name: string) => void;
-}
-
 export const createMapHandlers = (
   transitStops: TransitStop[],
   setTransitStops: Dispatch<SetStateAction<TransitStop[]>>,
@@ -231,57 +229,55 @@ export const createMapHandlers = (
   };
 
   return {
-    handleStopAdd: (latitude: number, longitude: number) => {
-      console.log('Creating new stop');
-      // Changed condition to check if we're in "add new stop" mode
+    handleStopAdd: async (latitude: number, longitude: number) => {
       if (editingItem.table === 'transitStops' && editingItem.id === null) {
-        const newId = Math.max(...transitStops.map(s => s.id), 0) + 1;
-        const newStop: TransitStop = {
-          id: newId,
-          name: newStopName || `New Stop ${newId}`,  // Default name
-          latitude,
-          longitude,
-          isComplete: true
-        };
-        
-        setTransitStops(prevStops => [...prevStops, newStop]);
-        setEditingItem({ table: '', id: null }); // Clear editing state after adding
-      } else{
-        console.log('Not in correct state to add stop:', editingItem);
+        try {
+          const response = await stopService.create({
+            name: newStopName || `New Stop ${transitStops.length + 1}`,
+            latitude,
+            longitude,
+            isComplete: true
+          });
+          
+          setTransitStops(prev => [...prev, response.data]);
+          setEditingItem({ table: '', id: null });
+        } catch (error) {
+          console.error('Error adding stop:', error);
+        }
       }
-      
     },
     
-    handleStopMove: (stopId: number, latitude: number, longitude: number) => {
-      setTransitStops(prevStops =>
-        prevStops.map(stop =>
-          stop.id === stopId
-            ? { ...stop, latitude, longitude }
-            : stop
-        )
-      );
+    handleStopMove: async (stopId: number, latitude: number, longitude: number) => {
+      try {
+        const response = await stopService.update(stopId, { latitude, longitude });
+        setTransitStops(prev =>
+          prev.map(stop => stop.id === stopId ? response.data : stop)
+        );
+      } catch (error) {
+        console.error('Error moving stop:', error);
+      }
     },
 
-    handleStopDelete: (stopId: number) => {
-      const stopInUse = lineStops.some(ls => ls.stop_id === stopId);
-      
-      if (stopInUse) {
-        alert('Cannot delete stop that is part of a line. Remove it from all lines first.');
-        return;
+    handleStopDelete: async (stopId: number) => {
+      try {
+        const stopInUse = lineStops.some(ls => ls.stop_id === stopId);
+        if (stopInUse) {
+          alert('Cannot delete stop that is part of a line. Remove it from all lines first.');
+          return;
+        }
+        
+        await stopService.delete(stopId);
+        
+        if (editingItem.table === 'transitStops' && editingItem.id === stopId) {
+          setEditingItem({ table: '', id: null });
+        }
+        
+        setTransitStops(prev => prev.filter(stop => stop.id !== stopId));
+      } catch (error) {
+        console.error('Error deleting stop:', error);
       }
-      
-      if (editingItem.table === 'transitStops' && editingItem.id === stopId) {
-        setEditingItem({ table: '', id: null });
-      }
-      
-      setTransitStops(prevStops =>
-        prevStops.filter(stop => stop.id !== stopId)
-      );
     },
+    
     setNewStopName
   };
 };
-
-
-// This empty export makes the file a module
-export {};

@@ -15,7 +15,8 @@
         "cors": "latest",
         "dotenv": "latest",
         "express": "latest",
-        "pg": "latest"
+        "pg": "latest",
+        "zod": "latest"
     },
     "devDependencies": {
         "@types/cors": "latest",

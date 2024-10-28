@@ -9,18 +9,22 @@
         "build": "tsc",
         "lint": "eslint . --ext .ts",
         "test": "jest",
-        "watch-ts":"tsc -w"
+        "watch-ts": "tsc -w"
     },
     "dependencies": {
+        "axios": "latest",
         "cors": "latest",
         "dotenv": "latest",
-        "express": "latest",
+        "express": "^4.21.1",
+        "leaflet": "latest",
         "pg": "latest",
         "zod": "latest"
     },
     "devDependencies": {
+        "@types/axios": "latest",
         "@types/cors": "latest",
         "@types/express": "latest",
+        "@types/leaflet": "latest",
         "@types/node": "latest",
         "@types/pg": "latest",
         "@typescript-eslint/eslint-plugin": "latest",
@@ -30,7 +34,6 @@
         "nodemon": "^3.1.7",
         "ts-jest": "latest",
         "ts-node": "latest",
-        "typescript": "latest",
-        "nodemon":"latest"
+        "typescript": "latest"
     }
 }

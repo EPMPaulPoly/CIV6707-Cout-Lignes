@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { Pool } from 'pg';
-import { validateStop } from '../validators/stop';
+import { validateStop } from '../validators/stops';
 import { DbTransitStop } from '../../types/database';
 
 export const createStopsRouter = (pool: Pool) => {

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { Pool } from 'pg';
-import { validateMode } from '../validators/mode';
+import { validateMode } from '../validators/modes';
 import { DbTransportMode } from '../../types/database';
 
 export const createModesRouter = (pool: Pool) => {

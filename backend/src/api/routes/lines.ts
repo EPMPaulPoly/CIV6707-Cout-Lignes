@@ -2,7 +2,6 @@ import { Router, Request, Response, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import { validateLine } from '../validators/lines';
 import { DbTransitLine, DbLineStop } from '../../types/database';
-import { ParamsDictionary } from 'express-serve-static-core';
 
 // Types pour les requêtes
 interface CreateLineRequest {

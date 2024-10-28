@@ -18,7 +18,7 @@
         "express": "^4.21.1",
         "leaflet": "latest",
         "pg": "latest",
-        "zod": "latest"
+        "zod": "^3.23.8"
     },
     "devDependencies": {
         "@types/axios": "latest",

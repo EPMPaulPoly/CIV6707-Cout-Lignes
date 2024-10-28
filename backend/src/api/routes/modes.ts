@@ -1,25 +1,38 @@
-import { Router } from 'express';
+import { Router, Request, Response, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import { validateMode } from '../validators/modes';
 import { DbTransportMode } from '../../types/database';
+import { ParamsDictionary } from 'express-serve-static-core';
 
-export const createModesRouter = (pool: Pool) => {
+interface TransportModeRequest {
+  name: string;
+  cost_per_km: number;
+  cost_per_station: number;
+  footprint: number;
+}
+
+// Étendre ParamsDictionary au lieu de créer une nouvelle interface
+interface ModeParams extends ParamsDictionary {
+  id: string;
+}
+
+export const createModesRouter = (pool: Pool): Router => {
   const router = Router();
 
   // Get all transport modes
-  router.get('/', async (req, res) => {
+  const getAllModes: RequestHandler = async (_req, res, next) => {
     try {
       const client = await pool.connect();
       const result = await client.query<DbTransportMode>('SELECT * FROM transport_modes');
       res.json({ success: true, data: result.rows });
       client.release();
     } catch (err) {
-      res.status(500).json({ success: false, error: 'Database error' });
+      next(err);
     }
-  });
+  };
 
   // Get a specific transport mode
-  router.get('/:id', async (req, res) => {
+  const getMode: RequestHandler<ModeParams> = async (req, res, next) => {
     try {
       const { id } = req.params;
       const client = await pool.connect();
@@ -28,17 +41,18 @@ export const createModesRouter = (pool: Pool) => {
         [id]
       );
       if (result.rows.length === 0) {
-        return res.status(404).json({ success: false, error: 'Mode not found' });
+        res.status(404).json({ success: false, error: 'Mode not found' });
+        return;
       }
       res.json({ success: true, data: result.rows[0] });
       client.release();
     } catch (err) {
-      res.status(500).json({ success: false, error: 'Database error' });
+      next(err);
     }
-  });
+  };
 
   // Create a new transport mode
-  router.post('/', validateMode, async (req, res) => {
+  const createMode: RequestHandler<{}, any, TransportModeRequest> = async (req, res, next) => {
     try {
       const { name, cost_per_km, cost_per_station, footprint } = req.body;
       const client = await pool.connect();
@@ -49,12 +63,12 @@ export const createModesRouter = (pool: Pool) => {
       res.status(201).json({ success: true, data: result.rows[0] });
       client.release();
     } catch (err) {
-      res.status(500).json({ success: false, error: 'Database error' });
+      next(err);
     }
-  });
+  };
 
   // Update a transport mode
-  router.put('/:id', validateMode, async (req, res) => {
+  const updateMode: RequestHandler<ModeParams, any, TransportModeRequest> = async (req, res, next) => {
     try {
       const { id } = req.params;
       const { name, cost_per_km, cost_per_station, footprint } = req.body;
@@ -64,14 +78,48 @@ export const createModesRouter = (pool: Pool) => {
         [name, cost_per_km, cost_per_station, footprint, id]
       );
       if (result.rows.length === 0) {
-        return res.status(404).json({ success: false, error: 'Mode not found' });
+        res.status(404).json({ success: false, error: 'Mode not found' });
+        return;
       }
       res.json({ success: true, data: result.rows[0] });
       client.release();
     } catch (err) {
-      res.status(500).json({ success: false, error: 'Database error' });
+      next(err);
     }
-  });
+  };
+
+  // Validator middleware avec le bon type de paramètres
+  const validatorMiddleware: RequestHandler<ParamsDictionary, any, TransportModeRequest> = (req, res, next) => {
+    const { name, cost_per_km, cost_per_station, footprint } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      res.status(400).json({ success: false, error: 'Invalid name' });
+      return;
+    }
+
+    if (!cost_per_km || typeof cost_per_km !== 'number' || cost_per_km < 0) {
+      res.status(400).json({ success: false, error: 'Invalid cost per kilometer' });
+      return;
+    }
+
+    if (!cost_per_station || typeof cost_per_station !== 'number' || cost_per_station < 0) {
+      res.status(400).json({ success: false, error: 'Invalid cost per station' });
+      return;
+    }
+
+    if (!footprint || typeof footprint !== 'number' || footprint < 0) {
+      res.status(400).json({ success: false, error: 'Invalid environmental footprint' });
+      return;
+    }
+
+    next();
+  };
+
+  // Routes
+  router.get('/', getAllModes);
+  router.get('/:id', getMode);
+  router.post('/', validatorMiddleware, createMode);
+  router.put('/:id', validatorMiddleware, updateMode);
 
   return router;
 };

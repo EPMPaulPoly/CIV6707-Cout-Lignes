@@ -1,12 +1,21 @@
-import { Router } from 'express';
+import { Router, Request, Response, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import { DbTaxLot } from '../../types/database';
+import { ParamsDictionary } from 'express-serve-static-core';
 
-export const createTaxLotsRouter = (pool: Pool) => {
+interface TaxLotParams extends ParamsDictionary {
+  id: string;
+}
+
+interface LineParams extends ParamsDictionary {
+  lineId: string;
+}
+
+export const createTaxLotsRouter = (pool: Pool): Router => {
   const router = Router();
 
   // Get all tax lots
-  router.get('/', async (req, res) => {
+  const getAllTaxLots: RequestHandler = async (_req, res, next) => {
     try {
       const client = await pool.connect();
       const result = await client.query<DbTaxLot>('SELECT * FROM tax_lots');
@@ -15,15 +24,14 @@ export const createTaxLotsRouter = (pool: Pool) => {
     } catch (err) {
       res.status(500).json({ success: false, error: 'Database error' });
     }
-  });
+  };
 
   // Get tax lots near a line
-  router.get('/near-line/:lineId', async (req, res) => {
+  const getTaxLotsNearLine: RequestHandler<LineParams> = async (req, res, next) => {
     try {
       const { lineId } = req.params;
       const client = await pool.connect();
       
-      // Cette requête est un exemple - vous devrez l'adapter à votre structure exacte
       const result = await client.query<DbTaxLot>(`
         SELECT DISTINCT tl.*
         FROM tax_lots tl
@@ -41,10 +49,10 @@ export const createTaxLotsRouter = (pool: Pool) => {
     } catch (err) {
       res.status(500).json({ success: false, error: 'Database error' });
     }
-  });
+  };
 
   // Get a specific tax lot
-  router.get('/:id', async (req, res) => {
+  const getTaxLot: RequestHandler<TaxLotParams> = async (req, res, next) => {
     try {
       const { id } = req.params;
       const client = await pool.connect();
@@ -53,14 +61,20 @@ export const createTaxLotsRouter = (pool: Pool) => {
         [id]
       );
       if (result.rows.length === 0) {
-        return res.status(404).json({ success: false, error: 'Tax lot not found' });
+        res.status(404).json({ success: false, error: 'Tax lot not found' });
+        return;
       }
       res.json({ success: true, data: result.rows[0] });
       client.release();
     } catch (err) {
       res.status(500).json({ success: false, error: 'Database error' });
     }
-  });
+  };
+
+  // Routes
+  router.get('/', getAllTaxLots);
+  router.get('/near-line/:lineId', getTaxLotsNearLine);
+  router.get('/:id', getTaxLot);
 
   return router;
 };

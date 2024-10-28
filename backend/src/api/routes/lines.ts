@@ -31,6 +31,7 @@ export const createLinesRouter = (pool: Pool):Router => {
   // Get all lines
   // Get all lines
   const getAllLines: RequestHandler = async (_req, res):Promise<void> => {
+    console.log('entering api query')
     try {
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>('SELECT * FROM transit_lines');

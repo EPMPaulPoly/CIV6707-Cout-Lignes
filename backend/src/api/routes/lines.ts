@@ -34,7 +34,7 @@ export const createLinesRouter = (pool: Pool):Router => {
     console.log('entering api query')
     try {
       const client = await pool.connect();
-      const result = await client.query<DbTransitLine>('SELECT * FROM transit_lines');
+      const result = await client.query<DbTransitLine>('SELECT * FROM lignes_transport.transit_lines');
       res.json({ success: true, data: result.rows });
       client.release();
     } catch (err) {

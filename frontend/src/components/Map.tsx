@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents,Polygon } from 'react-leaflet';
 import L, { LatLngExpression, LeafletMouseEvent } from 'leaflet';
-import { TransitStop, TransitLine, LineStop, TaxLot,InsertPosition } from './types';
-import { MapHandlers } from './utils';
+import { TransitStop, TransitLine, LineStop, TaxLot,InsertPosition } from '../types/types';
+import { MapHandlers } from '../utils/utils';
 
 interface MapProps {
   transitStops: TransitStop[];

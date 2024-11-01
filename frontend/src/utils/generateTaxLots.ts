@@ -1,6 +1,6 @@
 
 import { LatLng } from 'leaflet';
-import { TaxLot, TransitStop, TransitLine, LineStop } from './types';
+import { TaxLot, TransitStop, TransitLine, LineStop } from '../types/types';
 
 // Helper to determine if a line segment intersects with a polygon
 const lineIntersectsPolygon = (

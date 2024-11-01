@@ -1,12 +1,12 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { LatLngExpression } from 'leaflet';
-import Map from './Map';
-import Table from './Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot } from './types';
-import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils';
+import Map from './components/Map';
+import Table from './components/Table';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot } from './types/types';
+import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils/utils';
 import './App.css';
-import ResizableLayout from './ResizableLayout';
-import { generateFullGrid, queryLotsNearLines } from './generateTaxLots';
+import ResizableLayout from './components/ResizableLayout';
+import { generateFullGrid, queryLotsNearLines } from './utils/generateTaxLots';
 import { stopService, lineService, modeService } from './services';
 
 const App: React.FC = () => {

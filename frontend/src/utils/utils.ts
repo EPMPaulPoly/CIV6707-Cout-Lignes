@@ -1,6 +1,9 @@
-import { EditingItem, TransitStop, TransitLine, TransportMode, LineStop } from './types';
+import { EditingItem, TransitStop, TransitLine, TransportMode, LineStop,
+  ApiResponse,
+  ServiceResponse,
+  NewItem , MaybeServiceResponse } from '../types/types';
 import { Dispatch, SetStateAction } from 'react';
-import { stopService, lineService, modeService } from './services';
+import { stopService, lineService, modeService } from '../services';
 
 export const handleChange = async (
   table: string,
@@ -10,7 +13,7 @@ export const handleChange = async (
   setFunction: React.Dispatch<React.SetStateAction<any[]>>
 ) => {
   try {
-    let response;
+    let response: ServiceResponse;
     
     if (table === 'transitStops') {
       response = await stopService.update(id, {

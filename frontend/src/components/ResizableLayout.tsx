@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Table from './Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot,InsertPosition } from './types';
-import { handleChange, handleAdd, handleEdit, handleSave } from './utils';
+import Table from '../components/Table';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot,InsertPosition } from '../types/types';
+import { handleChange, handleAdd, handleEdit, handleSave } from '../utils/utils';
 import { LatLngExpression } from 'leaflet';
-import Map from './Map'
+import Map from '../components/Map'
 
 interface ResizableLayoutProps {
   transitLines: TransitLine[];

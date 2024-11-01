@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { EditingItem, TransportMode, TransitStop,InsertPosition } from './types';
-import {MapHandlers} from './utils';
+import { EditingItem, TransportMode, TransitStop,InsertPosition } from '../types/types';
+import {MapHandlers} from '../utils/utils';
 
 interface TableProps {
   table: string;

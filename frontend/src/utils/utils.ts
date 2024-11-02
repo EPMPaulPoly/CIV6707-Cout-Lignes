@@ -5,7 +5,8 @@ import { EditingItem, TransitStop, TransitLine, TransportMode, LineStop,
   MaybeServiceResponse,
   ApiStopResponse,
   ApiLineResponse,
-  ApiModeResponse,WKBHexString} from '../types/types';
+  ApiModeResponse,WKBHexString,
+  ApiLineStopResponse} from '../types/types';
 import { Dispatch, SetStateAction } from 'react';
 import { stopService, lineService, modeService } from '../services';
 import { LatLng } from 'leaflet';
@@ -19,6 +20,13 @@ interface DefaultValues {
   transportModes: Omit<TransportMode, 'id'>;
   lineStops: Omit<LineStop, 'id'>;
 }
+
+const getModeIdbyName = (mode_name: any,data:TransportMode[] ): number => {
+  const mode = data.find(m => m.name === mode_name);
+  return mode ? mode.id : 0;
+}
+
+
 
 const defaultValues: DefaultValues = {
   transitStops: {
@@ -49,37 +57,47 @@ export const handleChange = async (
   id: number,
   field: string,
   value: string | number | boolean,
-  setFunction: React.Dispatch<React.SetStateAction<any[]>>
+  setFunction: React.Dispatch<React.SetStateAction<any[]>>,
+  transport_modes?: TransportMode[]
 ) => {
-  try {
-    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | undefined;
-    
-    if (table === 'transitStops') {
-      response = await stopService.update(id, {
-        [field]: value,
-        isComplete: field === 'name' ? Boolean(value) : undefined
-      });
-    } else {
-      switch (table) {
-        case 'transitLines':
-          response = await lineService.update(id, { [field]: value });
-          break;
-        case 'transportModes':
-          response = await modeService.update(id, { [field]: value });
-          break;
-      }
-    }
+  console.log('entering handle add')
+  if (table === 'transitStops') {
+    setFunction(prevData => {
+      // Find the stop we're editing
+      const stopToUpdate = prevData.find(item => item.id === id);
+      
+      if (!stopToUpdate) return prevData;
 
-    if (response?.data) {
-      setFunction(prevData =>
-        prevData.map(item =>
-          item.id === id ? response!.data : item
-        )
+      return prevData.map(item =>
+        item.id === id
+          ? {
+              ...item,
+              [field]: value,
+              isComplete: field === 'name' ? Boolean(value) && item.latitude !== null : item.isComplete
+            }
+          : item
       );
-    }
-  } catch (error) {
-    console.error(`Error updating ${table}:`, error);
-  }
+  });
+} else {
+  setFunction(prevData =>
+    prevData.map(item =>
+      item.id === id
+        ? {
+            ...item,
+            ...(field === 'mode' 
+              ? { ['mode_id']: Number(value) }
+              : {
+                  [field]: ['latitude', 'longitude', 'costPerKm', 'costPerStation', 'footprint', 'order_of_stop'].includes(field)
+                    ? Number(value)
+                    : field === 'is_station'
+                      ? Boolean(value)
+                      : value
+                })
+          }
+        : item
+    )
+  );
+}
 };
 
 export interface MapHandlers {
@@ -94,44 +112,35 @@ export const handleAdd = async (
   data: any[],
   setFunction: Dispatch<SetStateAction<any[]>>,
   setEditingItem: Dispatch<SetStateAction<EditingItem>>,
+  newItemCreation:boolean,
+  setNewItemCreation:Dispatch<SetStateAction<boolean>>,
   additionalProps: Record<string, any> = {},
   setIsSelectingStops?: Dispatch<SetStateAction<boolean>>
 ) => {
   try {
+    setNewItemCreation(true);
+    console.log('handleAdd called:', {
+      table,
+      currentData: data.length,
+      additionalProps
+    });
+    console.log(`Set newItemcreation to ${newItemCreation} `)
     if (table === 'transitStops') {
+      // For transit stops, we'll set editing state with null ID to indicate new stop
+      console.log('Setting editing state for new transit stop');
       setEditingItem({ table, id: null });
     } else if (table === 'lineStops') {
+      // For line stops, toggle selection mode
       if (setIsSelectingStops) {
         setIsSelectingStops(true);
       }
     } else {
-      let response: ApiLineResponse | ApiModeResponse | undefined;
-
-      switch (table) {
-        case 'transitLines':{
-          const baseItem = defaultValues.transitLines;
-          const newItem = {
-            ...baseItem,
-            ...(additionalProps as Partial<TransitLine>)
-          } satisfies Omit<TransitLine, 'id'>;
-          response = await lineService.create(newItem);
-          break;
-        }
-        case 'transportModes':{
-          const baseItem = defaultValues.transportModes;
-          const newItem = {
-            ...baseItem,
-            ...(additionalProps as Partial<TransportMode>)
-          } satisfies Omit<TransportMode, 'id'>;
-          response = await modeService.create(newItem);
-          break;
-        }
-      }
-
-      if (response?.data) {
-        setFunction([...data, response.data]);
-        setEditingItem({ table, id: response.data.id });
-      }
+      // For other tables, add immediately
+      const newId = Math.max(...data.map(item => item.id), 0) + 1;
+      const newItem = { id: newId, ...getDefaultValues(table), ...additionalProps };
+      setFunction([...data, newItem]);
+      setEditingItem({ table, id: newId });
+      console.log(`Setting item ${newId} in table ${table}`)
     }
   } catch (error) {
     console.error(`Error adding to ${table}:`, error);
@@ -150,22 +159,47 @@ export const handleSave = async (
   table: string,
   editingItem: EditingItem,
   setFunction: Dispatch<SetStateAction<any[]>>,
-  setEditingItem: Dispatch<SetStateAction<EditingItem>>
+  setEditingItem: Dispatch<SetStateAction<EditingItem>>,
+  newItemCreationBool:boolean,
+  setNewItemCreation:Dispatch<SetStateAction<boolean>>,
+  data: any[]
 ) => {
   try {
     if (editingItem.id === null) return;
-
-    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | undefined;
-    switch (table) {
-      case 'transitStops':
-        response = await stopService.update(editingItem.id, { isComplete: true });
-        break;
-      case 'transitLines':
-        response = await lineService.getById(editingItem.id);
-        break;
-      case 'transportModes':
-        response = await modeService.getById(editingItem.id);
-        break;
+    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | ApiLineStopResponse| undefined;
+    let data_to_put:any;
+    let data_to_put_less_id:any;
+    if(newItemCreationBool===true) {
+      switch (table) {
+        case 'transitStops':
+          data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
+          response = await stopService.create(data_to_put);
+          break;
+        case 'transitLines':
+          data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
+          response = await lineService.create(data_to_put);
+          break;
+        case 'transportModes':
+          data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
+          response = await modeService.create(data_to_put_less_id);
+          break;
+        case 'lineStops':
+          data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
+          response = await lineService.addRoutePoint(editingItem.id,data_to_put);
+          break;
+      }
+    } else if (newItemCreationBool==false){
+      switch (table) {
+        case 'transitStops':
+          response = await stopService.update(editingItem.id, { isComplete: true });
+          break;
+        case 'transitLines':
+          response = await lineService.getById(editingItem.id);
+          break;
+        case 'transportModes':
+          response = await modeService.getById(editingItem.id);
+          break;
+      }
     }
 
     if (response?.data) {
@@ -180,6 +214,7 @@ export const handleSave = async (
     console.error(`Error saving ${table}:`, error);
   } finally {
     setEditingItem({ table: '', id: null });
+    setNewItemCreation(false);
   }
 };
 
@@ -281,7 +316,9 @@ export const createMapHandlers = (
   setTransitStops: Dispatch<SetStateAction<TransitStop[]>>,
   lineStops: LineStop[],
   editingItem: EditingItem,
-  setEditingItem: Dispatch<SetStateAction<EditingItem>>
+  setEditingItem: Dispatch<SetStateAction<EditingItem>>,
+  newItemCreation:boolean,
+  setNewItemCreation:  Dispatch<SetStateAction<boolean>>
 ): MapHandlers => {
   let newStopName = '';
 

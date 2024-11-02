@@ -11,6 +11,7 @@ interface ResizableLayoutProps {
   transitStops: TransitStop[];
   lineStops: LineStop[];
   editingItem: EditingItem;
+  newItemCreation: boolean;
   selectedLine: number | null;
   position: LatLngExpression;
   mapHandlers: {
@@ -25,6 +26,7 @@ interface ResizableLayoutProps {
   setTransitStops: React.Dispatch<React.SetStateAction<TransitStop[]>>;
   setLineStops: React.Dispatch<React.SetStateAction<LineStop[]>>;
   setEditingItem: React.Dispatch<React.SetStateAction<EditingItem>>;
+  setNewItemCreation: React.Dispatch<React.SetStateAction<boolean>>;
   handleDelete: (table: string, id: number, setFunction: React.Dispatch<React.SetStateAction<any[]>>) => void;
   initialRightWidth?: number;
   minRightWidth?: number;
@@ -39,6 +41,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   lineStops,
   editingItem,
   selectedLine,
+  newItemCreation,
   position,
   mapHandlers,
   setSelectedLine,
@@ -47,6 +50,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   setTransitStops,
   setLineStops,
   setEditingItem,
+  setNewItemCreation,
   handleDelete,
   initialRightWidth = 400,
   minRightWidth = 300,
@@ -193,15 +197,17 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             data={transitLines}
             columns={['name', 'description', 'mode']}
             editingItem={editingItem}
-            handleChange={(id, field, value) => handleChange('transitLines', id, field, value, setTransitLines)}
+            handleChange={(id, field, value) => handleChange('transitLines', id, field, value, setTransitLines,transportModes)}
             handleEdit={(id) => handleEdit('transitLines', id, setEditingItem)}
-            handleSave={() => handleSave('transitLines', editingItem, setTransitLines, setEditingItem)}
-            handleAdd={() => handleAdd('transitLines', transitLines, setTransitLines, setEditingItem)}
+            handleSave={() => handleSave('transitLines', editingItem, setTransitLines, setEditingItem,newItemCreation,setNewItemCreation,transitLines)}
+            handleAdd={() => handleAdd('transitLines', transitLines, setTransitLines, setEditingItem,newItemCreation,setNewItemCreation)}
             handleDelete={(id) => handleDelete('transitLines', id, setTransitLines)}
             transportModes={transportModes}
             mapHandlers={mapHandlers}
             isSelectingLineStops={isSelectingStops}
             setSelectingStops={setIsSelectingStops}
+            newItemCreation={newItemCreation}
+            setNewItemCreation={setNewItemCreation}
           />
         );
       case 'transportModes':
@@ -213,12 +219,14 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transportModes', id, field, value, setTransportModes)}
             handleEdit={(id) => handleEdit('transportModes', id, setEditingItem)}
-            handleSave={() => handleSave('transportModes', editingItem, setTransportModes, setEditingItem)}
-            handleAdd={() => handleAdd('transportModes', transportModes, setTransportModes, setEditingItem)}
+            handleSave={() => handleSave('transportModes', editingItem, setTransportModes, setEditingItem,newItemCreation,setNewItemCreation,transportModes)}
+            handleAdd={() => handleAdd('transportModes', transportModes, setTransportModes, setEditingItem,newItemCreation,setNewItemCreation)}
             handleDelete={(id) => handleDelete('transportModes', id, setTransportModes)}
             mapHandlers={mapHandlers}
             isSelectingLineStops={isSelectingStops}
             setSelectingStops={setIsSelectingStops}
+            newItemCreation={newItemCreation}
+            setNewItemCreation={setNewItemCreation}
           />
         );
       case 'transitStops':
@@ -228,12 +236,14 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             data={transitStops}
             columns={['name', 'latitude', 'longitude','isStation']}
             editingItem={editingItem}
+            newItemCreation={newItemCreation}
             handleChange={(id, field, value) => handleChange('transitStops', id, field, value, setTransitStops)}
             handleEdit={(id) => handleEdit('transitStops', id, setEditingItem)}
-            handleSave={() => handleSave('transitStops', editingItem, setTransitStops, setEditingItem)}
-            handleAdd={() => handleAdd('transitStops', transitStops, setTransitStops, setEditingItem)}
+            handleSave={() => handleSave('transitStops', editingItem, setTransitStops, setEditingItem,newItemCreation,setNewItemCreation,transitStops)}
+            handleAdd={() => handleAdd('transitStops', transitStops, setTransitStops, setEditingItem,newItemCreation,setNewItemCreation)}
             handleDelete={(id) => handleDelete('transitStops', id, setTransitStops)}
             mapHandlers={mapHandlers}
+            setNewItemCreation={setNewItemCreation}
             isSelectingLineStops={isSelectingStops}
             setSelectingStops={setIsSelectingStops}
           />
@@ -257,15 +267,17 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
                     data={lineStops.filter(stop => stop.line_id === selectedLine)}
                     columns={['stop_id','stop_name', 'order_of_stop', 'is_station']}
                     editingItem={editingItem}
+                    newItemCreation={newItemCreation}
                     handleChange={handleLineStopsChange}
                     handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
-                    handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem)}
-                    handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, { line_id: selectedLine }, setIsSelectingStops)}
+                    handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem,newItemCreation,setNewItemCreation,lineStops)}
+                    handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem,newItemCreation,setNewItemCreation, { line_id: selectedLine }, setIsSelectingStops)}
                     handleDelete={(id) => handleDelete('lineStops', id, setLineStops)}
                     transitStops={transitStops}
                     isSelectingLineStops={isSelectingStops}
                     setSelectingStops={setIsSelectingStops}
                     onInsertPositionChange={handleInsertPositionChange}
+                    setNewItemCreation={setNewItemCreation}
                   />
                 </div>
               );
@@ -305,7 +317,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           onClick={togglePanel}
           title={isCollapsed ? "Show Panel" : "Hide Panel"}
         >
-          {isCollapsed ? '→' : '←'}
+          {isCollapsed ? '←' : '→'}
         </button>
       </div>
       <div 

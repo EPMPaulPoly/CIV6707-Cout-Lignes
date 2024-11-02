@@ -7,7 +7,8 @@ interface TableProps {
   data: any[];
   columns: string[];
   editingItem: EditingItem;
-  handleChange: (id: number, field: string, value: string | number | boolean) => void;
+  newItemCreation: boolean;
+  handleChange: (id: number, field: string, value: string | number | boolean,transport_modes?:TransportMode[]) => void;
   handleEdit: (id: number) => void;
   handleSave: () => void;
   handleAdd: (insertPosition?: { type: 'first' | 'last' | 'after', afterStopId?: number }) => void;  // Updated this line
@@ -17,6 +18,7 @@ interface TableProps {
   mapHandlers?: MapHandlers; 
   isSelectingLineStops: boolean,
   setSelectingStops: (state:boolean)=>void;
+  setNewItemCreation:(state:boolean)=>void;
   onStopAdd?: (stopId: number, position: InsertPosition) => void;
   onInsertPositionChange?: (position: InsertPosition) => void;
 }
@@ -219,12 +221,14 @@ const Table: React.FC<TableProps> = ({
                 <td key={col}>
                   {editingItem.table === table && editingItem.id === item.id && isEditable(col)? (
                     col === 'mode' && table === 'transitLines' ? (
+                      console.log(`Editing transit lines mode value :${item['mode_id']}`),
                       <select
-                        value={getModeNameById(item[col])}
+                        value={String(item['mode_id'])}
                         onChange={(e) => handleChange(item.id, col, e.target.value)}
                       >
-                        {transportModes?.map(mode => (
-                          <option key={mode.id} value={mode.name}>
+                        {
+                        transportModes?.map(mode => (
+                          <option key={mode.id} value={mode.id}>
                             {mode.name}
                           </option>
                         ))}

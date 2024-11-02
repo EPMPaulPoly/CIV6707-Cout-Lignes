@@ -23,7 +23,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<EditingItem>({ table: '', id: null });
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
-
+  const [newItemCreation,setNewItemCreation] = useState<boolean>(false)
   // TaxLots states
   //const [allLots] = useState(() => generateFullGrid());
   //const [nearbyLots, setNearbyLots] = useState<TaxLot[]>([]);
@@ -76,7 +76,9 @@ const App: React.FC = () => {
     setTransitStops,
     lineStops,
     editingItem,
-    setEditingItem
+    setEditingItem,
+    newItemCreation,
+    setNewItemCreation
   );
 
   const handleLineStopsSave = async (updatedLineStops: LineStop[]) => {
@@ -131,6 +133,7 @@ const App: React.FC = () => {
         lineStops={lineStops}
         editingItem={editingItem}
         selectedLine={selectedLine}
+        newItemCreation={newItemCreation}
         position={position}
         mapHandlers={mapHandlers}
         setSelectedLine={setSelectedLine}
@@ -139,6 +142,7 @@ const App: React.FC = () => {
         setTransitStops={setTransitStops}
         setLineStops={setLineStops}
         setEditingItem={setEditingItem}
+        setNewItemCreation={setNewItemCreation}
         handleDelete={commonDeleteHandler}
         //TaxLotDataLay={nearbyLots}
       />

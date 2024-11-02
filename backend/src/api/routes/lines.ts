@@ -68,7 +68,7 @@ export const createLinesRouter = (pool: Pool):Router => {
       const { name, description, mode } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>(
-        'INSERT INTO lignes_transport.transit_lines (name, description, mode) VALUES ($1, $2, $3) RETURNING *',
+        'INSERT INTO lignes_transport.transit_lines (name, description, mode_id) VALUES ($1, $2, $3) RETURNING *',
         [name, description, mode]
       );
       res.status(201).json({ success: true, data: result.rows[0] });

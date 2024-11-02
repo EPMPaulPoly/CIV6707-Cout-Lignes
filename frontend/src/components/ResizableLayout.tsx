@@ -226,7 +226,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           <Table
             table="transitStops"
             data={transitStops}
-            columns={['name', 'latitude', 'longitude']}
+            columns={['name', 'latitude', 'longitude','isStation']}
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transitStops', id, field, value, setTransitStops)}
             handleEdit={(id) => handleEdit('transitStops', id, setEditingItem)}
@@ -255,7 +255,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
                   <Table
                     table="lineStops"
                     data={lineStops.filter(stop => stop.line_id === selectedLine)}
-                    columns={['stop_id', 'order_of_stop', 'is_station']}
+                    columns={['stop_id','stop_name', 'order_of_stop', 'is_station']}
                     editingItem={editingItem}
                     handleChange={handleLineStopsChange}
                     handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
@@ -281,6 +281,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           transitStops={transitStops}
           position={position}
           lineStops={lineStops}
+          transportModes={transportModes}
           transitLines={transitLines}
           onStopAdd={mapHandlers.handleStopAdd}
           onStopMove={mapHandlers.handleStopMove}

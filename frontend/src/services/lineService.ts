@@ -1,14 +1,11 @@
 import api from './api';
-import { TransitLine,TransitLineDB, LineStop, ApiLinesResponse,ApiLineResponse,ApiStopResponse } from '../types/types';
+import { TransitLine,TransitLineDB, LineStop, TransitLineStopDB,ApiLinesResponse,ApiLineResponse,ApiStopResponse, ApiLineStopsResponse } from '../types/types';
 import { AxiosResponse } from 'axios';
 
 
-interface ApiLineDBResponse extends Omit<ApiLineResponse, 'data'> {
-  data: TransitLineDB;
-}
 
-interface ApiStopsDBResponse extends Omit<ApiLinesResponse, 'data'> {
-  data: TransitLineDB[];
+interface ApiLineStopsDBResponse extends Omit<ApiLineStopsResponse, 'data'> {
+  data: TransitLineStopDB[];
 }
 
 export const lineService = {
@@ -54,6 +51,25 @@ export const lineService = {
   delete: (id: number) => api.delete(`/lines/${id}`),
 
   // Points d'arrêt
+  getAllRoutePoints: async (): Promise<ApiLineStopsResponse> => {
+    const response: AxiosResponse<ApiLineStopsDBResponse> = await api.get(`/lines/route-points`);
+    console.log('getting all routepoints')
+    return {
+      success: response.data.success,
+      data: response.data.data.map(({ assoc_id, ...rest }: TransitLineStopDB) => {
+        // Create a new object that matches the LineStop type
+        const lineStop: LineStop = {
+          id: assoc_id,
+          line_id: rest.line_id,
+          stop_id: rest.stop_id,
+          order_of_stop: rest.order_of_stop
+        };
+        return lineStop;
+      }),
+      error: response.data.error
+    };
+  },
+
   getRoutePoints: (id: number) => 
     api.get<LineStop[]>(`/lines/${id}/route-points`),
   

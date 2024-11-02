@@ -46,14 +46,22 @@ const Table: React.FC<TableProps> = ({
     mapHandlers?.setNewStopName(value);
     handleChange(0, 'name', value);
   };
-  // format the lat long for 4 digits
+  // format the lat long for 4 get
   const formatValue = (value: any, column: string) => {
     if (table === 'transitStops' && ['latitude', 'longitude'].includes(column)) {
       return value !== null ? value.toFixed(4) : '';
+    } else if (column === 'isStation' && value){
+      return 'Yes'
+    } else if (column === 'isStation' && !value){
+      return 'No'
     }
     return value;
   };
 
+  const getModeNameById = (modeId: number): string => {
+    const mode = transportModes?.find(m => m.id === modeId);
+    return mode ? mode.name : 'Unknown Mode';
+  };
   // Helper to determine if a field should be editable
   const isEditable = (column: string) => {
     if (table === 'transitStops') {
@@ -212,7 +220,7 @@ const Table: React.FC<TableProps> = ({
                   {editingItem.table === table && editingItem.id === item.id && isEditable(col)? (
                     col === 'mode' && table === 'transitLines' ? (
                       <select
-                        value={item[col]}
+                        value={getModeNameById(item[col])}
                         onChange={(e) => handleChange(item.id, col, e.target.value)}
                       >
                         {transportModes?.map(mode => (
@@ -246,9 +254,19 @@ const Table: React.FC<TableProps> = ({
                       />
                     )
                   ) : (
-                    col === 'stop_id' && table === 'lineStops' 
-                      ? transitStops?.find(stop => stop.id === item[col])?.name 
-                      : formatValue(item[col], col)
+                    col === 'stop_name' && table === 'lineStops' ? (
+                      transitStops?.find(stop => stop.id === item[col])?.name 
+                    ) : col === 'mode' && table === 'transitLines' ?(
+                      getModeNameById(item.mode_id)
+                    ) : col === 'latitude' && table === 'transitStops' ?(
+                      formatValue(item.position.lat, col)
+                    ) : col === 'longitude' && table === 'transitStops' ?(
+                      formatValue(item.position.lng, col)
+                    ) :  col === 'isStation' && table === 'transitStops' ?(
+                      formatValue(item[col], col)
+                    ) :(
+                      formatValue(item[col], col)
+                    )
                   )}
                 </td>
               ))}

@@ -22,19 +22,24 @@ const convertLatLngToGeography = (position: LatLng): string => {
   return `SRID=4326;POINT(${position.lng} ${position.lat})`;
 };
 
+const transformDBToTransitStop = (dbStop: TransitStopDB): TransitStop => {
+  return {
+    id: dbStop.stop_id,
+    name: dbStop.name,
+    position: wkbHexToLatLng(dbStop.geography),
+    isStation: dbStop.is_station,
+    isComplete: true
+  };
+};
+
+
 export const stopService = {
   getAll: async (): Promise<ApiStopsResponse> => {
     const response: AxiosResponse<ApiStopsDBResponse> = await api.get('/stops');
     
     return {
       success: response.data.success,
-      data: response.data.data.map((stop: TransitStopDB) => ({
-        ...stop,
-        name:stop.name,
-        isStation:stop.is_station,
-        position: wkbHexToLatLng(stop.geography),
-        isComplete: true
-      })),
+      data: response.data.data.map(transformDBToTransitStop),
       error: response.data.error
     };
   },
@@ -45,13 +50,7 @@ export const stopService = {
     
     return {
       success: response.data.success,
-      data: {
-        ...stop,
-        name:stop.name,
-        isStation:stop.is_station,
-        position: wkbHexToLatLng(stop.geography),
-        isComplete: true
-      },
+      data: transformDBToTransitStop(response.data.data),
       error: response.data.error
     };
   },
@@ -65,14 +64,9 @@ export const stopService = {
     
     const response: AxiosResponse<ApiStopDBResponse> = await api.post('/stops', backendData);
     return {
-      ...response.data,
-      data: {
-        ...response.data.data,
-        position: wkbHexToLatLng(response.data.data.geography),
-        isStation: (response.data.data.is_station),
-        name: response.data.data.name,
-        isComplete: true,
-      }
+      success: response.data.success,
+      data: transformDBToTransitStop(response.data.data),
+      error: response.data.error
     };
   },
  
@@ -85,14 +79,9 @@ export const stopService = {
     
     const response: AxiosResponse<ApiStopDBResponse> = await api.put(`/stops/${id}`, backendData);
     return {
-      ...response.data,
-      data: {
-        ...response.data.data,
-        position: wkbHexToLatLng(response.data.data.geography),
-        isStation: (response.data.data.is_station),
-        name: response.data.data.name,
-        isComplete: true,
-      }
+      success: response.data.success,
+      data: transformDBToTransitStop(response.data.data),
+      error: response.data.error
     };
   },
  

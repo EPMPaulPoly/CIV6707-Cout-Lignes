@@ -102,7 +102,7 @@ export interface AddRoutePointRequest {
 }
 
 export interface TransitStopDB {
-  id: number;
+  stop_id: number;
   name: string;
   geography: string;
   is_station: boolean;
@@ -113,6 +113,21 @@ export interface TransitLineDB {
   name: string;
   description: string;
   mode_id: number;
+}
+
+export interface TransitLineStopDB {
+  assoc_id: number;
+  line_id: number;
+  stop_id: number;
+  order_of_stop: number;
+}
+
+export interface TransportModeDB {
+  mode_id: number;
+  name: string;
+  cost_per_km: number;
+  cost_per_station: number;
+  footprint: number;
 }
 
 // Utilisé dans les services pour type les retours API

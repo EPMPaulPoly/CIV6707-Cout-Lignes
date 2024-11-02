@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents,Polygon } from 'react-leaflet';
 import L, { LatLngExpression, LeafletMouseEvent ,LatLng} from 'leaflet';
-import { TransitStop, TransitLine, LineStop, TaxLot,InsertPosition } from '../types/types';
+import { TransitStop, TransitLine, LineStop, TaxLot,InsertPosition, TransportMode } from '../types/types';
 import { MapHandlers } from '../utils/utils';
 
 interface MapProps {
   transitStops: TransitStop[];
   transitLines: TransitLine[];
   lineStops: LineStop[];
+  transportModes: TransportMode[];
   position: LatLngExpression;
   onStopAdd: (position:LatLng) => void;  // Changed to onStopAdd
   onStopMove: (stopId: number, position:LatLng) => void;
@@ -65,6 +66,7 @@ const Map: React.FC<MapProps> = ({
   transitStops,
   transitLines,
   lineStops,
+  transportModes,
   position,
   onStopAdd,
   onStopMove,
@@ -77,6 +79,10 @@ const Map: React.FC<MapProps> = ({
   TaxLotData = [],
   insertPosition
 }) => {
+  // Add check at the start of component
+  useEffect(() => {
+    console.log('Map received transportModes:', transportModes);
+  }, [transportModes]);
 
   const getLineCoordinates = (lineId: number): LatLngExpression[] => {
     const stops = lineStops
@@ -87,6 +93,16 @@ const Map: React.FC<MapProps> = ({
 
     return stops.map(stop => stop.position!);
   };
+  const getModeName = (mode_id: number) => {
+    // Add debugging
+    console.log('transportModes in getModeName:', transportModes);
+    console.log('Looking for mode_id:', mode_id);
+    if (!Array.isArray(transportModes)) {
+      console.error('transportModes is not an array:', transportModes);
+      return 'Unknown Mode';
+    }
+    return transportModes.find(mode => mode.id === mode_id)?.name ?? 'Unknown Mode';
+  }
 
   const isStopBeingEdited = (stopId: number): boolean => {
     return editingItem.table === 'transitStops' && editingItem.id === stopId;
@@ -165,7 +181,7 @@ const Map: React.FC<MapProps> = ({
                 <br />
                 {line.description}
                 <br />
-                Mode: {line.mode}
+                Mode: {getModeName(line.mode_id)}
             </Popup>
           </Polyline>
         ))}
@@ -204,7 +220,7 @@ const Map: React.FC<MapProps> = ({
                   const line = transitLines.find(l => l.id === ls.line_id);
                   return line ? (
                     <div key={line.id} className="ml-2">
-                      • {line.name} ({line.mode})
+                      • {line.name} ({getModeName(line.mode_id)})
                     </div>
                   ) : null;
                 })}

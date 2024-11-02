@@ -40,13 +40,16 @@ const App: React.FC = () => {
           modeService.getAll()
         ]);
         console.log('got response')
+        console.log('Transport Modes response:', modesRes);
         setTransitStops(stopsRes.data);
         setTransitLines(linesRes.data);
         setTransportModes(modesRes.data);
+        console.log('Set transport modes to:', modesRes.data);
         console.log('Set the local variables')
         if (linesRes.data.length > 0) {
           const line_id = linesRes.data[0].id
-          const lineStopsRes = await lineService.getRoutePoints(line_id);
+          console.log(`Line Id to retrive routepoints ${line_id}`)
+          const lineStopsRes = await lineService.getAllRoutePoints();
           setLineStops(lineStopsRes.data);
           setSelectedLine(linesRes.data[0].id);
         }

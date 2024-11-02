@@ -79,16 +79,25 @@ export const createLinesRouter = (pool: Pool):Router => {
   };
 
  // Get route points for a line
+ const getAllRoutePoints: RequestHandler = async (req, res):Promise<void> => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query<RoutePointResponse>(
+      `SELECT * FROM lignes_transport.line_stops`,
+    );
+    res.json({ success: true, data: result.rows });
+    client.release();
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Database error' });
+  }
+};
+
  const getRoutePoints: RequestHandler<LineParams> = async (req, res):Promise<void> => {
   try {
     const { id } = req.params;
     const client = await pool.connect();
     const result = await client.query<RoutePointResponse>(
-      `SELECT ls.*, ts.name as stop_name, ts.latitude, ts.longitude 
-       FROM lignes_transport.line_stops ls
-       JOIN transit_stops ts ON ls.stop_id = ts.id
-       WHERE ls.line_id = $1
-       ORDER BY ls.order_of_stop`,
+      `SELECT * FROM lignes_transport.line_stops WHERE stop_id = $1`,
       [id]
     );
     res.json({ success: true, data: result.rows });
@@ -115,6 +124,7 @@ export const createLinesRouter = (pool: Pool):Router => {
     };
   // Routes
   router.get('/', getAllLines);
+  router.get('/route-points',getAllRoutePoints);
   router.get('/:id', getLine);
   router.post('/', validateLine, createLine);
   router.get('/:id/route-points', getRoutePoints);

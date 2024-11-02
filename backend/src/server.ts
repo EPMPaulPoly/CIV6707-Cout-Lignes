@@ -30,6 +30,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 // Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server address info:${config.database.database}`)
 });
 
 // Graceful shutdown

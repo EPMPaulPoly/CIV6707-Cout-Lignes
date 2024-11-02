@@ -1,11 +1,50 @@
 import api from './api';
-import { TransitLine, LineStop } from '../types/types';
+import { TransitLine,TransitLineDB, LineStop, ApiLinesResponse,ApiLineResponse,ApiStopResponse } from '../types/types';
+import { AxiosResponse } from 'axios';
+
+
+interface ApiLineDBResponse extends Omit<ApiLineResponse, 'data'> {
+  data: TransitLineDB;
+}
+
+interface ApiStopsDBResponse extends Omit<ApiLinesResponse, 'data'> {
+  data: TransitLineDB[];
+}
 
 export const lineService = {
-  getAll: () => api.get<TransitLine[]>('/lines'),
+  getAll: async (): Promise<ApiLinesResponse> => {
+    const response: AxiosResponse<ApiLinesResponse> = await api.get('/lines');
+    
+    return {
+      success: response.data.success,
+      data: response.data.data.map((line: TransitLineDB) => ({
+        ...line,
+        id:line.id,
+        name:line.name,
+        description:line.description,
+        mode_id: line.mode_id
+      })),
+      error: response.data.error
+    };
+  },
   
-  getById: (id: number) => api.get<TransitLine>(`/lines/${id}`),
-  
+  getById: async (id: number): Promise<ApiLineResponse> => {
+    const response: AxiosResponse<ApiLineResponse> = await api.get(`/stops/${id}`);
+    const line = response.data.data;
+    
+    return {
+      success: response.data.success,
+      data: {
+        ...line,
+        id:line.id,
+        name:line.name,
+        description:line.description,
+        mode_id: line.mode_id
+      },
+      error: response.data.error
+    };
+  },
+
   create: (data: Omit<TransitLine, 'id'>) => 
     api.post<TransitLine>('/lines', data),
   

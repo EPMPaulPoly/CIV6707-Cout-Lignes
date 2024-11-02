@@ -18,7 +18,7 @@ export const createTaxLotsRouter = (pool: Pool): Router => {
   const getAllTaxLots: RequestHandler = async (_req, res, next) => {
     try {
       const client = await pool.connect();
-      const result = await client.query<DbTaxLot>('SELECT * FROM tax_lots');
+      const result = await client.query<DbTaxLot>('SELECT * FROM lignes_transport.tax_lots');
       res.json({ success: true, data: result.rows });
       client.release();
     } catch (err) {
@@ -34,7 +34,7 @@ export const createTaxLotsRouter = (pool: Pool): Router => {
       
       const result = await client.query<DbTaxLot>(`
         SELECT DISTINCT tl.*
-        FROM tax_lots tl
+        FROM lignes_transport.tax_lots tl
         JOIN line_stops ls ON ls.line_id = $1
         JOIN transit_stops ts ON ls.stop_id = ts.id
         WHERE ST_DWithin(

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents,Polygon } from 'react-leaflet';
-import L, { LatLngExpression, LeafletMouseEvent } from 'leaflet';
+import L, { LatLngExpression, LeafletMouseEvent ,LatLng} from 'leaflet';
 import { TransitStop, TransitLine, LineStop, TaxLot,InsertPosition } from '../types/types';
 import { MapHandlers } from '../utils/utils';
 
@@ -9,8 +9,8 @@ interface MapProps {
   transitLines: TransitLine[];
   lineStops: LineStop[];
   position: LatLngExpression;
-  onStopAdd: (lat: number, lng: number) => void;  // Changed to onStopAdd
-  onStopMove: (stopId: number, lat: number, lng: number) => void;
+  onStopAdd: (position:LatLng) => void;  // Changed to onStopAdd
+  onStopMove: (stopId: number, position:LatLng) => void;
   onStopDelete: (stopId: number) => void;
   isAddingNewStop: boolean;
   editingItem: { table: string; id: number | null };
@@ -38,17 +38,16 @@ const StationIcon = L.icon({
 
 const MapInteractionHandler: React.FC<{
   isAddingNewStop: boolean;  // Changed from isAddingStop
-  onStopAdd: (lat: number, lng: number) => void;
+  onStopAdd: (position:LatLng) => void;
 }> = ({ isAddingNewStop, onStopAdd }) => {  // Changed from isAddingStop
   const map = useMapEvents({
     click: (e: LeafletMouseEvent) => {
       console.log('Map clicked:', { 
         isAddingNewStop,
-        lat: e.latlng.lat,
-        lng: e.latlng.lng 
+        pos: e.latlng
       });
       if (isAddingNewStop) {  // Changed from isAddingStop
-        onStopAdd(e.latlng.lat, e.latlng.lng);
+        onStopAdd(e.latlng);
       }
     },
     mousemove: (e: LeafletMouseEvent) => {
@@ -86,7 +85,7 @@ const Map: React.FC<MapProps> = ({
       .map(ls => transitStops.find(ts => ts.id === ls.stop_id))
       .filter((stop): stop is TransitStop => stop !== undefined);
 
-    return stops.map(stop => [stop.latitude!, stop.longitude!]);
+    return stops.map(stop => stop.position!);
   };
 
   const isStopBeingEdited = (stopId: number): boolean => {
@@ -128,8 +127,7 @@ const Map: React.FC<MapProps> = ({
           onStopAdd={onStopAdd}
           isAddingNewStop={isAddingNewStop}
         />
-
-        {/* Render tax lots first so they appear under everything else */}
+        {/*
         {TaxLotData.map(lot => (
           <Polygon
             key={lot.id}
@@ -151,7 +149,7 @@ const Map: React.FC<MapProps> = ({
               </div>
             </Popup>
           </Polygon>
-        ))}
+        ))}*/}
 
         {/* Render transit lines first so they appear under the stops */}
         {transitLines.map(line => (
@@ -175,7 +173,7 @@ const Map: React.FC<MapProps> = ({
         {transitStops.filter(stop => stop.isComplete).map(stop => (
           <Marker
             key={stop.id}
-            position={[stop.latitude!, stop.longitude!]}
+            position={stop.position!}
             icon={StationIcon}
             draggable={isStopBeingEdited(stop.id)}  // Only draggable when being edited
             eventHandlers={{
@@ -191,7 +189,7 @@ const Map: React.FC<MapProps> = ({
                 if (isStopBeingEdited(stop.id)) {  // Double-check before allowing move
                   const marker = e.target;
                   const position = marker.getLatLng();
-                  onStopMove(stop.id, position.lat, position.lng);
+                  onStopMove(stop.id, position);
                 }
               },
             }}

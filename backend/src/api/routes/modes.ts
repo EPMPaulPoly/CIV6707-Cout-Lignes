@@ -23,7 +23,7 @@ export const createModesRouter = (pool: Pool): Router => {
   const getAllModes: RequestHandler = async (_req, res, next) => {
     try {
       const client = await pool.connect();
-      const result = await client.query<DbTransportMode>('SELECT * FROM transport_modes');
+      const result = await client.query<DbTransportMode>('SELECT * FROM lignes_transport.transport_modes');
       res.json({ success: true, data: result.rows });
       client.release();
     } catch (err) {
@@ -37,7 +37,7 @@ export const createModesRouter = (pool: Pool): Router => {
       const { id } = req.params;
       const client = await pool.connect();
       const result = await client.query<DbTransportMode>(
-        'SELECT * FROM transport_modes WHERE id = $1',
+        'SELECT * FROM lignes_transport.transport_modes WHERE id = $1',
         [id]
       );
       if (result.rows.length === 0) {
@@ -57,7 +57,7 @@ export const createModesRouter = (pool: Pool): Router => {
       const { name, cost_per_km, cost_per_station, footprint } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransportMode>(
-        'INSERT INTO transport_modes (name, cost_per_km, cost_per_station, footprint) VALUES ($1, $2, $3, $4) RETURNING *',
+        'INSERT INTO lignes_transport.transport_modes (name, cost_per_km, cost_per_station, footprint) VALUES ($1, $2, $3, $4) RETURNING *',
         [name, cost_per_km, cost_per_station, footprint]
       );
       res.status(201).json({ success: true, data: result.rows[0] });
@@ -74,7 +74,7 @@ export const createModesRouter = (pool: Pool): Router => {
       const { name, cost_per_km, cost_per_station, footprint } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransportMode>(
-        'UPDATE transport_modes SET name = $1, cost_per_km = $2, cost_per_station = $3, footprint = $4 WHERE id = $5 RETURNING *',
+        'UPDATE lignes_transport.transport_modes SET name = $1, cost_per_km = $2, cost_per_station = $3, footprint = $4 WHERE id = $5 RETURNING *',
         [name, cost_per_km, cost_per_station, footprint, id]
       );
       if (result.rows.length === 0) {

@@ -64,7 +64,7 @@ const getLineCoordinates = (
     .sort((a, b) => a.order_of_stop - b.order_of_stop)
     .map(ls => transitStops.find(ts => ts.id === ls.stop_id))
     .filter((stop): stop is TransitStop => stop !== undefined)
-    .map(stop => new LatLng(stop.latitude!, stop.longitude!));
+    .map(stop => stop.position);
 };
 
 // Query lots that intersect with transit lines

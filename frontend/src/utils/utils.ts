@@ -1,10 +1,49 @@
 import { EditingItem, TransitStop, TransitLine, TransportMode, LineStop,
   ApiResponse,
   ServiceResponse,
-  NewItem , MaybeServiceResponse } from '../types/types';
+  NewItem,
+  MaybeServiceResponse,
+  ApiStopResponse,
+  ApiLineResponse,
+  ApiModeResponse,WKBHexString} from '../types/types';
 import { Dispatch, SetStateAction } from 'react';
 import { stopService, lineService, modeService } from '../services';
+import { LatLng } from 'leaflet';
 
+// Define valid table names as a literal type
+type TableName = 'transitStops' | 'transitLines' | 'transportModes' | 'lineStops';
+
+interface DefaultValues {
+  transitStops: Omit<TransitStop, 'id'>;
+  transitLines: Omit<TransitLine, 'id'>;
+  transportModes: Omit<TransportMode, 'id'>;
+  lineStops: Omit<LineStop, 'id'>;
+}
+
+const defaultValues: DefaultValues = {
+  transitStops: {
+    name: '',
+    position: new LatLng(45.517356, -73.597384),
+    isStation:true,
+    isComplete: false
+  },
+  transitLines: {
+    name: '',
+    description: '',
+    mode_id: 0
+  },
+  transportModes: {
+    name: '',
+    costPerKm: 0,
+    costPerStation: 0,
+    footprint: 0
+  },
+  lineStops: {
+    stop_id: 0,
+    line_id: 0,
+    order_of_stop: 0
+  }
+};
 export const handleChange = async (
   table: string,
   id: number,
@@ -13,7 +52,7 @@ export const handleChange = async (
   setFunction: React.Dispatch<React.SetStateAction<any[]>>
 ) => {
   try {
-    let response: ServiceResponse;
+    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | undefined;
     
     if (table === 'transitStops') {
       response = await stopService.update(id, {
@@ -31,10 +70,10 @@ export const handleChange = async (
       }
     }
 
-    if (response) {
+    if (response?.data) {
       setFunction(prevData =>
         prevData.map(item =>
-          item.id === id ? response.data : item
+          item.id === id ? response!.data : item
         )
       );
     }
@@ -44,14 +83,14 @@ export const handleChange = async (
 };
 
 export interface MapHandlers {
-  handleStopAdd: (lat: number, lng: number) => void;
-  handleStopMove: (stopId: number, lat: number, lng: number) => void;
+  handleStopAdd: (position:LatLng) => void;
+  handleStopMove: (stopId: number, position:LatLng) => void;
   handleStopDelete: (stopId: number) => void;
   setNewStopName: (name: string) => void;
 }
 
 export const handleAdd = async (
-  table: string,
+  table: TableName,
   data: any[],
   setFunction: Dispatch<SetStateAction<any[]>>,
   setEditingItem: Dispatch<SetStateAction<EditingItem>>,
@@ -66,19 +105,30 @@ export const handleAdd = async (
         setIsSelectingStops(true);
       }
     } else {
-      let response;
-      const newItem = { ...getDefaultValues(table), ...additionalProps };
+      let response: ApiLineResponse | ApiModeResponse | undefined;
 
       switch (table) {
-        case 'transitLines':
+        case 'transitLines':{
+          const baseItem = defaultValues.transitLines;
+          const newItem = {
+            ...baseItem,
+            ...(additionalProps as Partial<TransitLine>)
+          } satisfies Omit<TransitLine, 'id'>;
           response = await lineService.create(newItem);
           break;
-        case 'transportModes':
+        }
+        case 'transportModes':{
+          const baseItem = defaultValues.transportModes;
+          const newItem = {
+            ...baseItem,
+            ...(additionalProps as Partial<TransportMode>)
+          } satisfies Omit<TransportMode, 'id'>;
           response = await modeService.create(newItem);
           break;
+        }
       }
 
-      if (response) {
+      if (response?.data) {
         setFunction([...data, response.data]);
         setEditingItem({ table, id: response.data.id });
       }
@@ -105,7 +155,7 @@ export const handleSave = async (
   try {
     if (editingItem.id === null) return;
 
-    let response;
+    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | undefined;
     switch (table) {
       case 'transitStops':
         response = await stopService.update(editingItem.id, { isComplete: true });
@@ -118,10 +168,11 @@ export const handleSave = async (
         break;
     }
 
-    if (response) {
+    if (response?.data) {
+      const responseData = response.data; // Store the data in a constant to ensure TypeScript knows it's defined
       setFunction(prevData =>
         prevData.map(item =>
-          item.id === editingItem.id ? response.data : item
+          item.id === editingItem.id ? responseData : item
         )
       );
     }
@@ -171,7 +222,7 @@ export const handleDelete = async ({
       }
     } else if (table === 'transportModes') {
       const mode = transportModes.find(m => m.id === id);
-      const modeInUse = transitLines.some(line => line.mode === mode?.name);
+      const modeInUse = transitLines.some(line => line.mode_id === mode?.id);
       if (modeInUse) {
         alert('Cannot delete transport mode that is in use by a line.');
         return;
@@ -203,19 +254,26 @@ export const handleDelete = async ({
   }
 };
 
-const getDefaultValues = (table: string): Partial<TransitStop | TransitLine | TransportMode | LineStop> => {
-  switch (table) {
-    case 'transitStops':
-      return { name: '', latitude: null, longitude: null, isComplete: false };
-    case 'transitLines':
-      return { name: '', description: '', mode: '' };
-    case 'transportModes':
-      return { name: '', costPerKm: 0, costPerStation: 0, footprint: 0 };
-    case 'lineStops':
-      return { stop_id: 0, order_of_stop: 0, is_station: true };
-    default:
-      return {};
-  }
+export const getDefaultValues = <T extends keyof typeof defaultValues>(
+  table: T
+): typeof defaultValues[T] => {
+  return defaultValues[table];
+};
+
+export const wkbHexToLatLng = (wkbHex: WKBHexString): LatLng => {
+  const hexToDouble = (hex: string): number => {
+      const buffer = new DataView(new ArrayBuffer(8));
+      for (let i = 0; i < 8; i++) {
+          buffer.setUint8(i, parseInt(hex.substring(i * 2, (i + 1) * 2), 16));
+      }
+      return buffer.getFloat64(0, true);
+  };
+
+  const geomHex = wkbHex.slice(18);
+  const x = hexToDouble(geomHex.slice(0, 16));
+  const y = hexToDouble(geomHex.slice(16, 32));
+  
+  return new LatLng(y,x);  // Return as LatLng object instead of tuple
 };
 
 export const createMapHandlers = (
@@ -232,30 +290,35 @@ export const createMapHandlers = (
   };
 
   return {
-    handleStopAdd: async (latitude: number, longitude: number) => {
+    handleStopAdd: async (position: LatLng) => {
       if (editingItem.table === 'transitStops' && editingItem.id === null) {
         try {
-          const response = await stopService.create({
+          const newStop: Omit<TransitStop, 'id'> = {
             name: newStopName || `New Stop ${transitStops.length + 1}`,
-            latitude,
-            longitude,
+            position,
+            isStation: true,
             isComplete: true
-          });
+          };
           
-          setTransitStops(prev => [...prev, response.data]);
-          setEditingItem({ table: '', id: null });
+          const response = await stopService.create(newStop);
+          if (response.success && response.data) {
+            setTransitStops(prev => [...prev, response.data]);
+            setEditingItem({ table: '', id: null });
+          }
         } catch (error) {
           console.error('Error adding stop:', error);
         }
       }
     },
     
-    handleStopMove: async (stopId: number, latitude: number, longitude: number) => {
+    handleStopMove: async (stopId: number, position: LatLng) => {
       try {
-        const response = await stopService.update(stopId, { latitude, longitude });
-        setTransitStops(prev =>
-          prev.map(stop => stop.id === stopId ? response.data : stop)
-        );
+        const response = await stopService.update(stopId, { position });
+        if (response.success && response.data) {
+          setTransitStops(prev =>
+            prev.map(stop => stop.id === stopId ? response.data : stop)
+          );
+        }
       } catch (error) {
         console.error('Error moving stop:', error);
       }

@@ -48,7 +48,7 @@ export const createLinesRouter = (pool: Pool):Router => {
       const { id } = req.params;
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>(
-        'SELECT * FROM transit_lines WHERE id = $1',
+        'SELECT * FROM lignes_transport.transit_lines WHERE id = $1',
         [id]
       );
       if (result.rows.length === 0) {
@@ -68,7 +68,7 @@ export const createLinesRouter = (pool: Pool):Router => {
       const { name, description, mode } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>(
-        'INSERT INTO transit_lines (name, description, mode) VALUES ($1, $2, $3) RETURNING *',
+        'INSERT INTO lignes_transport.transit_lines (name, description, mode) VALUES ($1, $2, $3) RETURNING *',
         [name, description, mode]
       );
       res.status(201).json({ success: true, data: result.rows[0] });
@@ -85,7 +85,7 @@ export const createLinesRouter = (pool: Pool):Router => {
     const client = await pool.connect();
     const result = await client.query<RoutePointResponse>(
       `SELECT ls.*, ts.name as stop_name, ts.latitude, ts.longitude 
-       FROM line_stops ls
+       FROM lignes_transport.line_stops ls
        JOIN transit_stops ts ON ls.stop_id = ts.id
        WHERE ls.line_id = $1
        ORDER BY ls.order_of_stop`,
@@ -104,7 +104,7 @@ export const createLinesRouter = (pool: Pool):Router => {
         const { stop_id, order_of_stop, is_station } = req.body;
         const client = await pool.connect();
         const result = await client.query<DbLineStop>(
-          'INSERT INTO line_stops (line_id, stop_id, order_of_stop, is_station) VALUES ($1, $2, $3, $4) RETURNING *',
+          'INSERT INTO lignes_transport.line_stops (line_id, stop_id, order_of_stop, is_station) VALUES ($1, $2, $3, $4) RETURNING *',
           [id, stop_id, order_of_stop, is_station]
         );
         res.status(201).json({ success: true, data: result.rows[0] });

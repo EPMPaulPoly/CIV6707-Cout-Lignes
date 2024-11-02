@@ -1,18 +1,22 @@
 import { LatLng } from "leaflet";
 
+export type WKBHexString = string;
+
+
+
 export interface TransitStop {
     id: number;
     name: string;
-    latitude: number | null;
-    longitude: number | null;
+    position: LatLng;
+    isStation:boolean;
     isComplete: boolean;
   }
-  
+
   export interface TransitLine {
     id: number;
     name: string;
     description: string;
-    mode: string;
+    mode_id: number;
   }
   
   export interface TransportMode {
@@ -28,7 +32,6 @@ export interface TransitStop {
     line_id: number;
     stop_id: number;
     order_of_stop: number;
-    is_station: boolean;
   }
   
   export interface EditingItem {
@@ -96,6 +99,20 @@ export interface AddRoutePointRequest {
   stop_id: number;
   order_of_stop: number;
   is_station: boolean;
+}
+
+export interface TransitStopDB {
+  id: number;
+  name: string;
+  geography: string;
+  is_station: boolean;
+}
+
+export interface TransitLineDB {
+  id: number;
+  name: string;
+  description: string;
+  mode_id: number;
 }
 
 // Utilisé dans les services pour type les retours API

@@ -25,30 +25,32 @@ const App: React.FC = () => {
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
 
   // TaxLots states
-  const [allLots] = useState(() => generateFullGrid());
-  const [nearbyLots, setNearbyLots] = useState<TaxLot[]>([]);
+  //const [allLots] = useState(() => generateFullGrid());
+  //const [nearbyLots, setNearbyLots] = useState<TaxLot[]>([]);
 
   // Chargement initial des données
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
+        console.log('Set loading True');
         const [stopsRes, linesRes, modesRes] = await Promise.all([
           stopService.getAll(),
           lineService.getAll(),
           modeService.getAll()
         ]);
-
+        console.log('got response')
         setTransitStops(stopsRes.data);
         setTransitLines(linesRes.data);
         setTransportModes(modesRes.data);
-
+        console.log('Set the local variables')
         if (linesRes.data.length > 0) {
-          const lineStopsRes = await lineService.getRoutePoints(linesRes.data[0].id);
+          const line_id = linesRes.data[0].id
+          const lineStopsRes = await lineService.getRoutePoints(line_id);
           setLineStops(lineStopsRes.data);
           setSelectedLine(linesRes.data[0].id);
         }
-
+        console.log('Get linestops')
       } catch (err) {
         console.error('Error loading data:', err);
         setError('Une erreur est survenue lors du chargement des données');
@@ -61,10 +63,10 @@ const App: React.FC = () => {
   }, []);
 
   // Mise à jour des TaxLots quand les lignes/arrêts changent
-  useEffect(() => {
-    const nearby = queryLotsNearLines(allLots, transitLines, transitStops, lineStops);
-    setNearbyLots(nearby);
-  }, [allLots, transitLines, transitStops, lineStops]);
+  //useEffect(() => {
+  //  const nearby = queryLotsNearLines(allLots, transitLines, transitStops, lineStops);
+  //  setNearbyLots(nearby);
+  //}, [allLots, transitLines, transitStops, lineStops]);
 
   const mapHandlers = createMapHandlers(
     transitStops,
@@ -135,7 +137,7 @@ const App: React.FC = () => {
         setLineStops={setLineStops}
         setEditingItem={setEditingItem}
         handleDelete={commonDeleteHandler}
-        TaxLotDataLay={nearbyLots}
+        //TaxLotDataLay={nearbyLots}
       />
     </div>
   );

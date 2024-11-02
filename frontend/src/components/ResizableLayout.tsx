@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Table from '../components/Table';
 import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot,InsertPosition } from '../types/types';
 import { handleChange, handleAdd, handleEdit, handleSave } from '../utils/utils';
-import { LatLngExpression } from 'leaflet';
+import { LatLngExpression,LatLng } from 'leaflet';
 import Map from '../components/Map'
 
 interface ResizableLayoutProps {
@@ -14,8 +14,8 @@ interface ResizableLayoutProps {
   selectedLine: number | null;
   position: LatLngExpression;
   mapHandlers: {
-    handleStopAdd: (lat: number, lng: number) => void;
-    handleStopMove: (stopId: number, lat: number, lng: number) => void;
+    handleStopAdd: (poition:LatLng) => void;
+    handleStopMove: (stopId: number, position:LatLng) => void;
     handleStopDelete: (stopId: number) => void;
     setNewStopName: (name: string) => void;
   };
@@ -170,8 +170,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
         id: Math.max(...lineStops.map(ls => ls.id), 0) + 1,
         line_id: selectedLine,
         stop_id: stopId,
-        order_of_stop: newOrder,
-        is_station: true
+        order_of_stop: newOrder
       };
     
     setLineStops(prev => [...prev, newLineStop]);

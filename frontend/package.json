@@ -18,7 +18,7 @@
     "typescript": "latest"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "WATCHPACK_POLLING=true react-scripts start",
     "build": "react-scripts build"
   },
   "browserslist": {

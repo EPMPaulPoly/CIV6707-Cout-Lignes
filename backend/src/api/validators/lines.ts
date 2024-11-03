@@ -3,11 +3,11 @@ import { RequestHandler } from 'express';
 interface LineRequest {
   name: string;
   description: string;
-  mode: string;
+  mode_id: number;
 }
 
 export const validateLine: RequestHandler<{}, any, LineRequest> = (req, res, next): void => {
-  const { name, description, mode } = req.body;
+  const { name, description, mode_id } = req.body;
 
   if (!name || typeof name !== 'string' || name.trim().length === 0) {
     res.status(400).json({
@@ -25,7 +25,7 @@ export const validateLine: RequestHandler<{}, any, LineRequest> = (req, res, nex
     return;
   }
 
-  if (!mode || typeof mode !== 'string' || mode.trim().length === 0) {
+  if (!mode_id || typeof mode_id !== 'number' || mode_id<= 0) {
     res.status(400).json({
       success: false,
       error: 'Mode is required and must be a non-empty string'

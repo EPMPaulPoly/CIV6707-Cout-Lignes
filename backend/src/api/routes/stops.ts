@@ -6,8 +6,8 @@ import { ParamsDictionary } from 'express-serve-static-core';
 
 interface StopRequest {
   name: string;
-  latitude: number;
-  longitude: number;
+  is_station: boolean;
+  geography: string;
 }
 
 interface StopParams extends ParamsDictionary {
@@ -52,11 +52,11 @@ export const createStopsRouter = (pool: Pool): Router => {
   // Create a new stop
   const createStop: RequestHandler<{}, any, StopRequest> = async (req, res, next) => {
     try {
-      const { name, latitude, longitude } = req.body;
+      const { name, is_station, geography} = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
-        'INSERT INTO lignes_transport.transit_stops (name, latitude, longitude, is_complete) VALUES ($1, $2, $3, true) RETURNING *',
-        [name, latitude, longitude]
+        'INSERT INTO lignes_transport.transit_stops (name, is_station, geography) VALUES ($1, $2, ST_GeomFromText ($3)) RETURNING *',
+        [name, is_station, geography]
       );
       res.status(201).json({ success: true, data: result.rows[0] });
       client.release();
@@ -69,11 +69,11 @@ export const createStopsRouter = (pool: Pool): Router => {
   const updateStop: RequestHandler<StopParams, any, StopRequest> = async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { name, latitude, longitude } = req.body;
+      const { name, is_station, geography } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
         'UPDATE lignes_transport.transit_stops SET name = $1, latitude = $2, longitude = $3 WHERE id = $4 RETURNING *',
-        [name, latitude, longitude, id]
+        [name, is_station, geography,id]
       );
       if (result.rows.length === 0) {
         res.status(404).json({ success: false, error: 'Stop not found' });
@@ -125,22 +125,19 @@ export const createStopsRouter = (pool: Pool): Router => {
 
   // Validator middleware
   const validatorMiddleware: RequestHandler<ParamsDictionary, any, StopRequest> = (req, res, next) => {
-    const { name, latitude, longitude } = req.body;
+    const { name, is_station,geography } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       res.status(400).json({ success: false, error: 'Invalid name' });
       return;
     }
 
-    if (typeof latitude !== 'number' || latitude < -90 || latitude > 90) {
-      res.status(400).json({ success: false, error: 'Invalid latitude' });
+    if (typeof is_station !== 'boolean' ) {
+      res.status(400).json({ success: false, error: 'Invalid is_station' });
       return;
     }
 
-    if (typeof longitude !== 'number' || longitude < -180 || longitude > 180) {
-      res.status(400).json({ success: false, error: 'Invalid longitude' });
-      return;
-    }
+    
 
     next();
   };

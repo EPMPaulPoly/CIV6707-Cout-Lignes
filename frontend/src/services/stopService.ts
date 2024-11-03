@@ -61,7 +61,7 @@ export const stopService = {
       geography: convertLatLngToGeography(data.position),
       is_station: (data.isStation)
     };
-    
+    console.log('Puttin up stop, check output',backendData.name,backendData.is_station,backendData.geography)
     const response: AxiosResponse<ApiStopDBResponse> = await api.post('/stops', backendData);
     return {
       success: response.data.success,

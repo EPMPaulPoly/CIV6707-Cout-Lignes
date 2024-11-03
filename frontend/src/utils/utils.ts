@@ -330,13 +330,12 @@ export const createMapHandlers = (
     handleStopAdd: async (position: LatLng) => {
       if (editingItem.table === 'transitStops' && editingItem.id === null) {
         try {
-          const newStop: Omit<TransitStop, 'id'> = {
+          const newStop: Omit<TransitStop, 'id'|'isComplete'> = {
             name: newStopName || `New Stop ${transitStops.length + 1}`,
             position,
-            isStation: true,
-            isComplete: true
+            isStation: true
           };
-          
+          console.log('Test hot reload')
           const response = await stopService.create(newStop);
           if (response.success && response.data) {
             setTransitStops(prev => [...prev, response.data]);

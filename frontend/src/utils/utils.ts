@@ -1,12 +1,14 @@
-import { EditingItem, TransitStop, TransitLine, TransportMode, LineStop,
+import {
+  EditingItem, TransitStop, TransitLine, TransportMode, LineStop,
   ApiResponse,
   ServiceResponse,
   NewItem,
   MaybeServiceResponse,
   ApiStopResponse,
   ApiLineResponse,
-  ApiModeResponse,WKBHexString,
-  ApiLineStopResponse} from '../types/types';
+  ApiModeResponse, WKBHexString,
+  ApiLineStopResponse, InsertPosition
+} from '../types/types';
 import { Dispatch, SetStateAction } from 'react';
 import { stopService, lineService, modeService } from '../services';
 import { LatLng } from 'leaflet';
@@ -21,18 +23,40 @@ interface DefaultValues {
   lineStops: Omit<LineStop, 'id'>;
 }
 
-const getModeIdbyName = (mode_name: any,data:TransportMode[] ): number => {
+const getModeIdbyName = (mode_name: any, data: TransportMode[]): number => {
   const mode = data.find(m => m.name === mode_name);
   return mode ? mode.id : 0;
 }
 
+export const calculateNewOrder = (
+  currentStops: LineStop[],
+  insertPosition: InsertPosition
+): number => {
+  switch (insertPosition.type) {
+    case 'first':
+      return Math.min(...currentStops.map(ls => ls.order_of_stop), 1) - 1;
+
+    case 'after':
+      if (insertPosition.afterStopId) {
+        const afterStop = currentStops.find(ls => ls.id === insertPosition.afterStopId);
+        if (afterStop) {
+          return afterStop.order_of_stop + 1;
+        }
+      }
+      return currentStops.length + 1;
+
+    case 'last':
+    default:
+      return Math.max(...currentStops.map(ls => ls.order_of_stop), 0) + 1;
+  }
+};
 
 
 const defaultValues: DefaultValues = {
   transitStops: {
     name: '',
     position: new LatLng(45.517356, -73.597384),
-    isStation:true,
+    isStation: true,
     isComplete: false
   },
   transitLines: {
@@ -65,44 +89,44 @@ export const handleChange = async (
     setFunction(prevData => {
       // Find the stop we're editing
       const stopToUpdate = prevData.find(item => item.id === id);
-      
+
       if (!stopToUpdate) return prevData;
 
       return prevData.map(item =>
         item.id === id
           ? {
-              ...item,
-              [field]: value,
-              isComplete: field === 'name' ? Boolean(value) && item.latitude !== null : item.isComplete
-            }
+            ...item,
+            [field]: value,
+            isComplete: field === 'name' ? Boolean(value) && item.latitude !== null : item.isComplete
+          }
           : item
       );
-  });
-} else {
-  setFunction(prevData =>
-    prevData.map(item =>
-      item.id === id
-        ? {
+    });
+  } else {
+    setFunction(prevData =>
+      prevData.map(item =>
+        item.id === id
+          ? {
             ...item,
-            ...(field === 'mode' 
+            ...(field === 'mode'
               ? { ['mode_id']: Number(value) }
               : {
-                  [field]: ['latitude', 'longitude', 'costPerKm', 'costPerStation', 'footprint', 'order_of_stop'].includes(field)
-                    ? Number(value)
-                    : field === 'is_station'
-                      ? Boolean(value)
-                      : value
-                })
+                [field]: ['latitude', 'longitude', 'costPerKm', 'costPerStation', 'footprint', 'order_of_stop'].includes(field)
+                  ? Number(value)
+                  : field === 'is_station'
+                    ? Boolean(value)
+                    : value
+              })
           }
-        : item
-    )
-  );
-}
+          : item
+      )
+    );
+  }
 };
 
 export interface MapHandlers {
-  handleStopAdd: (position:LatLng) => void;
-  handleStopMove: (stopId: number, position:LatLng) => void;
+  handleStopAdd: (position: LatLng) => void;
+  handleStopMove: (stopId: number, position: LatLng) => void;
   handleStopDelete: (stopId: number) => void;
   setNewStopName: (name: string) => void;
 }
@@ -112,8 +136,8 @@ export const handleAdd = async (
   data: any[],
   setFunction: Dispatch<SetStateAction<any[]>>,
   setEditingItem: Dispatch<SetStateAction<EditingItem>>,
-  newItemCreation:boolean,
-  setNewItemCreation:Dispatch<SetStateAction<boolean>>,
+  newItemCreation: boolean,
+  setNewItemCreation: Dispatch<SetStateAction<boolean>>,
   additionalProps: Record<string, any> = {},
   setIsSelectingStops?: Dispatch<SetStateAction<boolean>>
 ) => {
@@ -160,16 +184,15 @@ export const handleSave = async (
   editingItem: EditingItem,
   setFunction: Dispatch<SetStateAction<any[]>>,
   setEditingItem: Dispatch<SetStateAction<EditingItem>>,
-  newItemCreationBool:boolean,
-  setNewItemCreation:Dispatch<SetStateAction<boolean>>,
+  newItemCreationBool: boolean,
+  setNewItemCreation: Dispatch<SetStateAction<boolean>>,
   data: any[]
 ) => {
   try {
     if (editingItem.id === null) return;
-    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | ApiLineStopResponse| undefined;
-    let data_to_put:any;
-    let data_to_put_less_id:any;
-    if(newItemCreationBool===true) {
+    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | ApiLineStopResponse | undefined;
+    let data_to_put: any;
+    if (newItemCreationBool === true) {
       switch (table) {
         case 'transitStops':
           data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
@@ -181,23 +204,26 @@ export const handleSave = async (
           break;
         case 'transportModes':
           data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
-          response = await modeService.create(data_to_put_less_id);
+          response = await modeService.create(data_to_put);
           break;
         case 'lineStops':
           data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
-          response = await lineService.addRoutePoint(editingItem.id,data_to_put);
+          response = await lineService.addRoutePoint(editingItem.id, data_to_put);
           break;
       }
-    } else if (newItemCreationBool==false){
+    } else if (newItemCreationBool == false) {
       switch (table) {
         case 'transitStops':
-          response = await stopService.update(editingItem.id, { isComplete: true });
+          data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
+          response = await stopService.update(editingItem.id, data_to_put);
           break;
         case 'transitLines':
-          response = await lineService.getById(editingItem.id);
+          data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
+          response = await lineService.update(editingItem.id, data_to_put);
           break;
         case 'transportModes':
-          response = await modeService.getById(editingItem.id);
+          data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
+          response = await modeService.update(editingItem.id, data_to_put);
           break;
       }
     }
@@ -297,18 +323,18 @@ export const getDefaultValues = <T extends keyof typeof defaultValues>(
 
 export const wkbHexToLatLng = (wkbHex: WKBHexString): LatLng => {
   const hexToDouble = (hex: string): number => {
-      const buffer = new DataView(new ArrayBuffer(8));
-      for (let i = 0; i < 8; i++) {
-          buffer.setUint8(i, parseInt(hex.substring(i * 2, (i + 1) * 2), 16));
-      }
-      return buffer.getFloat64(0, true);
+    const buffer = new DataView(new ArrayBuffer(8));
+    for (let i = 0; i < 8; i++) {
+      buffer.setUint8(i, parseInt(hex.substring(i * 2, (i + 1) * 2), 16));
+    }
+    return buffer.getFloat64(0, true);
   };
 
   const geomHex = wkbHex.slice(18);
   const x = hexToDouble(geomHex.slice(0, 16));
   const y = hexToDouble(geomHex.slice(16, 32));
-  
-  return new LatLng(y,x);  // Return as LatLng object instead of tuple
+
+  return new LatLng(y, x);  // Return as LatLng object instead of tuple
 };
 
 export const createMapHandlers = (
@@ -317,8 +343,8 @@ export const createMapHandlers = (
   lineStops: LineStop[],
   editingItem: EditingItem,
   setEditingItem: Dispatch<SetStateAction<EditingItem>>,
-  newItemCreation:boolean,
-  setNewItemCreation:  Dispatch<SetStateAction<boolean>>
+  newItemCreation: boolean,
+  setNewItemCreation: Dispatch<SetStateAction<boolean>>
 ): MapHandlers => {
   let newStopName = '';
 
@@ -330,7 +356,7 @@ export const createMapHandlers = (
     handleStopAdd: async (position: LatLng) => {
       if (editingItem.table === 'transitStops' && editingItem.id === null) {
         try {
-          const newStop: Omit<TransitStop, 'id'|'isComplete'> = {
+          const newStop: Omit<TransitStop, 'id' | 'isComplete'> = {
             name: newStopName || `New Stop ${transitStops.length + 1}`,
             position,
             isStation: true
@@ -346,7 +372,7 @@ export const createMapHandlers = (
         }
       }
     },
-    
+
     handleStopMove: async (stopId: number, position: LatLng) => {
       try {
         const response = await stopService.update(stopId, { position });
@@ -367,19 +393,19 @@ export const createMapHandlers = (
           alert('Cannot delete stop that is part of a line. Remove it from all lines first.');
           return;
         }
-        
+
         await stopService.delete(stopId);
-        
+
         if (editingItem.table === 'transitStops' && editingItem.id === stopId) {
           setEditingItem({ table: '', id: null });
         }
-        
+
         setTransitStops(prev => prev.filter(stop => stop.id !== stopId));
       } catch (error) {
         console.error('Error deleting stop:', error);
       }
     },
-    
+
     setNewStopName
   };
 };

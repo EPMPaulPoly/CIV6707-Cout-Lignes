@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents,Polygon } from 'react-leaflet';
-import L, { LatLngExpression, LeafletMouseEvent } from 'leaflet';
-import { TransitStop, TransitLine, LineStop, TaxLot,InsertPosition } from './types';
-import { MapHandlers } from './utils';
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, Polygon } from 'react-leaflet';
+import L, { LatLngExpression, LeafletMouseEvent, LatLng } from 'leaflet';
+import { TransitStop, TransitLine, LineStop, TaxLot, InsertPosition, TransportMode } from '../types/types';
+import { MapHandlers } from '../utils/utils';
 
 interface MapProps {
   transitStops: TransitStop[];
   transitLines: TransitLine[];
   lineStops: LineStop[];
+  transportModes: TransportMode[];
   position: LatLngExpression;
-  onStopAdd: (lat: number, lng: number) => void;  // Changed to onStopAdd
-  onStopMove: (stopId: number, lat: number, lng: number) => void;
+  onStopAdd: (position: LatLng) => void;  // Changed to onStopAdd
+  onStopMove: (stopId: number, position: LatLng) => void;
   onStopDelete: (stopId: number) => void;
   isAddingNewStop: boolean;
   editingItem: { table: string; id: number | null };
@@ -38,17 +39,16 @@ const StationIcon = L.icon({
 
 const MapInteractionHandler: React.FC<{
   isAddingNewStop: boolean;  // Changed from isAddingStop
-  onStopAdd: (lat: number, lng: number) => void;
+  onStopAdd: (position: LatLng) => void;
 }> = ({ isAddingNewStop, onStopAdd }) => {  // Changed from isAddingStop
   const map = useMapEvents({
     click: (e: LeafletMouseEvent) => {
-      console.log('Map clicked:', { 
+      console.log('Map clicked:', {
         isAddingNewStop,
-        lat: e.latlng.lat,
-        lng: e.latlng.lng 
+        pos: e.latlng
       });
       if (isAddingNewStop) {  // Changed from isAddingStop
-        onStopAdd(e.latlng.lat, e.latlng.lng);
+        onStopAdd(e.latlng);
       }
     },
     mousemove: (e: LeafletMouseEvent) => {
@@ -66,6 +66,7 @@ const Map: React.FC<MapProps> = ({
   transitStops,
   transitLines,
   lineStops,
+  transportModes,
   position,
   onStopAdd,
   onStopMove,
@@ -78,6 +79,10 @@ const Map: React.FC<MapProps> = ({
   TaxLotData = [],
   insertPosition
 }) => {
+  // Add check at the start of component
+  useEffect(() => {
+    console.log('Map received transportModes:', transportModes);
+  }, [transportModes]);
 
   const getLineCoordinates = (lineId: number): LatLngExpression[] => {
     const stops = lineStops
@@ -86,22 +91,32 @@ const Map: React.FC<MapProps> = ({
       .map(ls => transitStops.find(ts => ts.id === ls.stop_id))
       .filter((stop): stop is TransitStop => stop !== undefined);
 
-    return stops.map(stop => [stop.latitude!, stop.longitude!]);
+    return stops.map(stop => stop.position!);
   };
+
+  
+  const getModeName = (mode_id: number) => {
+    // Add debugging
+    //console.log('transportModes in getModeName:', transportModes);
+    //console.log('Looking for mode_id:', mode_id);
+    if (!Array.isArray(transportModes)) {
+      console.error('transportModes is not an array:', transportModes);
+      return 'Unknown Mode';
+    }
+    return transportModes.find(mode => mode.id === mode_id)?.name ?? 'Unknown Mode';
+  }
 
   const isStopBeingEdited = (stopId: number): boolean => {
     return editingItem.table === 'transitStops' && editingItem.id === stopId;
   };
 
-  const getLineColor = (line: TransitLine): string => {
-    const name = line.name.toLowerCase();
-    if (name.includes('green')) return '#00AA00';
-    if (name.includes('yellow')) return '#FFD700';
-    if (name.includes('red')) return '#FF0000';
-    if (name.includes('blue')) return '#0000FF';
-    return '#808080'; // Default gray
+  const getLineColor = (line: TransitLine | undefined): string => {
+    if (!line) return '#808080'; // Default gray for undefined line
+    const color: string = line.color ;
+    return color || '#808080'; // Use the line's color or default to gray
   };
   
+
   return (
     <div className="map-container">
       {isAddingNewStop && (
@@ -123,13 +138,12 @@ const Map: React.FC<MapProps> = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        
+
         <MapInteractionHandler
           onStopAdd={onStopAdd}
           isAddingNewStop={isAddingNewStop}
         />
-
-        {/* Render tax lots first so they appear under everything else */}
+        {/*
         {TaxLotData.map(lot => (
           <Polygon
             key={lot.id}
@@ -151,12 +165,12 @@ const Map: React.FC<MapProps> = ({
               </div>
             </Popup>
           </Polygon>
-        ))}
+        ))}*/}
 
         {/* Render transit lines first so they appear under the stops */}
         {transitLines.map(line => (
           <Polyline
-            key={line.id}
+            key={`${line.id}-${line.color}`}
             positions={getLineCoordinates(line.id)}
             color={getLineColor(line)}
             weight={4}
@@ -164,10 +178,10 @@ const Map: React.FC<MapProps> = ({
           >
             <Popup>
               <strong>{line.name}</strong>
-                <br />
-                {line.description}
-                <br />
-                Mode: {line.mode}
+              <br />
+              {line.description}
+              <br />
+              Mode: {getModeName(line.mode_id)}
             </Popup>
           </Polyline>
         ))}
@@ -175,7 +189,7 @@ const Map: React.FC<MapProps> = ({
         {transitStops.filter(stop => stop.isComplete).map(stop => (
           <Marker
             key={stop.id}
-            position={[stop.latitude!, stop.longitude!]}
+            position={stop.position!}
             icon={StationIcon}
             draggable={isStopBeingEdited(stop.id)}  // Only draggable when being edited
             eventHandlers={{
@@ -191,43 +205,43 @@ const Map: React.FC<MapProps> = ({
                 if (isStopBeingEdited(stop.id)) {  // Double-check before allowing move
                   const marker = e.target;
                   const position = marker.getLatLng();
-                  onStopMove(stop.id, position.lat, position.lng);
+                  onStopMove(stop.id, position);
                 }
               },
             }}
           >
             <Popup>
-            <div>
-              <strong>{stop.name}</strong>
-              <br />
-              {lineStops
-                .filter(ls => ls.stop_id === stop.id)
-                .map(ls => {
-                  const line = transitLines.find(l => l.id === ls.line_id);
-                  return line ? (
-                    <div key={line.id} className="ml-2">
-                      • {line.name} ({line.mode})
-                    </div>
-                  ) : null;
-                })}
-              {isSelectingStops ? (
-                <button onClick={(e: React.MouseEvent) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onStopSelect?.(stop.id, insertPosition || { type: 'last' });
-                }}>
-                  Add to Line
-                </button>
-              ) : (
-                <button onClick={(e: React.MouseEvent) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onStopDelete(stop.id);
-                }}>
-                  Delete Stop
-                </button>
-              )}
-            </div>
+              <div>
+                <strong>{stop.name}</strong>
+                <br />
+                {lineStops
+                  .filter(ls => ls.stop_id === stop.id)
+                  .map(ls => {
+                    const line = transitLines.find(l => l.id === ls.line_id);
+                    return line ? (
+                      <div key={line.id} className="ml-2">
+                        • {line.name} ({getModeName(line.mode_id)})
+                      </div>
+                    ) : null;
+                  })}
+                {isSelectingStops ? (
+                  <button onClick={(e: React.MouseEvent) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onStopSelect?.(stop.id, insertPosition || { type: 'last' });
+                  }}>
+                    Add to Line
+                  </button>
+                ) : (
+                  <button onClick={(e: React.MouseEvent) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onStopDelete(stop.id);
+                  }}>
+                    Delete Stop
+                  </button>
+                )}
+              </div>
             </Popup>
           </Marker>
         ))}

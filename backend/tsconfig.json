@@ -10,12 +10,16 @@
       "strict": true,
       "moduleResolution": "node",
       "resolveJsonModule": true,
-      "sourceMap": true,
+      "sourceMap": true,  // Make sure this is true
+      "inlineSourceMap": false, // This should be false when sourceMap is true
+      "inlineSources": false,
       "baseUrl": ".",
       "paths": {
-        "*": ["node_modules/*"]
-      }
+        "*": ["node_modules/*", "src/types/*"]
+      },
+      "typeRoots": ["./node_modules/@types", "./src/types"],
+      "types": ["node", "express"]
     },
     "include": ["src/**/*"],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules", "dist"]
   }

@@ -22,7 +22,12 @@
             "restart": true,
             "sourceMaps": true,
             "skipFiles": ["<node_internals>/**"],
-            "outFiles": ["${workspaceFolder}/backend/dist/**/*.js"]
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/backend/**",
+                "!**/node_modules/**"
+            ],
+            "outFiles": ["${workspaceFolder}/backend/dist/**/*.js"],
+            "internalConsoleOptions": "neverOpen"
         }
     ],
     "compounds": [

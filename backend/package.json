@@ -4,22 +4,24 @@
     "description": "Backend for transit map application",
     "main": "dist/server.js",
     "scripts": {
-        "start": "node dist/server.js",
-        "dev": "nodemon src/server.ts",
+        "dev": "nodemon --legacy-watch",
         "build": "tsc",
-        "lint": "eslint . --ext .ts",
-        "test": "jest",
-        "watch-ts":"tsc -w"
+        "start": "node dist/server.js"
     },
     "dependencies": {
+        "axios": "latest",
         "cors": "latest",
         "dotenv": "latest",
-        "express": "latest",
-        "pg": "latest"
+        "express": "^4.21.1",
+        "leaflet": "latest",
+        "pg": "latest",
+        "zod": "^3.23.8"
     },
     "devDependencies": {
+        "@types/axios": "latest",
         "@types/cors": "latest",
         "@types/express": "latest",
+        "@types/leaflet": "latest",
         "@types/node": "latest",
         "@types/pg": "latest",
         "@typescript-eslint/eslint-plugin": "latest",
@@ -29,7 +31,6 @@
         "nodemon": "^3.1.7",
         "ts-jest": "latest",
         "ts-node": "latest",
-        "typescript": "latest",
-        "nodemon":"latest"
+        "typescript": "latest"
     }
 }

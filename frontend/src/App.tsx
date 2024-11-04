@@ -1,93 +1,106 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { LatLngExpression } from 'leaflet';
-import Map from './Map';
-import Table from './Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem,TaxLot } from './types';
-import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils';
+import Map from './components/Map';
+import Table from './components/Table';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot } from './types/types';
+import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils/utils';
 import './App.css';
-import ResizableLayout from './ResizableLayout';
-import { generateFullGrid, queryLotsNearLines } from './generateTaxLots';
+import ResizableLayout from './components/ResizableLayout';
+import { generateFullGrid, queryLotsNearLines } from './utils/generateTaxLots';
+import { stopService, lineService, modeService } from './services';
 
 const App: React.FC = () => {
   const position: LatLngExpression = [45.549152, -73.61368]; // Montreal coordinates
 
-  const [transitStops, setTransitStops] = useState<TransitStop[]>([
-    { id: 1, name: 'Montreal Central', latitude: 45.549152, longitude: -73.61368, isComplete: true },
-    { id: 2, name: 'EO 1', latitude: 45.53, longitude: -73.63, isComplete: true },
-    { id: 3, name: 'EO 2', latitude: 45.57, longitude: -73.6, isComplete: true },
-    { id: 4, name: 'NS 1', latitude: 45.56, longitude: -73.64, isComplete: true },
-    { id: 5, name: 'NS 2', latitude: 45.54, longitude: -73.59, isComplete: true },
-    { id: 6, name: 'Random', latitude: 45.56, longitude: -73.57, isComplete: true }
-  ]);
-
-  const [transitLines, setTransitLines] = useState<TransitLine[]>([
-    { id: 1, name: 'Green Line', description: 'East-West Line', mode: 'Metro' },
-    { id: 2, name: 'Yellow Line', description: 'NS Line', mode: 'Tram' },
-  ]);
-
-  const [transportModes, setTransportModes] = useState<TransportMode[]>([
-    { id: 1, name: 'Metro', costPerKm: 1000, costPerStation: 0.2, footprint: 50 },
-    { id: 2, name: 'Tram', costPerKm: 70, costPerStation: 0.07, footprint: 20 },
-  ]);
-
-
-  const [lineStops, setLineStops] = useState<LineStop[]>([
-    { id: 1, line_id: 1, stop_id: 2, order_of_stop: 1, is_station: true },
-    { id: 2, line_id: 1, stop_id: 1, order_of_stop: 2, is_station: true },
-    { id: 3, line_id: 1, stop_id: 3, order_of_stop: 3, is_station: true },
-    { id: 4, line_id: 2, stop_id: 4, order_of_stop: 1, is_station: true },
-    { id: 5, line_id: 2, stop_id: 1, order_of_stop: 2, is_station: true },
-    { id: 6, line_id: 2, stop_id: 5, order_of_stop: 3, is_station: true },
-    { id: 7, line_id: 1, stop_id: 6, order_of_stop: 4, is_station: true },
-  ]);
-
+  // États pour les données
+  const [transitStops, setTransitStops] = useState<TransitStop[]>([]);
+  const [transitLines, setTransitLines] = useState<TransitLine[]>([]);
+  const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
+  const [lineStops, setLineStops] = useState<LineStop[]>([]);
   
-  // In your App component, initialize taxLots with the generated data:
- 
-  // Generate all lots once
-  const [allLots] = useState(() => generateFullGrid());
-  
-  // Query and update nearby lots whenever lines/stops change
-  const [nearbyLots, setNearbyLots] = useState<TaxLot[]>([]);
-
+  // États pour l'UI
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<EditingItem>({ table: '', id: null });
-
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
+  const [newItemCreation,setNewItemCreation] = useState<boolean>(false)
+  // TaxLots states
+  //const [allLots] = useState(() => generateFullGrid());
+  //const [nearbyLots, setNearbyLots] = useState<TaxLot[]>([]);
 
-  const [activeTable, setActiveTable] = useState<string>('transitLines');
-
-  const [insertPosition, setInsertPosition] = useState<{ 
-    type: 'first' | 'last' | 'after'; 
-    afterStopId?: number 
-  }>({ type: 'last' });
-
+  // Chargement initial des données
   useEffect(() => {
-    const nearby = queryLotsNearLines(allLots, transitLines, transitStops, lineStops);
-    setNearbyLots(nearby);
-  }, [allLots, transitLines, transitStops, lineStops]);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        console.log('Set loading True');
+        const [stopsRes, linesRes, modesRes] = await Promise.all([
+          stopService.getAll(),
+          lineService.getAll(),
+          modeService.getAll()
+        ]);
+        console.log('got response')
+        console.log('Transport Modes response:', modesRes);
+        setTransitStops(stopsRes.data);
+        setTransitLines(linesRes.data);
+        setTransportModes(modesRes.data);
+        console.log('Set transport modes to:', modesRes.data);
+        console.log('Set the local variables')
+        if (linesRes.data.length > 0) {
+          const line_id = linesRes.data[0].id
+          console.log(`Line Id to retrive routepoints ${line_id}`)
+          const lineStopsRes = await lineService.getAllRoutePoints();
+          setLineStops(lineStopsRes.data);
+          setSelectedLine(linesRes.data[0].id);
+        }
+        console.log('Get linestops')
+      } catch (err) {
+        console.error('Error loading data:', err);
+        setError('Une erreur est survenue lors du chargement des données');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Mise à jour des TaxLots quand les lignes/arrêts changent
+  //useEffect(() => {
+  //  const nearby = queryLotsNearLines(allLots, transitLines, transitStops, lineStops);
+  //  setNearbyLots(nearby);
+  //}, [allLots, transitLines, transitStops, lineStops]);
 
   const mapHandlers = createMapHandlers(
     transitStops,
     setTransitStops,
     lineStops,
     editingItem,
-    setEditingItem
+    setEditingItem,
+    newItemCreation,
+    setNewItemCreation
   );
 
-  useEffect(() => {
-    if (transitLines.length > 0 && selectedLine === null) {
-      setSelectedLine(transitLines[0].id);
+  const handleLineStopsSave = async (updatedLineStops: LineStop[]) => {
+    try {
+      if (selectedLine) {
+        await lineService.updateRoutePoints(selectedLine, updatedLineStops);
+        setLineStops(updatedLineStops);
+      }
+      setEditingItem({ table: '', id: null });
+    } catch (error) {
+      console.error('Error saving line stops:', error);
     }
-  }, [transitLines, selectedLine]);
-
-
-
-  const handleLineStopsSave = (updatedLineStops: LineStop[]) => {
-    
-    setLineStops(updatedLineStops);
-    setEditingItem({ table: '', id: null });
-    
   };
+
+  const handleLineStopsChange = (id: number, field: string, value: string | number | boolean) => {
+    setLineStops(prevStops => 
+      prevStops.map(stop => 
+        stop.id === id ? { ...stop, [field]: field === 'stop_id' ? parseInt(value as string) : value } : stop
+      )
+    );
+  };
+
   const commonDeleteHandler = (table: string, id: number, setFunction: Dispatch<SetStateAction<any[]>>) => {
     handleDelete({
       table,
@@ -102,15 +115,15 @@ const App: React.FC = () => {
     });
   };
 
-  const handleLineStopsChange = (id: number, field: string, value: string | number | boolean) => {
-    
-    const updatedLineStops = lineStops.map(stop => 
-      stop.id === id ? { ...stop, [field]: field === 'stop_id' ? parseInt(value as string) : value } : stop
-    );
-    setLineStops(updatedLineStops);
-  };
+  if (loading) {
+    return <div>Chargement de l'application...</div>;
+  }
 
-    return (
+  if (error) {
+    return <div>Erreur: {error}</div>;
+  }
+
+  return (
     <div className="app">
       <h1>Transit Planning Application</h1>
       <ResizableLayout
@@ -120,6 +133,7 @@ const App: React.FC = () => {
         lineStops={lineStops}
         editingItem={editingItem}
         selectedLine={selectedLine}
+        newItemCreation={newItemCreation}
         position={position}
         mapHandlers={mapHandlers}
         setSelectedLine={setSelectedLine}
@@ -128,8 +142,9 @@ const App: React.FC = () => {
         setTransitStops={setTransitStops}
         setLineStops={setLineStops}
         setEditingItem={setEditingItem}
+        setNewItemCreation={setNewItemCreation}
         handleDelete={commonDeleteHandler}
-        TaxLotDataLay={nearbyLots}
+        //TaxLotDataLay={nearbyLots}
       />
     </div>
   );

@@ -13,9 +13,9 @@ interface TransportModeRequest {
 
 interface DeleteResponse {
   success: boolean;
-  data?: DbTransportMode|null;
-  error?: string|null;
-  deletedRows?: number|null;
+  data?: DbTransportMode | null;
+  error?: string | null;
+  deletedRows?: number | null;
 }
 
 // Étendre ParamsDictionary au lieu de créer une nouvelle interface
@@ -96,44 +96,44 @@ export const createModesRouter = (pool: Pool): Router => {
   };
 
   const deleteMode: RequestHandler<
-  ModeParams,
-  DeleteResponse,
-  TransportModeRequest
-> = async (req, res, next): Promise<void> => {  // Explicit Promise<void> return type
-  let client;
-  
-  try {
-    const { id } = req.params;
-    
-    if (!id || isNaN(Number(id))) {
-      res.status(400).json({
-        success: false,
-        error: 'Invalid mode ID provided'
+    ModeParams,
+    DeleteResponse,
+    TransportModeRequest
+  > = async (req, res, next): Promise<void> => {  // Explicit Promise<void> return type
+    let client;
+
+    try {
+      const { id } = req.params;
+
+      if (!id || isNaN(Number(id))) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid mode ID provided'
+        });
+        return;  // Don't return the Response object
+      }
+
+      client = await pool.connect();
+
+      const result = await client.query<DbTransportMode>(
+        'DELETE FROM lignes_transport.transport_modes WHERE mode_id=$1 RETURNING *',
+        [id]
+      );
+
+      if (result.rowCount === 0 || result.command !== 'DELETE') {
+        res.status(404).json({
+          success: false,
+          error: 'Mode not found or deletion failed'
+        });
+        return;  // Don't return the Response object
+      }
+
+      res.json({
+        success: true,
+        data: result.rows[0],
+        deletedRows: result.rowCount
       });
       return;  // Don't return the Response object
-    }
-
-    client = await pool.connect();
-    
-    const result = await client.query<DbTransportMode>(
-      'DELETE FROM lignes_transport.transport_modes WHERE mode_id=$1 RETURNING *',
-      [id]
-    );
-
-    if (result.rowCount === 0 || result.command !== 'DELETE') {
-      res.status(404).json({
-        success: false,
-        error: 'Mode not found or deletion failed'
-      });
-      return;  // Don't return the Response object
-    }
-
-    res.json({
-      success: true,
-      data: result.rows[0],
-      deletedRows: result.rowCount
-    });
-    return;  // Don't return the Response object
     } catch (err) {
       if (client) {
         await client.query('ROLLBACK');
@@ -143,13 +143,13 @@ export const createModesRouter = (pool: Pool): Router => {
         if ('code' in err) {
           switch (err.code) {
             case '23503': // Foreign key violation
-               res.status(409).json({
+              res.status(409).json({
                 success: false,
                 error: 'Cannot delete mode as it is referenced by other records'
               });
               return;
             default:
-               res.status(500).json({
+              res.status(500).json({
                 success: false,
                 error: 'Database error occurred'
               });

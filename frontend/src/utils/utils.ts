@@ -63,7 +63,8 @@ const defaultValues: DefaultValues = {
   transitLines: {
     name: '',
     description: '',
-    mode_id: 0
+    mode_id: 0,
+    color: '#808080'
   },
   transportModes: {
     name: '',
@@ -114,7 +115,7 @@ export const handleChange = async (
               : {
                 [field]: ['latitude', 'longitude', 'costPerKm', 'costPerStation', 'footprint', 'order_of_stop'].includes(field)
                   ? Number(value)
-                  : field === 'is_station'
+                  : field === 'isStation'
                     ? Boolean(value)
                     : value
               })
@@ -227,18 +228,22 @@ export const handleSave = async (
           response = await modeService.update(editingItem.id, data_to_put);
           break;
         case 'lineStops':
-          data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
+          data_to_put = data;
           response = await lineService.updateRoutePoints(editingItem.id, data_to_put);
           break;
       }
     }
 
     if (response?.data) {
-      const responseData = response.data; // Store the data in a constant to ensure TypeScript knows it's defined
-      setFunction(prevData =>
-        prevData.map(item =>
-          item.id === editingItem.id ? responseData : item
-        )
+      const updatedItems = Array.isArray(response.data) 
+        ? response.data as Array<TransitStop | TransitLine | TransportMode | LineStop>
+        : [response.data];
+        
+      setFunction(prevData => 
+        prevData.map(item => {
+          const updatedItem = updatedItems.find((update) => update.id === item.id);
+          return updatedItem || item;
+        })
       );
     }
   } catch (error) {
@@ -306,6 +311,9 @@ export const handleDelete = async ({
         break;
       case 'transportModes':
         response = await modeService.delete(id);
+        break;
+      case 'lineStops':
+
         break;
     }
 
@@ -398,8 +406,8 @@ export const createMapHandlers = (
           alert('Cannot delete stop that is part of a line. Remove it from all lines first.');
           return;
         }
-
-        await stopService.delete(stopId);
+        let response:any;
+        response = await stopService.delete(stopId);
 
         if (editingItem.table === 'transitStops' && editingItem.id === stopId) {
           setEditingItem({ table: '', id: null });
@@ -413,4 +421,16 @@ export const createMapHandlers = (
 
     setNewStopName
   };
+};
+
+export const getContrastColor = (hexcolor: string): string => {
+  // Convert hex to RGB
+  const r = parseInt(hexcolor.slice(1,3), 16);
+  const g = parseInt(hexcolor.slice(3,5), 16);
+  const b = parseInt(hexcolor.slice(5,7), 16);
+  
+  // Calculate luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  return luminance > 0.5 ? '#000000' : '#FFFFFF';
 };

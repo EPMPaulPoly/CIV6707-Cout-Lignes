@@ -23,7 +23,8 @@ export const lineService = {
         id: line.id,
         name: line.name,
         description: line.description,
-        mode_id: line.mode_id
+        mode_id: line.mode_id,
+        color: line.color
       })),
       error: response.data.error
     };
@@ -40,7 +41,8 @@ export const lineService = {
         id: line.id,
         name: line.name,
         description: line.description,
-        mode_id: line.mode_id
+        mode_id: line.mode_id,
+        color: line.color
       },
       error: response.data.error
     };
@@ -49,8 +51,21 @@ export const lineService = {
   create: (data: Omit<TransitLine, 'id'>) =>
     api.post<TransitLine>('/lines', data),
 
-  update: (id: number, data: Partial<TransitLine>) =>
-    api.put<TransitLine>(`/lines/${id}`, data),
+  update:async (id: number, data: Partial<TransitLine>):Promise<ApiLineResponse> =>{
+    const response: AxiosResponse<ApiLineResponse>=await api.put(`/lines/${id}`, data);
+    console.log('getting all routepoints')
+    return {
+      success: response.data.success,
+      data: {
+        id: response.data.data.mode_id,
+        name: response.data.data.name,
+        description: response.data.data.description,
+        mode_id: response.data.data.mode_id,
+        color: response.data.data.color
+      },
+      error: response.data.error
+    };
+  },
 
   delete: (id: number) => api.delete(`/lines/${id}`),
 

@@ -71,10 +71,10 @@ export const stopService = {
   },
  
   update: async (id: number, data: Partial<TransitStop>): Promise<ApiStopResponse> => {
-    const backendData: Partial<TransitStopDB> = {
+    const backendData: Partial<TransitStop> = {
       ...(data.name && { name: data.name }),
       ...(data.position && { geography: convertLatLngToGeography(data.position) }),
-      ...(data.isStation !== undefined && { isStation: data.isStation }),
+      ...(data.isStation !== undefined && { is_station: data.isStation }),
     };
     
     const response: AxiosResponse<ApiStopDBResponse> = await api.put(`/stops/${id}`, backendData);

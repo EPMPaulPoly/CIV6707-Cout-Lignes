@@ -72,7 +72,7 @@ export const createStopsRouter = (pool: Pool): Router => {
       const { name, is_station, geography } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
-        'UPDATE lignes_transport.transit_stops SET name = $1, latitude = $2, longitude = $3 WHERE id = $4 RETURNING *',
+        'UPDATE lignes_transport.transit_stops SET name = $1, is_station = $2, geography =  ST_GeomFromText ($3) WHERE stop_id = $4 RETURNING *',
         [name, is_station, geography,id]
       );
       if (result.rows.length === 0) {
@@ -107,7 +107,7 @@ export const createStopsRouter = (pool: Pool): Router => {
       }
       
       const result = await client.query(
-        'DELETE FROM lignes_transport.transit_stops WHERE id = $1 RETURNING *',
+        'DELETE FROM lignes_transport.transit_stops WHERE stop_id = $1 RETURNING *',
         [id]
       );
       

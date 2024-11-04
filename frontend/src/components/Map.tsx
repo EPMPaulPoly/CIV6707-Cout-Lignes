@@ -93,6 +93,8 @@ const Map: React.FC<MapProps> = ({
 
     return stops.map(stop => stop.position!);
   };
+
+  
   const getModeName = (mode_id: number) => {
     // Add debugging
     //console.log('transportModes in getModeName:', transportModes);
@@ -108,14 +110,12 @@ const Map: React.FC<MapProps> = ({
     return editingItem.table === 'transitStops' && editingItem.id === stopId;
   };
 
-  const getLineColor = (line: TransitLine): string => {
-    const name = line.name.toLowerCase();
-    if (name.includes('green')) return '#00AA00';
-    if (name.includes('yellow')) return '#FFD700';
-    if (name.includes('red')) return '#FF0000';
-    if (name.includes('blue')) return '#0000FF';
-    return '#808080'; // Default gray
+  const getLineColor = (line: TransitLine | undefined): string => {
+    if (!line) return '#808080'; // Default gray for undefined line
+    const color: string = line.color ;
+    return color || '#808080'; // Use the line's color or default to gray
   };
+  
 
   return (
     <div className="map-container">
@@ -170,7 +170,7 @@ const Map: React.FC<MapProps> = ({
         {/* Render transit lines first so they appear under the stops */}
         {transitLines.map(line => (
           <Polyline
-            key={line.id}
+            key={`${line.id}-${line.color}`}
             positions={getLineCoordinates(line.id)}
             color={getLineColor(line)}
             weight={4}

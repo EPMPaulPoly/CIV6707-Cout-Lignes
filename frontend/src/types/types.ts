@@ -17,6 +17,7 @@ export interface TransitStop {
     name: string;
     description: string;
     mode_id: number;
+    color: string;
   }
   
   export interface TransportMode {
@@ -86,6 +87,7 @@ export interface CreateLineRequest {
   name: string;
   description: string;
   mode: string;
+  color:string;
 }
 
 export interface CreateModeRequest {
@@ -113,6 +115,7 @@ export interface TransitLineDB {
   name: string;
   description: string;
   mode_id: number;
+  color: string;
 }
 
 export interface TransitLineStopDB {

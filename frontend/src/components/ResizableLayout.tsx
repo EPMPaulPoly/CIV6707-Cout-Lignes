@@ -130,6 +130,8 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
 
     // Add the stop with the next available order
     const currentLineStops = lineStops.filter(ls => ls.line_id === selectedLine);
+
+
     const newOrder = calculateNewOrder(currentLineStops, insertPositionfunc);
 
     try {
@@ -140,24 +142,27 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
         order_of_stop: newOrder
       });
 
-      // 2. Update orders of existing points that come after
-      const updatedStops = currentLineStops.map(ls => ({
-        ...ls,
-        order_of_stop: ls.order_of_stop >= newOrder ? ls.order_of_stop + 1 : ls.order_of_stop
-      }));
-      await lineService.updateRoutePoints(selectedLine, updatedStops);
+      if (insertPositionfunc.type !== 'last') {
+        // 2. Update orders of existing points that come after
+        const updatedStops = currentLineStops
+          .filter(ls => ls.order_of_stop >= newOrder)
+          .map(ls => ({
+            ...ls,
+            order_of_stop: ls.order_of_stop + 1
+          }));
 
+        await lineService.updateRoutePoints(selectedLine, updatedStops);
+      }
       // 3. Query to get clean state
-      const freshData = await lineService.getRoutePoints(selectedLine);
+      const freshData = await lineService.getAllRoutePoints();
       if (freshData.data) {
-        setLineStops(prev => [
-          ...prev.filter(ls => ls.line_id !== selectedLine),
-          ...freshData.data
-        ]);
-        setIsSelectingStops(false);
+        setLineStops(freshData.data);
+
       }
     } catch (error) {
       console.error('Failed to update line stops:', error);
+    } finally {
+      setIsSelectingStops(false);
     }
   }, [selectedLine, lineStops, setLineStops]);
 

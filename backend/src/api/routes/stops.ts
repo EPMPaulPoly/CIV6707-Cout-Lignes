@@ -125,7 +125,7 @@ export const createStopsRouter = (pool: Pool): Router => {
 
   // Validator middleware
   const validatorMiddleware: RequestHandler<ParamsDictionary, any, StopRequest> = (req, res, next) => {
-    const { name, is_station,geography } = req.body;
+    const { name, is_station, geography } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       res.status(400).json({ success: false, error: 'Invalid name' });

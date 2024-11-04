@@ -22,11 +22,10 @@ export interface DbTransportMode {
 }
 
 export interface DbLineStop {
-  id: number;
+  assoc_id: number;
   line_id: number;
   stop_id: number;
   order_of_stop: number;
-  is_station: boolean;
 }
 
 export interface DbTaxLot {

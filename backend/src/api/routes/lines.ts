@@ -22,7 +22,7 @@ interface RoutePointResponse extends DbLineStop {
   longitude: number;
 }
 interface LineParams {
-  id: string;
+  id: number;
 }
 
 export const createLinesRouter = (pool: Pool): Router => {
@@ -123,14 +123,82 @@ export const createLinesRouter = (pool: Pool): Router => {
       res.status(500).json({ success: false, error: 'Database error' });
     }
   };
+  const updateRoutePoints: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const updates: DbLineStop[] = req.body;
+
+      if (!Array.isArray(updates) || updates.length === 0) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid update data format'
+        });
+        return;
+      }
+
+      const client = await pool.connect();
+
+      try {
+        await client.query('BEGIN');
+        const cases = updates.map((_, index) => ({
+          stopId: `$${index * 4 + 1}::integer`,
+          orderOfStop: `$${index * 4 + 2}::integer`,
+          lineId: `$${index * 4 + 3}::integer`,
+          assocId: `$${index * 4 + 4}::integer`
+        }));
+  
+        const sql = `
+          UPDATE lignes_transport.line_stops AS ls
+          SET 
+            stop_id = CASE assoc_id 
+              ${cases.map((c, i) => `WHEN ${c.assocId} THEN ${c.stopId}`).join('\n            ')}
+            END,
+            order_of_stop = CASE assoc_id 
+              ${cases.map((c, i) => `WHEN ${c.assocId} THEN ${c.orderOfStop}`).join('\n            ')}
+            END,
+            line_id = CASE assoc_id 
+              ${cases.map((c, i) => `WHEN ${c.assocId} THEN ${c.lineId}`).join('\n            ')}
+            END
+          WHERE assoc_id IN (${cases.map(c => c.assocId).join(', ')})
+          RETURNING *;
+        `;
+  
+        // Create array of parameters in the correct order
+        const params = updates.flatMap(u => [
+          u.stop_id,
+          u.order_of_stop,
+          u.line_id,
+          u.assoc_id
+        ]);
+  
+        const result = await client.query<DbLineStop>(sql, params);
+        await client.query('COMMIT');
+
+        res.json({
+          success: true,
+          data: result.rows
+        });
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
+    } catch (err) {
+      console.error('Error updating route points:', err);
+      res.status(500).json({
+        success: false,
+        error: 'Database error'
+      });
+    }
+  };
   // Routes
   router.get('/', getAllLines);
   router.get('/route-points', getAllRoutePoints);
   router.get('/:id', getLine);
-  console.log('getting to here')
   router.post('/', validateLine, createLine);
   router.get('/:id/route-points', getRoutePoints);
   router.post('/:id/route-points', addRoutePoint);
+  router.put('/:id/route-points', updateRoutePoints)
 
   return router;
 };

@@ -7,7 +7,8 @@ import {
   ApiStopResponse,
   ApiLineResponse,
   ApiModeResponse, WKBHexString,
-  ApiLineStopResponse, InsertPosition
+  ApiLineStopResponse, InsertPosition,
+  ApiLineStopsResponse
 } from '../types/types';
 import { Dispatch, SetStateAction } from 'react';
 import { stopService, lineService, modeService } from '../services';
@@ -190,7 +191,7 @@ export const handleSave = async (
 ) => {
   try {
     if (editingItem.id === null) return;
-    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | ApiLineStopResponse | undefined;
+    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | ApiLineStopResponse | ApiLineStopsResponse| undefined;
     let data_to_put: any;
     if (newItemCreationBool === true) {
       switch (table) {
@@ -224,6 +225,10 @@ export const handleSave = async (
         case 'transportModes':
           data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
           response = await modeService.update(editingItem.id, data_to_put);
+          break;
+        case 'lineStops':
+          data_to_put = Object.fromEntries(Object.entries(data.find(o => o.id === editingItem.id)).filter(([key]) => key !== 'id'));
+          response = await lineService.updateRoutePoints(editingItem.id, data_to_put);
           break;
       }
     }

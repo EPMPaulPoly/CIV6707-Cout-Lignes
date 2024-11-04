@@ -1,11 +1,15 @@
 import api from './api';
-import { TransitLine, TransitLineDB, LineStop, TransitLineStopDB, ApiLinesResponse, ApiLineResponse, ApiStopResponse, ApiLineStopsResponse } from '../types/types';
+import { TransitLine, TransitLineDB, LineStop, TransitLineStopDB, ApiLinesResponse, ApiLineResponse, ApiStopResponse, ApiLineStopsResponse, ApiLineStopResponse } from '../types/types';
 import { AxiosResponse } from 'axios';
 
 
 
 interface ApiLineStopsDBResponse extends Omit<ApiLineStopsResponse, 'data'> {
   data: TransitLineStopDB[];
+}
+
+interface ApiLineStopDBResponse extends Omit<ApiLineStopResponse, 'data'> {
+  data: TransitLineStopDB;
 }
 
 export const lineService = {
@@ -73,12 +77,53 @@ export const lineService = {
   getRoutePoints: (id: number) =>
     api.get<LineStop[]>(`/lines/${id}/route-points`),
 
-  addRoutePoint: (lineId: number, data: Omit<LineStop, 'id'>) =>
-    api.post<LineStop>(`/lines/${lineId}/route-points`, data),
+  addRoutePoint: async(lineId: number, data: Omit<LineStop, 'id'>): Promise<ApiLineStopResponse> =>{
+    const apiData = {
+      line_id: data.line_id,
+      stop_id: data.stop_id,
+      order_of_stop: data.order_of_stop
+    };
 
-  updateRoutePoints: async (lineId: number, points: LineStop[]): Promise<ApiLineStopsResponse> => {
-    const response: AxiosResponse<ApiLineStopsResponse> = await api.put(`/lines/${lineId}/route-points`, points);
-    return response.data;
+    const response: AxiosResponse<ApiLineStopDBResponse>  = await api.post<ApiLineStopDBResponse>(`/lines/${lineId}/route-points`, apiData)
+    const linestop_return =response.data.data;
+    console.log('Putting up a new routepoint, processing the return to')
+    return{
+      success:response.data.success,
+      data: {
+        ...linestop_return,
+        id:linestop_return.assoc_id,
+        line_id:linestop_return.line_id,
+        stop_id: linestop_return.stop_id,
+        order_of_stop:linestop_return.order_of_stop
+      },
+      error: response.data.error
+    }
+  },
+
+  updateRoutePoints: async (lineId: number, data: LineStop[]): Promise<ApiLineStopsResponse> => {
+    const apiData:TransitLineStopDB[]= data.map((linestop: LineStop) => ({
+      ...linestop,
+      assoc_id: linestop.id,
+      stop_id:  linestop.stop_id,
+      order_of_stop: linestop.order_of_stop,
+      line_id:linestop.line_id
+    }));
+    const response: AxiosResponse<ApiLineStopsDBResponse> = await api.put<ApiLineStopsDBResponse>(`/lines/${lineId}/route-points`, apiData);
+
+    return {
+      success: response.data.success,
+      data: response.data.data.map(({ assoc_id, ...rest }: TransitLineStopDB) => {
+        // Create a new object that matches the LineStop type
+        const lineStop: LineStop = {
+          id: assoc_id,
+          line_id: rest.line_id,
+          stop_id: rest.stop_id,
+          order_of_stop: rest.order_of_stop
+        };
+        return lineStop;
+      }),
+      error: response.data.error
+    };
   },
   // Calcul des prix
   calculatePrice: (id: number) =>

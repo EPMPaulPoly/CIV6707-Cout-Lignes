@@ -192,7 +192,7 @@ export const handleSave = async (
 ) => {
   try {
     if (editingItem.id === null) return;
-    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | ApiLineStopResponse | ApiLineStopsResponse| undefined;
+    let response: ApiStopResponse | ApiLineResponse | ApiModeResponse | ApiLineStopResponse | ApiLineStopsResponse | undefined;
     let data_to_put: any;
     if (newItemCreationBool === true) {
       switch (table) {
@@ -235,11 +235,11 @@ export const handleSave = async (
     }
 
     if (response?.data) {
-      const updatedItems = Array.isArray(response.data) 
+      const updatedItems = Array.isArray(response.data)
         ? response.data as Array<TransitStop | TransitLine | TransportMode | LineStop>
         : [response.data];
-        
-      setFunction(prevData => 
+
+      setFunction(prevData =>
         prevData.map(item => {
           const updatedItem = updatedItems.find((update) => update.id === item.id);
           return updatedItem || item;
@@ -388,14 +388,37 @@ export const createMapHandlers = (
 
     handleStopMove: async (stopId: number, position: LatLng) => {
       try {
-        const response = await stopService.update(stopId, { position });
+        // Find the existing stop first
+        const existingStop = transitStops.find(stop => stop.id === stopId);
+        if (!existingStop) {
+          console.error(`Stop with id ${stopId} not found`);
+          return;
+        }
+    
+        // Prepare update payload
+        const updatedStop: Omit<TransitStop, 'id' | 'isComplete'> = {
+          name: existingStop.name,
+          position,
+          isStation: existingStop.isStation // Preserve existing isStation value
+        };
+    
+        // Make API call
+        const response: ApiResponse<TransitStop> = await stopService.update(stopId, updatedStop);
+    
+        // Handle successful response
         if (response.success && response.data) {
-          setTransitStops(prev =>
-            prev.map(stop => stop.id === stopId ? response.data : stop)
+          setTransitStops(prevStops =>
+            prevStops.map(stop => 
+              stop.id === stopId ? { ...stop, ...response.data } : stop
+            )
           );
+        } else {
+          console.error('Failed to update stop:', response.error);
         }
       } catch (error) {
         console.error('Error moving stop:', error);
+        // Here you might want to show a user-friendly error message
+        // For example: toast.error('Failed to move stop. Please try again.');
       }
     },
 
@@ -406,7 +429,7 @@ export const createMapHandlers = (
           alert('Cannot delete stop that is part of a line. Remove it from all lines first.');
           return;
         }
-        let response:any;
+        let response: any;
         response = await stopService.delete(stopId);
 
         if (editingItem.table === 'transitStops' && editingItem.id === stopId) {
@@ -425,12 +448,12 @@ export const createMapHandlers = (
 
 export const getContrastColor = (hexcolor: string): string => {
   // Convert hex to RGB
-  const r = parseInt(hexcolor.slice(1,3), 16);
-  const g = parseInt(hexcolor.slice(3,5), 16);
-  const b = parseInt(hexcolor.slice(5,7), 16);
-  
+  const r = parseInt(hexcolor.slice(1, 3), 16);
+  const g = parseInt(hexcolor.slice(3, 5), 16);
+  const b = parseInt(hexcolor.slice(5, 7), 16);
+
   // Calculate luminance
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  
+
   return luminance > 0.5 ? '#000000' : '#FFFFFF';
 };

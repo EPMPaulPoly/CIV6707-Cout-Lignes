@@ -15,7 +15,7 @@ interface ApiLineStopDBResponse extends Omit<ApiLineStopResponse, 'data'> {
 export const lineService = {
   getAll: async (): Promise<ApiLinesResponse> => {
     const response: AxiosResponse<ApiLinesResponse> = await api.get('/lines');
-
+    console.log('finished lineservice get all')
     return {
       success: response.data.success,
       data: response.data.data.map((line: TransitLineDB) => ({
@@ -139,6 +139,28 @@ export const lineService = {
       }),
       error: response.data.error
     };
+  },
+
+  deleteRoutePoint: async (lineId: number, stopAssocId: number): Promise<ApiLineStopResponse> => {
+    try {
+      const response: AxiosResponse<ApiLineStopDBResponse> = await api.delete(
+        `/lines/${lineId}/route-points/${stopAssocId}`
+      );
+      
+      return {
+        success: response.data.success,
+        data: {
+          id: response.data.data.assoc_id,
+          line_id: response.data.data.line_id,
+          stop_id: response.data.data.stop_id,
+          order_of_stop: response.data.data.order_of_stop
+        },
+        error: response.data.error
+      };
+    } catch (error) {
+      console.error('Error deleting route point:', error);
+      throw error;
+    }
   },
   // Calcul des prix
   calculatePrice: (id: number) =>

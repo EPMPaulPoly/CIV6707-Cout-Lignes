@@ -9,7 +9,7 @@ interface CreateLineRequest {
   name: string;
   description: string;
   mode_id: number;
-  color:string;
+  color: string;
 }
 
 interface DeleteResponse {
@@ -32,6 +32,11 @@ interface RoutePointResponse extends DbLineStop {
 }
 interface LineParams extends ParamsDictionary {
   id: string;
+}
+
+interface RoutePointParams extends ParamsDictionary {
+  id: string;
+  lsid: string;
 }
 
 export const createLinesRouter = (pool: Pool): Router => {
@@ -75,29 +80,29 @@ export const createLinesRouter = (pool: Pool): Router => {
   const createLine: RequestHandler<{}, any, CreateLineRequest> = async (req, res): Promise<void> => {
     try {
       console.log('Trying to create line')
-      const { name, description, mode_id,color } = req.body;
+      const { name, description, mode_id, color } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>(
         'INSERT INTO lignes_transport.transit_lines (name, description, mode_id,color) VALUES ($1, $2, $3, $4) RETURNING *',
-        [name, description, mode_id,color]
+        [name, description, mode_id, color]
       );
       res.status(201).json({ success: true, data: result.rows[0] });
       client.release();
     } catch (err) {
       res.status(500).json({ success: false, error: 'Database error' });
-      
+
     }
   };
 
-  const updateLine: RequestHandler<LineParams, any, CreateLineRequest> = async (req, res,next): Promise<void> => {
+  const updateLine: RequestHandler<LineParams, any, CreateLineRequest> = async (req, res, next): Promise<void> => {
     try {
       console.log('Trying to create line')
       const { id } = req.params;
-      const { name, description, mode_id,color } = req.body;
+      const { name, description, mode_id, color } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>(
         'UPDATE lignes_transport.transit_lines SET name=$1, description=$2, mode_id=$3,color=$4 WHERE id = $5 RETURNING *',
-        [name, description, mode_id,color,id]
+        [name, description, mode_id, color, id]
       );
       if (result.rows.length === 0) {
         res.status(404).json({ success: false, error: 'Mode not found' });
@@ -177,7 +182,7 @@ export const createLinesRouter = (pool: Pool): Router => {
           lineId: `$${index * 4 + 3}::integer`,
           assocId: `$${index * 4 + 4}::integer`
         }));
-  
+
         const sql = `
           UPDATE lignes_transport.line_stops AS ls
           SET 
@@ -193,7 +198,7 @@ export const createLinesRouter = (pool: Pool): Router => {
           WHERE assoc_id IN (${cases.map(c => c.assocId).join(', ')})
           RETURNING *;
         `;
-  
+
         // Create array of parameters in the correct order
         const params = updates.flatMap(u => [
           u.stop_id,
@@ -201,7 +206,7 @@ export const createLinesRouter = (pool: Pool): Router => {
           u.line_id,
           u.assoc_id
         ]);
-  
+
         const result = await client.query<DbLineStop>(sql, params);
         await client.query('COMMIT');
 
@@ -292,16 +297,83 @@ export const createLinesRouter = (pool: Pool): Router => {
       }
     }
   };
+  const deleteRoutePoint: RequestHandler<RoutePointParams> = async (req, res): Promise<void> => {
+    let client;
+
+    try {
+      const { id, lsid } = req.params;
+
+      if (!id || !lsid || isNaN(Number(id)) || isNaN(Number(lsid))) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid line ID or stop ID provided'
+        });
+        return;
+      }
+
+      client = await pool.connect();
+      
+      // Start transaction
+      await client.query('BEGIN');
+
+      // Delete the route point
+      const result = await client.query<DbLineStop>(
+        'DELETE FROM lignes_transport.line_stops WHERE line_id=$1 AND assoc_id=$2 RETURNING *',
+        [id, lsid]
+      );
+
+      if (result.rowCount === 0) {
+        await client.query('ROLLBACK');
+        res.status(404).json({
+          success: false,
+          error: 'Route point not found'
+        });
+        return;
+      }
+
+      // Update the order_of_stop for remaining stops
+      await client.query(
+        `UPDATE lignes_transport.line_stops 
+         SET order_of_stop = order_of_stop - 1 
+         WHERE line_id = $1 
+         AND order_of_stop > $2`,
+        [id, result.rows[0].order_of_stop]
+      );
+
+      await client.query('COMMIT');
+
+      res.json({
+        success: true,
+        data: result.rows[0],
+      });
+
+    } catch (err) {
+      if (client) {
+        await client.query('ROLLBACK');
+      }
+      console.error('Error deleting route point:', err);
+      res.status(500).json({
+        success: false,
+        error: 'Database error'
+      });
+    } finally {
+      if (client) {
+        client.release();
+      }
+    }
+  };
+
   // Routes
   router.get('/', getAllLines);
   router.get('/route-points', getAllRoutePoints);
   router.get('/:id', getLine);
-  router.put('/:id',validateLine,updateLine)
-  router.delete('/:id',deleteLine);
+  router.put('/:id', validateLine, updateLine)
+  router.delete('/:id', deleteLine);
   router.post('/', validateLine, createLine);
   router.get('/:id/route-points', getRoutePoints);
   router.post('/:id/route-points', addRoutePoint);
-  router.put('/:id/route-points', updateRoutePoints)
+  router.put('/:id/route-points', updateRoutePoints);
+  router.delete('/:id/route-points/:lsid', deleteRoutePoint);
 
   return router;
 };

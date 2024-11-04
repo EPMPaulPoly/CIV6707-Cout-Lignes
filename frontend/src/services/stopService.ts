@@ -35,8 +35,9 @@ const transformDBToTransitStop = (dbStop: TransitStopDB): TransitStop => {
 
 export const stopService = {
   getAll: async (): Promise<ApiStopsResponse> => {
+    console.log('entering get all stops')
     const response: AxiosResponse<ApiStopsDBResponse> = await api.get('/stops');
-    
+    console.log('got response on stopService')
     return {
       success: response.data.success,
       data: response.data.data.map(transformDBToTransitStop),

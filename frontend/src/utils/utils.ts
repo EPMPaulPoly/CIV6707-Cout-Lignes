@@ -313,7 +313,52 @@ export const handleDelete = async ({
         response = await modeService.delete(id);
         break;
       case 'lineStops':
+        // Find the lineStop to be deleted
+        const lineStopToDelete = lineStops.find(ls => ls.id === id);
+        if (!lineStopToDelete) {
+          throw new Error('LineStop not found');
+        }
 
+        // Get all lineStops for the same line
+        const sameLineStops = lineStops.filter(ls => ls.line_id === lineStopToDelete.line_id);
+        
+        // Find stops that need to be reordered (those after the deleted stop)
+        const stopsToReorder = sameLineStops.filter(
+          ls => ls.order_of_stop > lineStopToDelete.order_of_stop
+        );
+
+        // Delete the lineStop
+        await lineService.deleteRoutePoint(lineStopToDelete.line_id, id);
+
+        if (stopsToReorder.length > 0) {
+          // Reorder remaining stops
+          const updatedStops = stopsToReorder.map(stop => ({
+            ...stop,
+            order_of_stop: stop.order_of_stop - 1
+          }));
+
+          // Update the order of remaining stops
+          await lineService.updateRoutePoints(lineStopToDelete.line_id, [
+            ...sameLineStops.filter(ls => ls.order_of_stop < lineStopToDelete.order_of_stop),
+            ...updatedStops
+          ]);
+
+          // Update local state with reordered stops
+          setFunction(prev => [
+            ...prev.filter(ls => ls.line_id !== lineStopToDelete.line_id),
+            ...sameLineStops
+              .filter(ls => ls.id !== id)
+              .map(ls => ({
+                ...ls,
+                order_of_stop: ls.order_of_stop > lineStopToDelete.order_of_stop
+                  ? ls.order_of_stop - 1
+                  : ls.order_of_stop
+              }))
+          ]);
+        } else {
+          // If it's the last stop or no reordering needed, just remove it from state
+          setFunction(prev => prev.filter(item => item.id !== id));
+        }
         break;
     }
 

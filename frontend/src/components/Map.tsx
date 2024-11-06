@@ -10,7 +10,7 @@ interface MapProps {
   lineStops: LineStop[];
   transportModes: TransportMode[];
   position: LatLngExpression;
-  onStopAdd: (position: LatLng) => void;  // Changed to onStopAdd
+  onStopAdd: (position: LatLng) => void;
   onStopMove: (stopId: number, position: LatLng) => void;
   onStopDelete: (stopId: number) => void;
   isAddingNewStop: boolean;
@@ -22,10 +22,12 @@ interface MapProps {
   insertPosition?: InsertPosition;
 }
 
-interface MapInteractionHandlerProps {
-  isAddingNewStop: boolean;
-  onStopAdd: (lat: number, lng: number) => void;  // Changed to match
-}
+// Style simple pour l'icône en mode édition - teinte verte
+const editingMarkerStyle = `
+  .editing-marker {
+    filter: hue-rotate(275deg);
+  }
+`;
 
 const StationIcon = L.icon({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -37,22 +39,33 @@ const StationIcon = L.icon({
   shadowAnchor: [13, 41]
 });
 
+const EditingStationIcon = L.icon({
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  iconSize: [30, 45],
+  iconAnchor: [15, 45],
+  popupAnchor: [0, -45],
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  shadowSize: [41, 41],
+  shadowAnchor: [13, 41],
+  className: 'editing-marker'
+});
+
 const MapInteractionHandler: React.FC<{
-  isAddingNewStop: boolean;  // Changed from isAddingStop
+  isAddingNewStop: boolean;
   onStopAdd: (position: LatLng) => void;
-}> = ({ isAddingNewStop, onStopAdd }) => {  // Changed from isAddingStop
+}> = ({ isAddingNewStop, onStopAdd }) => {
   const map = useMapEvents({
     click: (e: LeafletMouseEvent) => {
       console.log('Map clicked:', {
         isAddingNewStop,
         pos: e.latlng
       });
-      if (isAddingNewStop) {  // Changed from isAddingStop
+      if (isAddingNewStop) {
         onStopAdd(e.latlng);
       }
     },
     mousemove: (e: LeafletMouseEvent) => {
-      if (isAddingNewStop) {  // Changed from isAddingStop
+      if (isAddingNewStop) {
         map.getContainer().style.cursor = 'crosshair';
       } else {
         map.getContainer().style.cursor = '';
@@ -79,7 +92,6 @@ const Map: React.FC<MapProps> = ({
   TaxLotData = [],
   insertPosition
 }) => {
-  // Add check at the start of component
   useEffect(() => {
     console.log('Map received transportModes:', transportModes);
   }, [transportModes]);
@@ -94,11 +106,7 @@ const Map: React.FC<MapProps> = ({
     return stops.map(stop => stop.position!);
   };
 
-  
   const getModeName = (mode_id: number) => {
-    // Add debugging
-    //console.log('transportModes in getModeName:', transportModes);
-    //console.log('Looking for mode_id:', mode_id);
     if (!Array.isArray(transportModes)) {
       console.error('transportModes is not an array:', transportModes);
       return 'Unknown Mode';
@@ -111,14 +119,14 @@ const Map: React.FC<MapProps> = ({
   };
 
   const getLineColor = (line: TransitLine | undefined): string => {
-    if (!line) return '#808080'; // Default gray for undefined line
-    const color: string = line.color ;
-    return color || '#808080'; // Use the line's color or default to gray
+    if (!line) return '#808080';
+    const color: string = line.color;
+    return color || '#808080';
   };
-  
 
   return (
     <div className="map-container">
+      <style>{editingMarkerStyle}</style>
       {isAddingNewStop && (
         <div className="map-helper-text">
           Click on the map to place the new stop
@@ -167,7 +175,6 @@ const Map: React.FC<MapProps> = ({
           </Polygon>
         ))}*/}
 
-        {/* Render transit lines first so they appear under the stops */}
         {transitLines.map(line => (
           <Polyline
             key={`${line.id}-${line.color}`}
@@ -190,8 +197,8 @@ const Map: React.FC<MapProps> = ({
           <Marker
             key={stop.id}
             position={stop.position!}
-            icon={StationIcon}
-            draggable={isStopBeingEdited(stop.id)}  // Only draggable when being edited
+            icon={isStopBeingEdited(stop.id) ? EditingStationIcon : StationIcon}
+            draggable={isStopBeingEdited(stop.id)}
             eventHandlers={{
               click: (e) => {
                 if (isSelectingStops && onStopSelect && insertPosition) {
@@ -202,7 +209,7 @@ const Map: React.FC<MapProps> = ({
                 }
               },
               dragend: (e) => {
-                if (isStopBeingEdited(stop.id)) {  // Double-check before allowing move
+                if (isStopBeingEdited(stop.id)) {
                   const marker = e.target;
                   const position = marker.getLatLng();
                   onStopMove(stop.id, position);

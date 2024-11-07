@@ -338,22 +338,22 @@ const Table: React.FC<TableProps> = ({
                   <div className="flex gap-2">
                     <button 
                       onClick={handleSave}
-                      className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded"
-                    >
+                      className="save-button"
+                      >
                       Save
                     </button>
                     <button 
                       onClick={handleCancel}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded"
-                    >
+                      className="cancel-button"
+                      >
                       Cancel
                     </button>
                   </div>
                 ) : (
                   <button 
                     onClick={() => handleEdit(item.id)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
-                  >
+                    className="edit-button"
+                    >
                     Edit
                   </button>
                 )}

@@ -19,6 +19,7 @@ interface ResizableLayoutProps {
     handleStopAdd: (poition: LatLng) => void;
     handleStopMove: (stopId: number, position: LatLng) => void;
     handleStopDelete: (stopId: number) => void;
+    handleStopEdit: (stopId: number) => void;
     setNewStopName: (name: string) => void;
   };
   setSelectedLine: (id: number) => void;
@@ -289,6 +290,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           onStopAdd={mapHandlers.handleStopAdd}
           onStopMove={mapHandlers.handleStopMove}
           onStopDelete={mapHandlers.handleStopDelete}
+          onStopEdit={mapHandlers.handleStopEdit}
           isAddingNewStop={editingItem.table === 'transitStops' && editingItem.id === null}
           editingItem={editingItem}
           selectedLine={selectedLine}

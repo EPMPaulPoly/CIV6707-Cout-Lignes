@@ -130,6 +130,7 @@ export interface MapHandlers {
   handleStopAdd: (position: LatLng) => void;
   handleStopMove: (stopId: number, position: LatLng) => void;
   handleStopDelete: (stopId: number) => void;
+  handleStopEdit: (stopId: number) => void;
   setNewStopName: (name: string) => void;
 }
 
@@ -511,6 +512,11 @@ export const createMapHandlers = (
       } catch (error) {
         console.error('Error deleting stop:', error);
       }
+    },
+
+    handleStopEdit: (stopId: number) => {
+      setEditingItem({ table: 'transitStops', id: stopId });
+      setNewItemCreation(false);
     },
 
     setNewStopName

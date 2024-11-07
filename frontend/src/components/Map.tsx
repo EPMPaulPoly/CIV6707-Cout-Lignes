@@ -13,6 +13,7 @@ interface MapProps {
   onStopAdd: (position: LatLng) => void;
   onStopMove: (stopId: number, position: LatLng) => void;
   onStopDelete: (stopId: number) => void;
+  onStopEdit: (stopId: number) => void;
   isAddingNewStop: boolean;
   editingItem: { table: string; id: number | null };
   selectedLine: number | null;
@@ -26,6 +27,46 @@ interface MapProps {
 const editingMarkerStyle = `
   .editing-marker {
     filter: hue-rotate(275deg);
+  }
+  .map-helper-text {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 8px 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  .stop-button {
+    padding: 4px 8px;
+    margin: 4px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .edit-button {
+    background-color: #EAB308;
+    color: white;
+  }
+  .edit-button:hover {
+    background-color: #CA8A04;
+  }
+  .delete-button {
+    background-color: #EF4444;
+    color: white;
+  }
+  .delete-button:hover {
+    background-color: #DC2626;
+  }
+  .add-button {
+    background-color: #3B82F6;
+    color: white;
+  }
+  .add-button:hover {
+    background-color: #2563EB;
   }
 `;
 
@@ -84,6 +125,7 @@ const Map: React.FC<MapProps> = ({
   onStopAdd,
   onStopMove,
   onStopDelete,
+  onStopEdit,
   isAddingNewStop,
   editingItem,
   selectedLine,
@@ -232,22 +274,47 @@ const Map: React.FC<MapProps> = ({
                       </div>
                     ) : null;
                   })}
-                {isSelectingStops ? (
-                  <button onClick={(e: React.MouseEvent) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onStopSelect?.(stop.id, insertPosition || { type: 'last' });
-                  }}>
-                    Add to Line
-                  </button>
-                ) : (
-                  <button onClick={(e: React.MouseEvent) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onStopDelete(stop.id);
-                  }}>
-                    Delete Stop
-                  </button>
+                <div className="flex gap-2 mt-2">
+                  {isSelectingStops ? (
+                    <button
+                      className="stop-button add-button"
+                      onClick={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onStopSelect?.(stop.id, insertPosition || { type: 'last' });
+                      }}
+                    >
+                      Add to Line
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className="stop-button edit-button"
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onStopEdit(stop.id);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="stop-button delete-button"
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onStopDelete(stop.id);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+                {isStopBeingEdited(stop.id) && (
+                  <div className="text-sm text-gray-600 mt-2">
+                    Drag the marker to move the stop
+                  </div>
                 )}
               </div>
             </Popup>

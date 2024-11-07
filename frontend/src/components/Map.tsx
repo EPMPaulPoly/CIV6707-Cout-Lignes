@@ -14,6 +14,8 @@ interface MapProps {
   onStopMove: (stopId: number, position: LatLng) => void;
   onStopDelete: (stopId: number) => void;
   onStopEdit: (stopId: number) => void;
+  onStopSave: (stopId: number) => void;
+  onStopCancel: (stopId: number) => void;
   isAddingNewStop: boolean;
   editingItem: { table: string; id: number | null };
   selectedLine: number | null;
@@ -67,6 +69,20 @@ const editingMarkerStyle = `
   }
   .add-button:hover {
     background-color: #2563EB;
+  }
+  .save-button {
+    background-color: #22C55E !important;
+    color: white !important;
+  }
+  .save-button:hover {
+    background-color: #16A34A !important;
+  }
+  .cancel-button {
+    background-color: #EF4444 !important;
+    color: white !important;
+  }
+  .cancel-button:hover {
+    background-color: #DC2626 !important;
   }
 `;
 
@@ -126,6 +142,8 @@ const Map: React.FC<MapProps> = ({
   onStopMove,
   onStopDelete,
   onStopEdit,
+  onStopSave,
+  onStopCancel,
   isAddingNewStop,
   editingItem,
   selectedLine,
@@ -286,7 +304,30 @@ const Map: React.FC<MapProps> = ({
                     >
                       Add to Line
                     </button>
-                  ) : (
+                   ) : isStopBeingEdited(stop.id) ? (
+                    <>
+                      <button
+                        className="stop-button save-button"
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onStopSave(stop.id);
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="stop-button cancel-button"
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onStopCancel(stop.id);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                     </>
+                   ) : (
                     <>
                       <button
                         className="stop-button edit-button"

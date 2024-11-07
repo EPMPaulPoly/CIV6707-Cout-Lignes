@@ -65,6 +65,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   const [activeTable, setActiveTable] = useState<string>('transitLines');
   const [isSelectingStops, setIsSelectingStops] = useState(false);
   const [originalItem, setOriginalItem] = useState<any>(null);
+  const [originalPosition, setOriginalPosition] = useState<LatLng | null>(null);
 
 
   const [insertPosition, setInsertPosition] = useState<InsertPosition>({ type: 'last' });
@@ -75,6 +76,31 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsResizing(true);
     e.preventDefault();
+  };
+
+  const handleStopSave = (stopId: number) => {
+    handleSave('transitStops', editingItem, setTransitStops, setEditingItem, newItemCreation, setNewItemCreation, transitStops);
+  };
+
+  const handleStopCancel = (stopId: number) => {
+    if (originalPosition) {
+      const updatedStops = transitStops.map(stop => 
+        stop.id === stopId 
+          ? { ...stop, position: originalPosition }
+          : stop
+      );
+      setTransitStops(updatedStops);
+    }
+    handleCancel(editingItem, setEditingItem, originalItem, setOriginalItem, setTransitStops, setNewItemCreation);
+    setOriginalPosition(null);
+  };
+
+  const handleStopEditWithPosition = (stopId: number) => {
+    const stop = transitStops.find(s => s.id === stopId);
+    if (stop && stop.position) {
+      setOriginalPosition(stop.position);
+    }
+    mapHandlers.handleStopEdit(stopId);
   };
 
   const togglePanel = () => {
@@ -290,7 +316,9 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           onStopAdd={mapHandlers.handleStopAdd}
           onStopMove={mapHandlers.handleStopMove}
           onStopDelete={mapHandlers.handleStopDelete}
-          onStopEdit={mapHandlers.handleStopEdit}
+          onStopEdit={handleStopEditWithPosition}
+          onStopSave={handleStopSave}
+          onStopCancel={handleStopCancel}
           isAddingNewStop={editingItem.table === 'transitStops' && editingItem.id === null}
           editingItem={editingItem}
           selectedLine={selectedLine}

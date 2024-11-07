@@ -28,7 +28,7 @@ interface MapProps {
 // Style simple pour l'icône en mode édition - teinte verte
 const editingMarkerStyle = `
   .editing-marker {
-    filter: hue-rotate(275deg);
+    filter: hue-rotate(195deg) brightness(1.3);
   }
   .map-helper-text {
     position: absolute;

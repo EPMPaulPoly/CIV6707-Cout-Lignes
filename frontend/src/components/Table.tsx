@@ -11,6 +11,7 @@ interface TableProps {
   handleChange: (id: number, field: string, value: string | number | boolean, transport_modes?: TransportMode[]) => void;
   handleEdit: (id: number) => void;
   handleSave: () => void;
+  handleCancel: () => void; // Ajout du handleCancel
   handleAdd: (insertPosition?: { type: 'first' | 'last' | 'after', afterStopId?: number }) => void;  // Updated this line
   handleDelete: (id: number) => void;
   transportModes?: TransportMode[];
@@ -44,6 +45,7 @@ const Table: React.FC<TableProps> = ({
   handleChange,
   handleEdit,
   handleSave,
+  handleCancel, // Ajout du handleCancel dans les props
   handleAdd,
   handleDelete,
   transportModes,
@@ -333,9 +335,27 @@ const Table: React.FC<TableProps> = ({
               ))}
               <td>
                 {editingItem.table === table && editingItem.id === item.id ? (
-                  <button onClick={handleSave}>Save</button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={handleSave}
+                      className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded"
+                    >
+                      Save
+                    </button>
+                    <button 
+                      onClick={handleCancel}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 ) : (
-                  <button onClick={() => handleEdit(item.id)}>Edit</button>
+                  <button 
+                    onClick={() => handleEdit(item.id)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                  >
+                    Edit
+                  </button>
                 )}
               </td>
               <td>

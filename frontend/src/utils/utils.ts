@@ -176,9 +176,35 @@ export const handleAdd = async (
 export const handleEdit = (
   table: string,
   id: number,
-  setEditingItem: Dispatch<SetStateAction<EditingItem>>
+  setEditingItem: Dispatch<SetStateAction<EditingItem>>,
+  data: any[],
+  setOriginalItem: Dispatch<SetStateAction<any>>
 ) => {
-  setEditingItem({ table, id });
+  const itemToEdit = data.find(item => item.id === id);
+  if (itemToEdit) {
+    setOriginalItem({ ...itemToEdit });
+    setEditingItem({ table, id });
+  }
+};
+
+export const handleCancel = (
+  editingItem: EditingItem,
+  setEditingItem: Dispatch<SetStateAction<EditingItem>>,
+  originalItem: any,
+  setOriginalItem: Dispatch<SetStateAction<any>>,
+  setFunction: Dispatch<SetStateAction<any[]>>,
+  setNewItemCreation: Dispatch<SetStateAction<boolean>>
+) => {
+  if (originalItem) {
+    setFunction(prevData =>
+      prevData.map(item =>
+        item.id === editingItem.id ? originalItem : item
+      )
+    );
+  }
+  setEditingItem({ table: '', id: null });
+  setOriginalItem(null);
+  setNewItemCreation(false);
 };
 
 export const handleSave = async (

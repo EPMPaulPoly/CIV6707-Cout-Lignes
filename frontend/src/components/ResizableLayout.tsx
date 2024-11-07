@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Table from '../components/Table';
 import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot, InsertPosition } from '../types/types';
-import { handleChange, handleAdd, handleEdit, handleSave, calculateNewOrder } from '../utils/utils';
+import { handleChange, handleAdd, handleEdit, handleCancel, handleSave, calculateNewOrder } from '../utils/utils';
 import { LatLngExpression, LatLng } from 'leaflet';
 import Map from '../components/Map'
 import { lineService } from '../services';
@@ -63,6 +63,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeTable, setActiveTable] = useState<string>('transitLines');
   const [isSelectingStops, setIsSelectingStops] = useState(false);
+  const [originalItem, setOriginalItem] = useState<any>(null);
 
 
   const [insertPosition, setInsertPosition] = useState<InsertPosition>({ type: 'last' });
@@ -184,7 +185,8 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             columns={['name', 'description', 'mode','color']}
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transitLines', id, field, value, setTransitLines, transportModes)}
-            handleEdit={(id) => handleEdit('transitLines', id, setEditingItem)}
+            handleEdit={(id) => handleEdit('transitLines', id, setEditingItem, transitLines, setOriginalItem)}
+            handleCancel={() => handleCancel(editingItem, setEditingItem, originalItem, setOriginalItem, setTransitLines, setNewItemCreation)}
             handleSave={() => handleSave('transitLines', editingItem, setTransitLines, setEditingItem, newItemCreation, setNewItemCreation, transitLines)}
             handleAdd={() => handleAdd('transitLines', transitLines, setTransitLines, setEditingItem, newItemCreation, setNewItemCreation)}
             handleDelete={(id) => handleDelete('transitLines', id, setTransitLines)}
@@ -204,7 +206,8 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             columns={['name', 'costPerKm', 'costPerStation', 'footprint']}
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transportModes', id, field, value, setTransportModes)}
-            handleEdit={(id) => handleEdit('transportModes', id, setEditingItem)}
+            handleEdit={(id) => handleEdit('transitLines', id, setEditingItem, transitLines, setOriginalItem)}
+            handleCancel={() => handleCancel(editingItem, setEditingItem, originalItem, setOriginalItem, setTransitLines, setNewItemCreation)}
             handleSave={() => handleSave('transportModes', editingItem, setTransportModes, setEditingItem, newItemCreation, setNewItemCreation, transportModes)}
             handleAdd={() => handleAdd('transportModes', transportModes, setTransportModes, setEditingItem, newItemCreation, setNewItemCreation)}
             handleDelete={(id) => handleDelete('transportModes', id, setTransportModes)}
@@ -224,7 +227,8 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             editingItem={editingItem}
             newItemCreation={newItemCreation}
             handleChange={(id, field, value) => handleChange('transitStops', id, field, value, setTransitStops)}
-            handleEdit={(id) => handleEdit('transitStops', id, setEditingItem)}
+            handleEdit={(id) => handleEdit('transitStops', id, setEditingItem, transitStops, setOriginalItem)}
+            handleCancel={() => handleCancel(editingItem, setEditingItem, originalItem, setOriginalItem, setTransitStops, setNewItemCreation)}
             handleSave={() => handleSave('transitStops', editingItem, setTransitStops, setEditingItem, newItemCreation, setNewItemCreation, transitStops)}
             handleAdd={() => handleAdd('transitStops', transitStops, setTransitStops, setEditingItem, newItemCreation, setNewItemCreation)}
             handleDelete={(id) => handleDelete('transitStops', id, setTransitStops)}
@@ -255,7 +259,8 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
               editingItem={editingItem}
               newItemCreation={newItemCreation}
               handleChange={handleLineStopsChange}
-              handleEdit={(id) => handleEdit('lineStops', id, setEditingItem)}
+              handleEdit={(id) => handleEdit('lineStops', id, setEditingItem, lineStops, setOriginalItem)}
+              handleCancel={() => handleCancel(editingItem, setEditingItem, originalItem, setOriginalItem, setLineStops, setNewItemCreation)}
               handleSave={() => handleSave('lineStops', editingItem, setLineStops, setEditingItem, newItemCreation, setNewItemCreation, lineStops)}
               handleAdd={() => handleAdd('lineStops', lineStops, setLineStops, setEditingItem, newItemCreation, setNewItemCreation, { line_id: selectedLine }, setIsSelectingStops)}
               handleDelete={(id) => handleDelete('lineStops', id, setLineStops)}

@@ -175,6 +175,7 @@ const Map: React.FC<MapProps> = ({
           </Polygon>
         ))}*/}
 
+        {/* Render transit lines first so they appear under the stops */}
         {transitLines.map(line => (
           <Polyline
             key={`${line.id}-${line.color}`}

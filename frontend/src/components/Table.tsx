@@ -11,6 +11,7 @@ interface TableProps {
   handleChange: (id: number, field: string, value: string | number | boolean, transport_modes?: TransportMode[]) => void;
   handleEdit: (id: number) => void;
   handleSave: () => void;
+  handleCancel: () => void; // Ajout du handleCancel
   handleAdd: (insertPosition?: { type: 'first' | 'last' | 'after', afterStopId?: number }) => void;  // Updated this line
   handleDelete: (id: number) => void;
   transportModes?: TransportMode[];
@@ -44,6 +45,7 @@ const Table: React.FC<TableProps> = ({
   handleChange,
   handleEdit,
   handleSave,
+  handleCancel, // Ajout du handleCancel dans les props
   handleAdd,
   handleDelete,
   transportModes,
@@ -53,15 +55,17 @@ const Table: React.FC<TableProps> = ({
   setSelectingStops,
   onInsertPositionChange
 }) => {
-  // For transit stops, only show editable name field
+  // Filter out latitude and longitude columns for transit stops table
+  const visibleColumns = table === 'transitStops' 
+    ? columns.filter(col => !['latitude', 'longitude'].includes(col))
+    : columns;
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-
-    // Safely access mapHandlers
     mapHandlers?.setNewStopName(value);
     handleChange(0, 'name', value);
   };
-  // format the lat long for 4 get
+
   const formatValue = (value: any, column: string) => {
     if (table === 'transitStops' && ['latitude', 'longitude'].includes(column)) {
       return value !== null ? value.toFixed(4) : '';
@@ -82,7 +86,7 @@ const Table: React.FC<TableProps> = ({
     const stop = transitStops?.find(m => m.id === stopId);
     return stop ? stop.name : 'Unknown Stop';
   }
-  // Helper to determine if a field should be editable
+
   const isEditable = (column: string) => {
     if (table === 'transitStops' && column === 'latitude') {
       return false;
@@ -102,7 +106,6 @@ const Table: React.FC<TableProps> = ({
     });
   }, [table, editingItem]);
 
-  // Add state for insert position
   interface InsertPosition {
     type: 'first' | 'last' | 'after';
     afterStopId?: number;
@@ -231,7 +234,7 @@ const Table: React.FC<TableProps> = ({
       <table>
         <thead>
           <tr>
-            {columns.map(col => <th key={col}>{col}</th>)}
+            {visibleColumns.map(col => <th key={col}>{col}</th>)}
             <th>Act</th>
             <th>Delete</th>
           </tr>
@@ -239,7 +242,7 @@ const Table: React.FC<TableProps> = ({
         <tbody>
           {data.map(item => (
             <tr key={item.id}>
-              {columns.map(col => (
+              {visibleColumns.map(col => (
                 <td key={col}>
                   {editingItem.table === table && editingItem.id === item.id && isEditable(col) ? (
                     col === 'mode' && table === 'transitLines' ? (
@@ -311,10 +314,6 @@ const Table: React.FC<TableProps> = ({
                       getStopNameById(item.stop_id)
                     ) : col === 'mode' && table === 'transitLines' ? (
                       getModeNameById(item.mode_id)
-                    ) : col === 'latitude' && table === 'transitStops' ? (
-                      formatValue(item.position.lat, col)
-                    ) : col === 'longitude' && table === 'transitStops' ? (
-                      formatValue(item.position.lng, col)
                     ) : col === 'isStation' && table === 'transitStops' ? (
                       formatValue(item[col], col)
                     ) : col === 'color' && table === 'transitLines' ? (
@@ -336,9 +335,27 @@ const Table: React.FC<TableProps> = ({
               ))}
               <td>
                 {editingItem.table === table && editingItem.id === item.id ? (
-                  <button onClick={handleSave}>Save</button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={handleSave}
+                      className="save-button"
+                      >
+                      Save
+                    </button>
+                    <button 
+                      onClick={handleCancel}
+                      className="cancel-button"
+                      >
+                      Cancel
+                    </button>
+                  </div>
                 ) : (
-                  <button onClick={() => handleEdit(item.id)}>Edit</button>
+                  <button 
+                    onClick={() => handleEdit(item.id)}
+                    className="edit-button"
+                    >
+                    Edit
+                  </button>
                 )}
               </td>
               <td>

@@ -218,38 +218,49 @@ select {
   border: 1px solid #ccc;
 }
 
-/* Style for the edit button */
-button[onClick*="handleEdit"] {
-  background: #007bff;
+.edit-button {
+  background: #f97316;  /* orange-500 */
   color: white;
   border: none;
+  border-radius: 4px;
 }
 
-button[onClick*="handleEdit"]:hover {
-  background: #0056b3;
+.edit-button:hover {
+  background: #ea580c;  /* orange-600 */
 }
 
-/* Style for the save button */
-button[onClick*="handleSave"] {
-  background: #28a745;
+.save-button {
+  background: #22c55e;  /* green-500 */
   color: white;
   border: none;
+  border-radius: 4px;
 }
 
-button[onClick*="handleSave"]:hover {
-  background: #218838;
+.save-button:hover {
+  background: #16a34a;  /* green-600 */
 }
 
-/* Style for the add button */
-button[onClick*="handleAdd"] {
-  background: #17a2b8;
+.cancel-button {
+  background: #ef4444;  /* red-500 */
   color: white;
   border: none;
+  border-radius: 4px;
+}
+
+.cancel-button:hover {
+  background: #dc2626;  /* red-600 */
+}
+
+.standard-add-button {
+  background: #3b82f6; /* blue-500 */
+  color: white;
+  border: none;
+  border-radius: 4px;
   margin-top: 8px;
 }
 
-button[onClick*="handleAdd"]:hover {
-  background: #138496;
+.standard-add-button:hover {
+  background: #2563eb; /* blue-600 */
 }
 
 /* Additional table row styling */

@@ -2,10 +2,15 @@ import React, { useState } from 'react';
 import { EditingItem, TransportMode, TransitStop, InsertPosition } from '../types/types';
 import { MapHandlers, getContrastColor } from '../utils/utils';
 
+interface ColumnMapping {
+  field: string;
+  header: string;
+}
+
 interface TableProps {
   table: string;
   data: any[];
-  columns: string[];
+  columns: ColumnMapping[];
   editingItem: EditingItem;
   newItemCreation: boolean;
   handleChange: (id: number, field: string, value: string | number | boolean, transport_modes?: TransportMode[]) => void;
@@ -57,7 +62,7 @@ const Table: React.FC<TableProps> = ({
 }) => {
   // Filter out latitude and longitude columns for transit stops table
   const visibleColumns = table === 'transitStops' 
-    ? columns.filter(col => !['latitude', 'longitude'].includes(col))
+    ? columns.filter(col => !['latitude', 'longitude'].includes(col.field))
     : columns;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,12 +71,12 @@ const Table: React.FC<TableProps> = ({
     handleChange(0, 'name', value);
   };
 
-  const formatValue = (value: any, column: string) => {
-    if (table === 'transitStops' && ['latitude', 'longitude'].includes(column)) {
+  const formatValue = (value: any, field: string) => {
+    if (table === 'transitStops' && ['latitude', 'longitude'].includes(field)) {
       return value !== null ? value.toFixed(4) : '';
-    } else if (column === 'isStation' && value) {
+    } else if (field === 'isStation' && value) {
       return 'Yes'
-    } else if (column === 'isStation' && !value) {
+    } else if (field === 'isStation' && !value) {
       return 'No'
     }
     return value;
@@ -87,10 +92,10 @@ const Table: React.FC<TableProps> = ({
     return stop ? stop.name : 'Unknown Stop';
   }
 
-  const isEditable = (column: string) => {
-    if (table === 'transitStops' && column === 'latitude') {
+  const isEditable = (field: string) => {
+    if (table === 'transitStops' && field === 'latitude') {
       return false;
-    } else if (table === 'transitStops' && column === 'longitude') {
+    } else if (table === 'transitStops' && field === 'longitude') {
       return false;
     }
     return true;
@@ -234,7 +239,7 @@ const Table: React.FC<TableProps> = ({
       <table>
         <thead>
           <tr>
-            {visibleColumns.map(col => <th key={col}>{col}</th>)}
+            {visibleColumns.map(col => <th key={col.field}>{col.header}</th>)}
             <th>Act</th>
             <th>Delete</th>
           </tr>
@@ -243,13 +248,13 @@ const Table: React.FC<TableProps> = ({
           {data.map(item => (
             <tr key={item.id}>
               {visibleColumns.map(col => (
-                <td key={col}>
-                  {editingItem.table === table && editingItem.id === item.id && isEditable(col) ? (
-                    col === 'mode' && table === 'transitLines' ? (
+                <td key={col.field}>
+                  {editingItem.table === table && editingItem.id === item.id && isEditable(col.field) ? (
+                    col.field === 'mode' && table === 'transitLines' ? (
                       console.log(`Editing transit lines mode value :${item['mode_id']}`),
                       <select
                         value={String(item['mode_id'])}
-                        onChange={(e) => handleChange(item.id, col, e.target.value)}
+                        onChange={(e) => handleChange(item.id, col.field, e.target.value)}
                       >
                         {
                           transportModes?.map(mode => (
@@ -258,10 +263,10 @@ const Table: React.FC<TableProps> = ({
                             </option>
                           ))}
                       </select>
-                    ) : col === 'stop_id' && table === 'lineStops' ? (
+                    ) : col.field === 'stop_id' && table === 'lineStops' ? (
                       <select
-                        value={item[col]}
-                        onChange={(e) => handleChange(item.id, col, e.target.value)}
+                        value={item[col.field]}
+                        onChange={(e) => handleChange(item.id, col.field, e.target.value)}
                       >
                         {transitStops?.map(stop => (
                           <option key={stop.id} value={stop.id}>
@@ -269,15 +274,15 @@ const Table: React.FC<TableProps> = ({
                           </option>
                         ))}
                       </select>
-                    ) : col === 'color' && table === 'transitLines' ? (
+                    ) : col.field === 'color' && table === 'transitLines' ? (
                       <div className="flex items-center gap-2">
                         <select
-                          value={item[col] || '#808080'}
-                          onChange={(e) => handleChange(item.id, col, e.target.value)}
+                          value={item[col.field] || '#808080'}
+                          onChange={(e) => handleChange(item.id, col.field, e.target.value)}
                           className="p-1 border rounded"
                           style={{
-                            backgroundColor: item[col] || '#808080',
-                            color: getContrastColor(item[col] || '#808080')
+                            backgroundColor: item[col.field] || '#808080',
+                            color: getContrastColor(item[col.field] || '#808080')
                           }}
                         >
                           {TRANSIT_COLORS.map(color => (
@@ -294,32 +299,32 @@ const Table: React.FC<TableProps> = ({
                           ))}
                         </select>
                       </div>
-                    ) : col === 'isStation' ? (
+                    ) : col.field === 'isStation' ? (
                       <input
                         type="checkbox"
-                        checked={item[col]}
-                        onChange={(e) => handleChange(item.id, col, e.target.checked)}
+                        checked={item[col.field]}
+                        onChange={(e) => handleChange(item.id, col.field, e.target.checked)}
                       />
-                    ) : col === 'stop_name' && table === 'lineStops' ? (
+                    ) : col.field === 'stop_name' && table === 'lineStops' ? (
                       getStopNameById(item.stop_id)
                     ) : (
                       <input
-                        type={typeof item[col] === 'number' ? 'number' : 'text'}
-                        value={item[col] !== null ? item[col] : ''}
-                        onChange={(e) => handleChange(item.id, col, e.target.value)}
+                        type={typeof item[col.field] === 'number' ? 'number' : 'text'}
+                        value={item[col.field] !== null ? item[col.field] : ''}
+                        onChange={(e) => handleChange(item.id, col.field, e.target.value)}
                       />
                     )
                   ) : (
-                    col === 'stop_name' && table === 'lineStops' ? (
+                    col.field === 'stop_name' && table === 'lineStops' ? (
                       getStopNameById(item.stop_id)
-                    ) : col === 'mode' && table === 'transitLines' ? (
+                    ) : col.field === 'mode' && table === 'transitLines' ? (
                       getModeNameById(item.mode_id)
-                    ) : col === 'isStation' && table === 'transitStops' ? (
-                      formatValue(item[col], col)
-                    ) : col === 'color' && table === 'transitLines' ? (
+                    ) : col.field === 'isStation' && table === 'transitStops' ? (
+                      formatValue(item[col.field], col.field)
+                    ) : col.field === 'color' && table === 'transitLines' ? (
                       <div
                         style={{
-                          backgroundColor: item[col] || '#808080',
+                          backgroundColor: item[col.field] || '#808080',
                           width: '20px',
                           height: '20px',
                           margin: '0 auto',
@@ -328,7 +333,7 @@ const Table: React.FC<TableProps> = ({
                         }}
                       />
                     ) : (
-                      formatValue(item[col], col)
+                      formatValue(item[col.field], col.field)
                     )
                   )}
                 </td>

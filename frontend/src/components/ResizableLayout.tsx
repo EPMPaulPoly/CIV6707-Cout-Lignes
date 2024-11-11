@@ -6,6 +6,32 @@ import { LatLngExpression, LatLng } from 'leaflet';
 import Map from '../components/Map'
 import { lineService } from '../services';
 
+const COLUMN_MAPPINGS = {
+  transitLines: [
+    { field: 'name', header: 'Name' },
+    { field: 'description', header: 'Description' },
+    { field: 'mode', header: 'Transport mode' },
+    { field: 'color', header: 'Color' }
+  ],
+  transportModes: [
+    { field: 'name', header: 'Name' },
+    { field: 'costPerKm', header: 'Cost per Km' },
+    { field: 'costPerStation', header: 'Cost per station' },
+    { field: 'footprint', header: 'Footprint' }
+  ],
+  transitStops: [
+    { field: 'name', header: 'Name' },
+    { field: 'latitude', header: 'Latitude' },
+    { field: 'longitude', header: 'Longitude' },
+    { field: 'isStation', header: 'Is a Station' }
+  ],
+  lineStops: [
+    { field: 'order_of_stop', header: 'Order' },
+    { field: 'stop_id', header: 'Stop ID' },
+    { field: 'stop_name', header: 'Stop name' }
+  ]
+};
+
 interface ResizableLayoutProps {
   transitLines: TransitLine[];
   transportModes: TransportMode[];
@@ -209,7 +235,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           <Table
             table="transitLines"
             data={transitLines}
-            columns={['name', 'description', 'mode','color']}
+            columns={COLUMN_MAPPINGS.transitLines}
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transitLines', id, field, value, setTransitLines, transportModes)}
             handleEdit={(id) => handleEdit('transitLines', id, setEditingItem, transitLines, setOriginalItem)}
@@ -230,7 +256,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           <Table
             table="transportModes"
             data={transportModes}
-            columns={['name', 'costPerKm', 'costPerStation', 'footprint']}
+            columns={COLUMN_MAPPINGS.transportModes}
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transportModes', id, field, value, setTransportModes)}
             handleEdit={(id) => handleEdit('transitLines', id, setEditingItem, transitLines, setOriginalItem)}
@@ -250,7 +276,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           <Table
             table="transitStops"
             data={transitStops}
-            columns={['name', 'latitude', 'longitude', 'isStation']}
+            columns={COLUMN_MAPPINGS.transitStops}
             editingItem={editingItem}
             newItemCreation={newItemCreation}
             handleChange={(id, field, value) => handleChange('transitStops', id, field, value, setTransitStops)}
@@ -282,7 +308,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             <Table
               table="lineStops"
               data={lineStops.filter(stop => stop.line_id === selectedLine)}
-              columns={['order_of_stop','stop_id', 'stop_name' ]}
+              columns={COLUMN_MAPPINGS.lineStops}
               editingItem={editingItem}
               newItemCreation={newItemCreation}
               handleChange={handleLineStopsChange}

@@ -3,7 +3,6 @@ import { Pool } from 'pg';
 import { validateGeometry } from '../validators/geometryValidator';
 import { DbCadastre } from '../../types/database';
 import { Polygon } from 'geojson';
-
 interface GeometryBody {
   geometry: Polygon;  
 }

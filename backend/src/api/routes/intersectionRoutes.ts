@@ -2,9 +2,9 @@ import { Router, Request, Response, RequestHandler, NextFunction } from 'express
 import { Pool } from 'pg';
 import { validateGeometry } from '../validators/geometryValidator';
 import { DbIntersectionResult } from '../../types/database';
-
+import { Polygon } from 'geojson';
 interface GeometryBody {
-  geometry: GeoJSON.Polygon;
+  geometry: Polygon;
 }
 
 export const createIntersectionRouter = (pool: Pool): Router => {

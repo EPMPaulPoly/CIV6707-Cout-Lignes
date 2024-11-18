@@ -13,6 +13,7 @@
         "cors": "latest",
         "dotenv": "latest",
         "express": "^4.21.1",
+        "geojson": "latest",
         "leaflet": "latest",
         "pg": "latest",
         "zod": "^3.23.8"
@@ -21,6 +22,7 @@
         "@types/axios": "latest",
         "@types/cors": "latest",
         "@types/express": "latest",
+        "@types/geojson": "latest",
         "@types/leaflet": "latest",
         "@types/node": "latest",
         "@types/pg": "latest",

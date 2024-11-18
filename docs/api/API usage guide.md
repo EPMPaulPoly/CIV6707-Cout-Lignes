@@ -101,9 +101,9 @@ Request payload:\
     "cost_per_km":35,\
     "cost_per_station":36,\
     "footprint":5\
-}\\
+}\
 Request return:\
-{\\
+{\
     "success":true,\
     "data":{\
         "mode_id":8,\

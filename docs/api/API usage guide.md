@@ -136,7 +136,7 @@ The server would respond with a success flag and the relevant data:
 }\
 
 #### Deleting a mode: DELETE /modes
-A DELETE function is also available. Only the line has to be transmitted over the URL. Note that the API does no dataproofing for integrity. Thus if the mode is used in one of your lines it will break links. Currently this is handled in the front end but this is not the most robust of implementations. The DELETE call would be on the following URL if deleting mode 6: http://localhost:5000/api/modes/6
+A DELETE function is also available. Only the line has to be transmitted over the URL. Note that the API does no dataproofing for integrity. Thus if the mode is used in one of your lines it will break links. Currently this is handled in the databse setup by adding a foreign key to the transit lines table. The DELETE call would be on the following URL if deleting mode 6: http://localhost:5000/api/modes/6
 
 The request yields a return similar to a put or post, albeit with an additional field of deletedRows:
 {"success":true,\
@@ -148,4 +148,35 @@ The request yields a return similar to a put or post, albeit with an additional 
         "footprint":12\
         },\
     "deletedRows":1\
+}\
+If the database throws an error for whatever reason(for example your database is not setup correctly), the following type of error message will be thrown:\
+{
+    "success":false,\
+    "error":"Cannot delete mode as it is referenced by other records"\
 }
+
+### Transit Stops
+Transit stop are the basic building block. In our case, they can  be real stops or simple waypoints which are treated using the is_station field. As with other items, GET,PUT,POST,DELETE commands are the 4 basic commands. Some the get command is available for multiple items. the others only update one stop at a time.
+
+#### Get all the transit stops
+By sending a GET request on http://localhost:5000/api/stops, one receives all the stops in the database. The following is an example return for a valid request:
+
+{"success":true,\
+"data":[
+    {"stop_id":3,"name":"test3","is_station":true,"geography":"0101000020E610000032055556386852C0F2B3DD6F0FC54640"},\
+    {"stop_id":18,"name":"New test","is_station":true,"geography":"0101000020E6100000010000A0E76552C017759AF9A8C24640"},\
+    {"stop_id":20,"name":"St-Michel","is_station":true,"geography":"0101000020E610000001000088596652C01E667E4C70C74640"},\
+    {"stop_id":19,"name":"unfuck this","is_station":true,"geography":"0101000020E6100000010000F8DA6552C05D3FF6F185C84640"},\
+    {"stop_id":11,"name":"Testing Alone","is_station":true,"geography":"0101000020E6100000010000709B6952C0B90D29CB85C44640"},\
+    {"stop_id":1,"name":"test","is_station":true,"geography":"0101000020E610000001000030366952C0EE3F41FC21C24640"},\
+    {"stop_id":25,"name":"New Stop 14","is_station":true,"geography":"0101000020E610000001000080DC6352C04EF3ADB20FCA4640"},\
+    {"stop_id":17,"name":"New Stop 8","is_station":true,"geography":"0101000020E6100000010000102B6752C04217F75D6AC64640"},\
+    {"stop_id":21,"name":"testing another thing alone","is_station":true,"geography":"0101000020E610000001000020DC6952C005FC4FFA51C14640"},\
+    {"stop_id":23,"name":"tests_paul_dimanche_soir","is_station":true,"geography":"0101000020E6100000010000A0256452C08649FE628DC24640"},\
+    {"stop_id":24,"name":"tests_paul_dimanche_soir","is_station":true,"geography":"0101000020E6100000010000A0256452C08649FE628DC24640"},\
+    {"stop_id":2,"name":"test2","is_station":true,"geography":"0101000020E6100000010000DCA86852C0DF31D78214C44640"},\
+    {"stop_id":15,"name":"checkedicheck","is_station":true,"geography":"0101000020E6100000010000B4776752C0D96A540D6CC34640"},\
+    {"stop_id":22,"name":"Test add new lines","is_station":true,"geography":"0101000020E6100000010000B06E6552C02F16B1849DC94640"}\
+]}\
+
+As of current implementation, the database returns a raw hexadecimal in EPSG3857

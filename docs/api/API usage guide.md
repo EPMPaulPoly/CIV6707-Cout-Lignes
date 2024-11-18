@@ -55,63 +55,63 @@ The following section provides the details concerning the API calls. In the curr
 Using a get command with the /modes suffix to the base URL, the API will return a success flag and the relevant data. Data will be transmitted based on the fields in the data base which are as shown above. The API call would be http://localhost:5000/api/modes will return something resembling the following:
 
 {\
-  "success": true,\
-  "data": [\
-    {\
-      "mode_id": 1,\
-      "name": "Metro",\
-      "cost_per_km": 250,\
-      "cost_per_station": 100,\
-      "footprint": 20\
-    },\
-    {\
-      "mode_id": 2,\
-      "name": "Tram",\
-      "cost_per_km": 70,\
-      "cost_per_station": 10,\
-      "footprint": 15\
-    },\
-    {\
-      "mode_id": 5,\
-      "name": "BRT",\
-      "cost_per_km": 15,\
-      "cost_per_station": 5,\
-      "footprint": 8\
-    }\
-  ]\
+&nbsp;&nbsp;&nbsp;&nbsp;"success": true,\
+&nbsp;&nbsp;&nbsp;&nbsp;"data": [\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode_id": 1,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name": "Metro",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km": 250,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station": 100,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint": 20\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode_id": 2,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name": "Tram",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km": 70,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station": 10,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint": 15\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode_id": 5,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name": "BRT",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km": 15,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station": 5,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint": 8\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}\
+&nbsp;&nbsp;&nbsp;&nbsp;]\
 }
 #### Getting a specific transit mode: GET /modes/{ id you wish to get}
 Similar as previous item, except for a specific id you want to publish. If you wished to get mode 1, you would send a GET command to http://localhost:5000/api/modes/1. You would receive somthing resembling the following:\\
 
 {\
-  "success": true,\
-  "data": {\
-    "mode_id": 1,\
-    "name": "Metro",\
-    "cost_per_km": 250,\
-    "cost_per_station": 100,\
-    "footprint": 20\
-  }\
+&nbsp;&nbsp;&nbsp;&nbsp;"success": true,\
+&nbsp;&nbsp;&nbsp;&nbsp;"data": {\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode_id": 1,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name": "Metro",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km": 250,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station": 100,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint": 20\
+&nbsp;&nbsp;&nbsp;&nbsp;}\
 }
 #### Creating a new mode: POST /modes
 To create a post, the data for the new mode, minus an ID needs to be posted to http://localhost:5000/api/modes. The server then returns the posted data including the mode_id.\
 Request payload:\
 {\
-    "name":"test25",\
-    "cost_per_km":35,\
-    "cost_per_station":36,\
-    "footprint":5\
+&nbsp;&nbsp;&nbsp;&nbsp;"name":"test25",\
+&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km":35,\
+&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station":36,\
+&nbsp;&nbsp;&nbsp;&nbsp;"footprint":5\
 }\
 Request return:\
 {\
-    "success":true,\
-    "data":{\
-        "mode_id":8,\
-        "name":"test25",\
-        "cost_per_km":35,\
-        "cost_per_station":36,\
-        "footprint":5\
-    }\
+&nbsp;&nbsp;&nbsp;&nbsp;"success":true,\
+&nbsp;&nbsp;&nbsp;&nbsp;"data":{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode_id":8,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":"test25",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km":35,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station":36,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint":5\
+&nbsp;&nbsp;&nbsp;&nbsp;}\
 }
 
 #### Modifying a mode: PUT /modes
@@ -119,40 +119,41 @@ The put request allows the use to modify an existing mode with new values. The c
 
 PUT on http://localhost:5000/api/modes/6 with the following body:
 {\
-    "name":"test",\
-    "cost_per_km":25,\
-    "cost_per_station":35,\"footprint":12\
+&nbsp;&nbsp;&nbsp;&nbsp;"name":"test",\
+&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km":25,\
+&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station":35,\"footprint":12\
 }\
 The server would respond with a success flag and the relevant data:
 {\
-    "success":true,\
-    "data":{\
-        "mode_id":6,\
-        "name":"test",\
-        "cost_per_km":25,\
-        "cost_per_station":35,\
-        "footprint":12\
-    }\
+&nbsp;&nbsp;&nbsp;&nbsp;"success":true,\
+&nbsp;&nbsp;&nbsp;&nbsp;"data":{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode_id":6,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":"test",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km":25,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station":35,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint":12\
+&nbsp;&nbsp;&nbsp;&nbsp;}\
 }\
 
 #### Deleting a mode: DELETE /modes
 A DELETE function is also available. Only the line has to be transmitted over the URL. Note that the API does no dataproofing for integrity. Thus if the mode is used in one of your lines it will break links. Currently this is handled in the databse setup by adding a foreign key to the transit lines table. The DELETE call would be on the following URL if deleting mode 6: http://localhost:5000/api/modes/6
 
 The request yields a return similar to a put or post, albeit with an additional field of deletedRows:
-{"success":true,\
-    "data":{\
-        "mode_id":6,\
-        "name":"test",\
-        "cost_per_km":25,\
-        "cost_per_station":35,\
-        "footprint":12\
-        },\
-    "deletedRows":1\
+{
+&nbsp;&nbsp;&nbsp;&nbsp;"success":true,\
+&nbsp;&nbsp;&nbsp;&nbsp;"data":{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode_id":6,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":"test",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km":25,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station":35,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint":12\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},\
+&nbsp;&nbsp;&nbsp;&nbsp;"deletedRows":1\
 }\
 If the database throws an error for whatever reason(for example your database is not setup correctly), the following type of error message will be thrown:\
 {
-    "success":false,\
-    "error":"Cannot delete mode as it is referenced by other records"\
+&nbsp;&nbsp;&nbsp;&nbsp;"success":false,\
+&nbsp;&nbsp;&nbsp;&nbsp;"error":"Cannot delete mode as it is referenced by other records"\
 }
 
 ### Transit Stops
@@ -162,7 +163,7 @@ Transit stop are the basic building block. In our case, they can  be real stops 
 By sending a GET request on http://localhost:5000/api/stops, one receives all the stops in the database. The following is an example return for a valid request:
 
 {"success":true,\
-"data":[
+"data":[\
 &nbsp;&nbsp;&nbsp;&nbsp;{"stop_id":3,"name":"test3","is_station":true,"geography":"0101000020E610000032055556386852C0F2B3DD6F0FC54640"},\
 &nbsp;&nbsp;&nbsp;&nbsp;{"stop_id":18,"name":"New test","is_station":true,"geography":"0101000020E6100000010000A0E76552C017759AF9A8C24640"},\
 &nbsp;&nbsp;&nbsp;&nbsp;{"stop_id":20,"name":"St-Michel","is_station":true,"geography":"0101000020E610000001000088596652C01E667E4C70C74640"},\

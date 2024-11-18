@@ -54,64 +54,64 @@ The following section provides the details concerning the API calls. In the curr
 #### Getting all transit modes: GET /modes
 Using a get command with the /modes suffix to the base URL, the API will return a success flag and the relevant data. Data will be transmitted based on the fields in the data base which are as shown above. The API call would be http://localhost:5000/api/modes will return something resembling the following:
 
-{\\
-  "success": true,\\
-  "data": [\\
-    {\\
-      "mode_id": 1,\\
-      "name": "Metro",\\
-      "cost_per_km": 250,\\
-      "cost_per_station": 100,\\
-      "footprint": 20\\
-    },\\
-    {\\
-      "mode_id": 2,\\
-      "name": "Tram",\\
-      "cost_per_km": 70,\\
-      "cost_per_station": 10,\\
-      "footprint": 15\\
-    },\\
-    {\\
-      "mode_id": 5,\\
-      "name": "BRT",\\
-      "cost_per_km": 15,\\
-      "cost_per_station": 5,\\
-      "footprint": 8\\
-    }\\
-  ]\\
-}\\
+{\
+  "success": true,\
+  "data": [\
+    {\
+      "mode_id": 1,\
+      "name": "Metro",\
+      "cost_per_km": 250,\
+      "cost_per_station": 100,\
+      "footprint": 20\
+    },\
+    {\
+      "mode_id": 2,\
+      "name": "Tram",\
+      "cost_per_km": 70,\
+      "cost_per_station": 10,\
+      "footprint": 15\
+    },\
+    {\
+      "mode_id": 5,\
+      "name": "BRT",\
+      "cost_per_km": 15,\
+      "cost_per_station": 5,\
+      "footprint": 8\
+    }\
+  ]\
+}\
 #### Getting a specific transit mode: GET /modes/{ id you wish to get}
 Similar as previous item, except for a specific id you want to publish. If you wished to get mode 1, you would send a GET command to http://localhost:5000/api/modes/1. You would receive somthing resembling the following:\\
 
-{\\
-  "success": true,\\
-  "data": {\\
-    "mode_id": 1,\\
-    "name": "Metro",\\
-    "cost_per_km": 250,\\
-    "cost_per_station": 100,\\
-    "footprint": 20\\
-  }\\
-}\\
+{\
+  "success": true,\
+  "data": {\
+    "mode_id": 1,\
+    "name": "Metro",\
+    "cost_per_km": 250,\
+    "cost_per_station": 100,\
+    "footprint": 20\
+  }\
+}\
 #### Creating a new mode: POST /modes
-To create a post, the data for the new mode, minus an ID needs to be posted to http://localhost:5000/api/modes. The server then returns the posted data including the mode_id.\\
-Request payload:\\
-{\\
-    "name":"test25",\\
-    "cost_per_km":35,\\
-    "cost_per_station":36,\\
-    "footprint":5\\
+To create a post, the data for the new mode, minus an ID needs to be posted to http://localhost:5000/api/modes. The server then returns the posted data including the mode_id.\
+Request payload:\
+{\
+    "name":"test25",\
+    "cost_per_km":35,\
+    "cost_per_station":36,\
+    "footprint":5\
 }\\
-Request return:\\
+Request return:\
 {\\
-    "success":true,\\
-    "data":{\\
-        "mode_id":8,\\
-        "name":"test25",\\
-        "cost_per_km":35,\\
-        "cost_per_station":36,\\
-        "footprint":5\\
-    }\\
-}\\
+    "success":true,\
+    "data":{\
+        "mode_id":8,\
+        "name":"test25",\
+        "cost_per_km":35,\
+        "cost_per_station":36,\
+        "footprint":5\
+    }\
+}\
 
 #### Modifying a mode: PUT /modes

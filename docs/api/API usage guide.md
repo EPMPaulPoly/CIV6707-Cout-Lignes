@@ -79,7 +79,7 @@ Using a get command with the /modes suffix to the base URL, the API will return 
       "footprint": 8\
     }\
   ]\
-}\
+}
 #### Getting a specific transit mode: GET /modes/{ id you wish to get}
 Similar as previous item, except for a specific id you want to publish. If you wished to get mode 1, you would send a GET command to http://localhost:5000/api/modes/1. You would receive somthing resembling the following:\\
 
@@ -92,7 +92,7 @@ Similar as previous item, except for a specific id you want to publish. If you w
     "cost_per_station": 100,\
     "footprint": 20\
   }\
-}\
+}
 #### Creating a new mode: POST /modes
 To create a post, the data for the new mode, minus an ID needs to be posted to http://localhost:5000/api/modes. The server then returns the posted data including the mode_id.\
 Request payload:\
@@ -112,6 +112,40 @@ Request return:\
         "cost_per_station":36,\
         "footprint":5\
     }\
-}\
+}
 
 #### Modifying a mode: PUT /modes
+The put request allows the use to modify an existing mode with new values. The current implementation requires that the entire line be updated at once. This is relatively straighforward. In this case, the line_id is transmitted in the url, whereas the data is transmitted in the request body.If I wanted to update the mode 6, the following request would be put through
+
+PUT on http://localhost:5000/api/modes/6 with the following body:
+{\
+    "name":"test",\
+    "cost_per_km":25,\
+    "cost_per_station":35,\"footprint":12\
+}\
+The server would respond with a success flag and the relevant data:
+{\
+    "success":true,\
+    "data":{\
+        "mode_id":6,\
+        "name":"test",\
+        "cost_per_km":25,\
+        "cost_per_station":35,\
+        "footprint":12\
+    }\
+}\
+
+#### Deleting a mode: DELETE /modes
+A DELETE function is also available. Only the line has to be transmitted over the URL. Note that the API does no dataproofing for integrity. Thus if the mode is used in one of your lines it will break links. Currently this is handled in the front end but this is not the most robust of implementations. The DELETE call would be on the following URL if deleting mode 6: http://localhost:5000/api/modes/6
+
+The request yields a return similar to a put or post, albeit with an additional field of deletedRows:
+{"success":true,\
+    "data":{\
+        "mode_id":6,\
+        "name":"test",\
+        "cost_per_km":25,\
+        "cost_per_station":35,\
+        "footprint":12\
+        },\
+    "deletedRows":1\
+}

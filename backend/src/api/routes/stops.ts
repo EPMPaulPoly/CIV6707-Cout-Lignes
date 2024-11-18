@@ -35,7 +35,7 @@ export const createStopsRouter = (pool: Pool): Router => {
       const { id } = req.params;
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
-        'SELECT * FROM lignes_transport.transit_stops WHERE id = $1',
+        'SELECT * FROM lignes_transport.transit_stops WHERE stop_id = $1',
         [id]
       );
       if (result.rows.length === 0) {

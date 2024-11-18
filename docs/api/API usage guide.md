@@ -181,3 +181,55 @@ By sending a GET request on http://localhost:5000/api/stops, one receives all th
 ]}\
 
 As of current implementation, the database returns a raw hexadecimal in EPSG3857
+### Getting a specific Transit stop
+The route for transit stops allow the specification of a specific stop to get one item in particular. The stop id to retrieve is written into the URL. The full package is then returned to the user. For this example, we'll be retrieving stop_id = 20 by sending the request http://localhost:5000/api/stops/20 
+
+{
+&nbsp;&nbsp;&nbsp;&nbsp;"success": true,
+&nbsp;&nbsp;&nbsp;&nbsp;"data": {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stop_id": 20,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name": "St-Michel",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"is_station": true,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"geography": "0101000020E610000001000088596652C01E667E4C70C74640"
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}
+
+### Creating a new transit stop: POST
+As of current implementation, the creation of new stops is done in EPSG4326 using a string command. The POST command is sent to http://localhost:5000/api/stops/ with the following data:\
+
+{
+&nbsp;&nbsp;&nbsp;&nbsp;"name":"New Stop 16",/
+&nbsp;&nbsp;&nbsp;&nbsp;"geography":"SRID=4326;POINT(-73.54574203491212 45.53425085438269)",/
+&nbsp;&nbsp;&nbsp;&nbsp;"is_station":true/
+}/
+Once the data is received and created on the database side, the API returns the data:\
+{
+&nbsp;&nbsp;&nbsp;&nbsp;"success":true,\
+&nbsp;&nbsp;&nbsp;&nbsp;"data":{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stop_id":29,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":"New Stop 16",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"is_station":true,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"geography":"0101000020E610000001000070ED6252C084B7FD5462C44640"\
+&nbsp;&nbsp;&nbsp;&nbsp;}\
+}\
+This piece of documentation will likely require some work as the database being used for the test is still setup in 4326.
+
+### Updating a stop: PUT
+Same process as the post command, except in this instance the stop_id is being communicated in the URL. IN this instance, we're modifying stop 23 by sending a put request to http://localhost:5000/api/stops/23. The payload is as follows:\
+{\
+&nbsp;&nbsp;&nbsp;&nbsp;"name":"Put Test",\
+&nbsp;&nbsp;&nbsp;&nbsp;"geography":"SRID=4326;POINT(-73.57458114624025 45.524630364755254)",\
+&nbsp;&nbsp;&nbsp;&nbsp;"is_station":true\
+}\
+The API returns the callback for confirmation:\
+{\
+&nbsp;&nbsp;&nbsp;&nbsp;"success":true,\
+&nbsp;&nbsp;&nbsp;&nbsp;"data":{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stop_id":23,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":"Put Test",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"is_station":true,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"geography":"0101000020E6100000010000F0C56452C0628E791627C34640"\
+&nbsp;&nbsp;&nbsp;&nbsp;}\
+}\
+Implementation to be determined once the database is converted over to EPSG3857
+

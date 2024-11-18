@@ -44,7 +44,7 @@ export const createModesRouter = (pool: Pool): Router => {
       const { id } = req.params;
       const client = await pool.connect();
       const result = await client.query<DbTransportMode>(
-        'SELECT * FROM lignes_transport.transport_modes WHERE id = $1',
+        'SELECT * FROM lignes_transport.transport_modes WHERE mode_id = $1',
         [id]
       );
       if (result.rows.length === 0) {

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Table from '../components/Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot, InsertPosition } from '../types/types';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot, InsertPosition, Position } from '../types/types';
 import { handleChange, handleAdd, handleEdit, handleCancel, handleSave, calculateNewOrder } from '../utils/utils';
-import { LatLngExpression, LatLng } from 'leaflet';
 import Map from '../components/Map'
 import { lineService } from '../services';
+import { leafletToPosition, positionToLeaflet } from '../utils/coordinates';
 
 const COLUMN_MAPPINGS = {
   transitLines: [
@@ -40,10 +40,10 @@ interface ResizableLayoutProps {
   editingItem: EditingItem;
   newItemCreation: boolean;
   selectedLine: number | null;
-  position: LatLngExpression;
+  position: Position;
   mapHandlers: {
-    handleStopAdd: (poition: LatLng) => void;
-    handleStopMove: (stopId: number, position: LatLng) => void;
+    handleStopAdd: (poition: Position) => void;
+    handleStopMove: (stopId: number, position: Position) => void;
     handleStopDelete: (stopId: number) => void;
     handleStopEdit: (stopId: number) => void;
     setNewStopName: (name: string) => void;
@@ -91,7 +91,8 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   const [activeTable, setActiveTable] = useState<string>('transitLines');
   const [isSelectingStops, setIsSelectingStops] = useState(false);
   const [originalItem, setOriginalItem] = useState<any>(null);
-  const [originalPosition, setOriginalPosition] = useState<LatLng | null>(null);
+  const [originalPosition, setOriginalPosition] = useState<Position | null>(null);
+
 
 
   const [insertPosition, setInsertPosition] = useState<InsertPosition>({ type: 'last' });
@@ -127,6 +128,15 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
       setOriginalPosition(stop.position);
     }
     mapHandlers.handleStopEdit(stopId);
+  };
+
+  const handleStopMove = (stopId: number, newPosition: Position) => {
+    const updatedStops = transitStops.map(stop =>
+      stop.id === stopId
+        ? { ...stop, position: newPosition }
+        : stop
+    );
+    setTransitStops(updatedStops);
   };
 
   const togglePanel = () => {

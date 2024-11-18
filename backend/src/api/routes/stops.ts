@@ -7,7 +7,10 @@ import { ParamsDictionary } from 'express-serve-static-core';
 interface StopRequest {
   name: string;
   is_station: boolean;
-  geography: string;
+  position: {
+    x: number;
+    y: number;
+  };
 }
 
 interface StopParams extends ParamsDictionary {
@@ -21,8 +24,8 @@ export const createStopsRouter = (pool: Pool): Router => {
   const getAllStops: RequestHandler = async (_req, res, next) => {
     try {
       const client = await pool.connect();
-      const result = await client.query<DbTransitStop>('SELECT * FROM transport.transit_stops');
-      res.json({ success: true, data: result.rows });
+      const result = await client.query<DbTransitStop>( `SELECT id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y FROM transport.transit_stops` );
+      res.json({ success: true, data: result.rows.map(row => ({...row, position: { x: row.x, y: row.y }}))});
       client.release();
     } catch (err) {
       next(err);
@@ -35,7 +38,7 @@ export const createStopsRouter = (pool: Pool): Router => {
       const { id } = req.params;
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
-        'SELECT * FROM transport.transit_stops WHERE id = $1',
+        `SELECT id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y FROM transport.transit_stops WHERE id = $1`, 
         [id]
       );
       if (result.rows.length === 0) {
@@ -52,13 +55,14 @@ export const createStopsRouter = (pool: Pool): Router => {
   // Create a new stop
   const createStop: RequestHandler<{}, any, StopRequest> = async (req, res, next) => {
     try {
-      const { name, is_station, geography} = req.body;
+      const { name, is_station, position } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
-        'INSERT INTO transport.transit_stops (name, is_station, geom) VALUES ($1, $2, ST_GeomFromText ($3)) RETURNING *',
-        [name, is_station, geography]
+        `INSERT INTO transport.transit_stops (name, is_station, geom) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($3, $4), 3857)) 
+        RETURNING *, ST_X(geom) as x, ST_Y(geom) as y`,
+        [name, is_station, position.x, position.y]
       );
-      res.status(201).json({ success: true, data: result.rows[0] });
+      res.status(201).json({ success: true, data: {...result.rows[0], position: { x: result.rows[0].x, y: result.rows[0].y }}});
       client.release();
     } catch (err) {
       next(err);
@@ -69,11 +73,12 @@ export const createStopsRouter = (pool: Pool): Router => {
   const updateStop: RequestHandler<StopParams, any, StopRequest> = async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { name, is_station, geography } = req.body;
+      const { name, is_station, position } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
-        'UPDATE transport.transit_stops SET name = $1, is_station = $2, geom =  ST_GeomFromText ($3) WHERE stop_id = $4 RETURNING *',
-        [name, is_station, geography,id]
+        `UPDATE transport.transit_stops SET name = $1, is_station = $2, geom = ST_SetSRID(ST_MakePoint($3, $4), 3857) WHERE id = $5 
+        RETURNING *, ST_X(geom) as x, ST_Y(geom) as y`,
+        [name, is_station, position.x, position.y, id]
       );
       if (result.rows.length === 0) {
         res.status(404).json({ success: false, error: 'Stop not found' });
@@ -125,7 +130,7 @@ export const createStopsRouter = (pool: Pool): Router => {
 
   // Validator middleware
   const validatorMiddleware: RequestHandler<ParamsDictionary, any, StopRequest> = (req, res, next) => {
-    const { name, is_station, geography } = req.body;
+    const { name, is_station, position } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       res.status(400).json({ success: false, error: 'Invalid name' });
@@ -137,7 +142,10 @@ export const createStopsRouter = (pool: Pool): Router => {
       return;
     }
 
-    
+    if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+      res.status(400).json({ success: false, error: 'Invalid position coordinates' });
+      return;
+    }
 
     next();
   };

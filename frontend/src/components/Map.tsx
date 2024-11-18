@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, Polygon } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, Polygon, useMap } from 'react-leaflet';
 import L, { LatLngExpression, LeafletMouseEvent, LatLng } from 'leaflet';
-import { TransitStop, TransitLine, LineStop, TaxLot, InsertPosition, TransportMode } from '../types/types';
+import { TransitStop, TransitLine, LineStop, TaxLot, InsertPosition, TransportMode, Position } from '../types/types';
 import { MapHandlers } from '../utils/utils';
+import 'proj4leaflet';
+import { leafletToPosition, positionToLeaflet } from '../utils/coordinates';
 
 interface MapProps {
   transitStops: TransitStop[];
   transitLines: TransitLine[];
   lineStops: LineStop[];
   transportModes: TransportMode[];
-  position: LatLngExpression;
-  onStopAdd: (position: LatLng) => void;
-  onStopMove: (stopId: number, position: LatLng) => void;
+  position: {x: number, y: number};
+  onStopAdd: (position: {x: number, y: number}) => void;
+  onStopMove: (stopId: number, position: {x: number, y: number}) => void;
   onStopDelete: (stopId: number) => void;
   onStopEdit: (stopId: number) => void;
   onStopSave: (stopId: number) => void;
@@ -107,9 +109,38 @@ const EditingStationIcon = L.icon({
   className: 'editing-marker'
 });
 
+// Définition du CRS EPSG:3857
+const EPSG3857_CRS = new L.Proj.CRS('EPSG:3857',
+  '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs',
+  {
+    resolutions: [
+      156543.03392804097,
+      78271.51696402048,
+      39135.75848201024,
+      19567.87924100512,
+      9783.93962050256,
+      4891.96981025128,
+      2445.98490512564,
+      1222.99245256282,
+      611.49622628141,
+      305.748113140705,
+      152.8740565703525,
+      76.43702828517625,
+      38.21851414258813,
+      19.109257071294063,
+      9.554628535647032,
+      4.777314267823516,
+      2.388657133911758,
+      1.194328566955879,
+    ],
+    origin: [-20037508.34, 20037508.34],
+    bounds: L.bounds([-20037508.34, -20037508.34], [20037508.34, 20037508.34])
+  }
+);
+
 const MapInteractionHandler: React.FC<{
   isAddingNewStop: boolean;
-  onStopAdd: (position: LatLng) => void;
+  onStopAdd: (position: Position) => void;
 }> = ({ isAddingNewStop, onStopAdd }) => {
   const map = useMapEvents({
     click: (e: LeafletMouseEvent) => {
@@ -118,7 +149,11 @@ const MapInteractionHandler: React.FC<{
         pos: e.latlng
       });
       if (isAddingNewStop) {
-        onStopAdd(e.latlng);
+        const point = map.project(e.latlng, map.getZoom());
+        onStopAdd({
+          x: point.x,
+          y: point.y
+        });
       }
     },
     mousemove: (e: LeafletMouseEvent) => {
@@ -152,18 +187,19 @@ const Map: React.FC<MapProps> = ({
   TaxLotData = [],
   insertPosition
 }) => {
+  const map = useMap();
   useEffect(() => {
     console.log('Map received transportModes:', transportModes);
   }, [transportModes]);
 
-  const getLineCoordinates = (lineId: number): LatLngExpression[] => {
+  const getLineCoordinates = (lineId: number): [number, number][] => {
     const stops = lineStops
       .filter(ls => ls.line_id === lineId)
       .sort((a, b) => a.order_of_stop - b.order_of_stop)
       .map(ls => transitStops.find(ts => ts.id === ls.stop_id))
       .filter((stop): stop is TransitStop => stop !== undefined);
 
-    return stops.map(stop => stop.position!);
+    return stops.map(stop => [stop.position.y, stop.position.x]);
   };
 
   const getModeName = (mode_id: number) => {
@@ -198,9 +234,10 @@ const Map: React.FC<MapProps> = ({
         </div>
       )}
       <MapContainer
-        center={position}
+        center={[-8210165.31, 5702755.96]}  // Coordonnées de Montréal en EPSG:3857
         zoom={13}
         style={{ height: '100%', width: '100%' }}
+        crs={EPSG3857_CRS}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -236,10 +273,12 @@ const Map: React.FC<MapProps> = ({
         ))}*/}
 
         {/* Render transit lines first so they appear under the stops */}
-        {transitLines.map(line => (
+        {transitLines.map(line => {
+        const coordinates = getLineCoordinates(line.id);
+        return (
           <Polyline
-            key={`${line.id}-${line.color}`}
-            positions={getLineCoordinates(line.id)}
+            key={line.id}
+            positions={coordinates}
             color={getLineColor(line)}
             weight={4}
             opacity={0.8}
@@ -252,12 +291,13 @@ const Map: React.FC<MapProps> = ({
               Mode: {getModeName(line.mode_id)}
             </Popup>
           </Polyline>
-        ))}
+        );
+      })}
 
         {transitStops.filter(stop => stop.isComplete).map(stop => (
           <Marker
             key={stop.id}
-            position={stop.position!}
+            position={positionToLeaflet(stop.position)}
             icon={isStopBeingEdited(stop.id) ? EditingStationIcon : StationIcon}
             draggable={isStopBeingEdited(stop.id)}
             eventHandlers={{
@@ -272,8 +312,11 @@ const Map: React.FC<MapProps> = ({
               dragend: (e) => {
                 if (isStopBeingEdited(stop.id)) {
                   const marker = e.target;
-                  const position = marker.getLatLng();
-                  onStopMove(stop.id, position);
+                  const point = map.project(marker.getLatLng(), map.getZoom());
+                  onStopMove(stop.id, {
+                    x: point.x,
+                    y: point.y
+                  });
                 }
               },
             }}

@@ -12,7 +12,6 @@ import {
 } from '../types/types';
 import { Dispatch, SetStateAction } from 'react';
 import { stopService, lineService, modeService } from '../services';
-import { LatLng } from 'leaflet';
 
 // Define valid table names as a literal type
 type TableName = 'transitStops' | 'transitLines' | 'transportModes' | 'lineStops';
@@ -56,7 +55,7 @@ export const calculateNewOrder = (
 const defaultValues: DefaultValues = {
   transitStops: {
     name: '',
-    position: new LatLng(45.517356, -73.597384),
+    position: { x: -8210165.31, y: 5702755.96 },    
     isStation: true,
     isComplete: false
   },
@@ -127,8 +126,8 @@ export const handleChange = async (
 };
 
 export interface MapHandlers {
-  handleStopAdd: (position: LatLng) => void;
-  handleStopMove: (stopId: number, position: LatLng) => void;
+  handleStopAdd: (position: {x: number, y: number}) => void;
+  handleStopMove: (stopId: number, position: {x: number, y: number}) => void;
   handleStopDelete: (stopId: number) => void;
   handleStopEdit: (stopId: number) => void;
   setNewStopName: (name: string) => void;
@@ -406,7 +405,7 @@ export const getDefaultValues = <T extends keyof typeof defaultValues>(
   return defaultValues[table];
 };
 
-export const wkbHexToLatLng = (wkbHex: WKBHexString): LatLng => {
+export const wkbHexToPosition = (wkbHex: WKBHexString): {x: number, y: number} => {
   const hexToDouble = (hex: string): number => {
     const buffer = new DataView(new ArrayBuffer(8));
     for (let i = 0; i < 8; i++) {
@@ -419,7 +418,7 @@ export const wkbHexToLatLng = (wkbHex: WKBHexString): LatLng => {
   const x = hexToDouble(geomHex.slice(0, 16));
   const y = hexToDouble(geomHex.slice(16, 32));
 
-  return new LatLng(y, x);  // Return as LatLng object instead of tuple
+  return {x, y};  // Retourne directement les coordonnées EPSG:3857
 };
 
 export const createMapHandlers = (
@@ -438,7 +437,7 @@ export const createMapHandlers = (
   };
 
   return {
-    handleStopAdd: async (position: LatLng) => {
+    handleStopAdd: async (position: {x: number, y: number}) => {
       if (editingItem.table === 'transitStops' && editingItem.id === null) {
         try {
           const newStop: Omit<TransitStop, 'id' | 'isComplete'> = {
@@ -458,7 +457,7 @@ export const createMapHandlers = (
       }
     },
 
-    handleStopMove: async (stopId: number, position: LatLng) => {
+    handleStopMove: async (stopId: number, position: {x: number, y: number}) => {
       try {
         // Find the existing stop first
         const existingStop = transitStops.find(stop => stop.id === stopId);

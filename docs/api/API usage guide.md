@@ -40,7 +40,7 @@ This file aims to document the setup of the API. In the implementation of the do
 All API calls will provide a similar return JSON structure with 3 basic variables:
  - success: Boolean variable saying whether the API call was successful
  - data: returns a json with the required data. Individual fields in the JSON data vary depending on the call
- - error: returns a status code and an error message
+ - error: returns a status code and an error message\
 [Return to TOC](#table-of-contents)
 ## Data structures
 ### Transport modes
@@ -49,17 +49,17 @@ Transport modes are defined by 5 properties as of time of writing:
  - mode_id: a unique identifier for the mode
  - cost_per_km: a cost per linear kilometer of infrastructure
  - cost_per_station: a cost that is required for each station. Only stations with the is_station flagged will have a cost attached. The others are waypoints which only used to modify the path of the transit line
- - footprint: is the width of the linear infrastructure required to pass the transport capacity
+ - footprint: is the width of the linear infrastructure required to pass the transport capacity\
 [Return to TOC](#table-of-contents)
 ### Transit stops
 Transit stops are the basic geographical building block for transit lines. They have 4 basic parameters:
  - stop_id: unique sequential identifier for each stop
  - name: basic name for stop 255 character limit in database implementation
  - geometry: wkb string in EPSG:3857 giving the location of the stop.
- - is_station: boolean which says whether this is a station or a waypoint.
+ - is_station: boolean which says whether this is a station or a waypoint.\
 [Return to TOC](#table-of-contents)
 ### Transit lines
-Transit lines are used as organizing buckets for linear infrastructure. The line parameters are based on high level parameters as well as a table of data which contains the transit stops and their order in the transit line.
+Transit lines are used as organizing buckets for linear infrastructure. The line parameters are based on high level parameters as well as a table of data which contains the transit stops and their order in the transit line.\
 [Return to TOC](#table-of-contents)
 #### Transit lines global information
 Transit lines have 5 parameters assigned to them upon creation:
@@ -67,26 +67,26 @@ Transit lines have 5 parameters assigned to them upon creation:
  - name: toponyme for the line 255 character limit
  - description: longer description of line limited to 255 characters
  - mode_id: Foreign key relating to transit modes. Is used for cost of linear infrastructure.
- - color: hexadecimal color code for display of the line
+ - color: hexadecimal color code for display of the line\
 [Return to TOC](#table-of-contents)
  #### Transit Line Stops
  Line stops are used to describe the physical implementation of the line in space. They use line_id, stop_id and the order of the stop in the line in order to characterize the geometry of the line. The parameters are as follows:
  - assoc_id: unique identifier that is used to associate a line, a stop and the order of the stop in the line
  - line_id: foreign key used to identify which of the transit lines this association is being made
  - stop_id: foreign key to descibe which of the transit stops is being used to describe the path of the line
- - order_of_stop: used to say what the order of the stop is in the sequence
+ - order_of_stop: used to say what the order of the stop is in the sequence\
 [Return to TOC](#table-of-contents)
 ### Tax lots
-Tax lots are used to identify the expropriation costs of potential linear infrastructure. 
+Tax lots are used to identify the expropriation costs of potential linear infrastructure. \
 [Return to TOC](#table-of-contents)
 ## API Calls
 
-The following section provides the details concerning the API calls. In the current implementation, the base URL for the API http://localhost:5000/api
+The following section provides the details concerning the API calls. In the current implementation, the base URL for the API http://localhost:5000/api \
 [Return to TOC](#table-of-contents)
 ### Transit Modes
 
 #### Getting all transit modes: GET /modes
-Using a get command with the /modes suffix to the base URL, the API will return a success flag and the relevant data. Data will be transmitted based on the fields in the data base which are as shown above. The API call would be http://localhost:5000/api/modes will return something resembling the following:
+Using a get command with the /modes suffix to the base URL, the API will return a success flag and the relevant data. Data will be transmitted based on the fields in the data base which are as shown above. The API call would be http://localhost:5000/api/modes will return something resembling the following:\
 
 {\
 &nbsp;&nbsp;&nbsp;&nbsp;"success": true,\
@@ -113,10 +113,10 @@ Using a get command with the /modes suffix to the base URL, the API will return 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint": 8\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}\
 &nbsp;&nbsp;&nbsp;&nbsp;]\
-}
+}\
 [Return to TOC](#table-of-contents)
 #### Getting a specific transit mode: GET /modes/
-Similar as previous item, except for a specific id you want to publish. If you wished to get mode 1, you would send a GET command to http://localhost:5000/api/modes/1. You would receive somthing resembling the following:\\
+Similar as previous item, except for a specific id you want to publish. If you wished to get mode 1, you would send a GET command to http://localhost:5000/api/modes/1. You would receive somthing resembling the following:\
 
 {\
 &nbsp;&nbsp;&nbsp;&nbsp;"success": true,\
@@ -127,7 +127,8 @@ Similar as previous item, except for a specific id you want to publish. If you w
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station": 100,\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint": 20\
 &nbsp;&nbsp;&nbsp;&nbsp;}\
-}
+}\
+[Return to TOC](#table-of-contents)
 #### Creating a new mode: POST /modes
 To create a post, the data for the new mode, minus an ID needs to be posted to http://localhost:5000/api/modes. The server then returns the posted data including the mode_id.\
 Request payload:\
@@ -147,12 +148,10 @@ Request return:\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cost_per_station":36,\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"footprint":5\
 &nbsp;&nbsp;&nbsp;&nbsp;}\
-}
+}\
 [Return to TOC](#table-of-contents)
 #### Modifying a mode: PUT /modes
-The put request allows the use to modify an existing mode with new values. The current implementation requires that the entire line be updated at once. This is relatively straighforward. In this case, the line_id is transmitted in the url, whereas the data is transmitted in the request body.If I wanted to update the mode 6, the following request would be put through
-
-PUT on http://localhost:5000/api/modes/6 with the following body:
+The put request allows the use to modify an existing mode with new values. The current implementation requires that the entire line be updated at once. This is relatively straighforward. In this case, the line_id is transmitted in the url, whereas the data is transmitted in the request body.If I wanted to update the mode 6, the following request would be put through PUT on http://localhost:5000/api/modes/6 with the following body:\
 {\
 &nbsp;&nbsp;&nbsp;&nbsp;"name":"test",\
 &nbsp;&nbsp;&nbsp;&nbsp;"cost_per_km":25,\
@@ -173,7 +172,7 @@ The server would respond with a success flag and the relevant data:
 #### Deleting a mode: DELETE /modes
 A DELETE function is also available. Only the line has to be transmitted over the URL. Note that the API does no dataproofing for integrity. Thus if the mode is used in one of your lines it will break links. Currently this is handled in the databse setup by adding a foreign key to the transit lines table. The DELETE call would be on the following URL if deleting mode 6: http://localhost:5000/api/modes/6
 
-The request yields a return similar to a put or post, albeit with an additional field of deletedRows:
+The request yields a return similar to a put or post, albeit with an additional field of deletedRows:\
 {
 &nbsp;&nbsp;&nbsp;&nbsp;"success":true,\
 &nbsp;&nbsp;&nbsp;&nbsp;"data":{\
@@ -192,10 +191,10 @@ If the database throws an error for whatever reason(for example your database is
 }
 [Return to TOC](#table-of-contents)
 ### Transit Stops
-Transit stop are the basic building block. In our case, they can  be real stops or simple waypoints which are treated using the is_station field. As with other items, GET,PUT,POST,DELETE commands are the 4 basic commands. Some the get command is available for multiple items. the others only update one stop at a time.
+Transit stop are the basic building block. In our case, they can  be real stops or simple waypoints which are treated using the is_station field. As with other items, GET,PUT,POST,DELETE commands are the 4 basic commands. Some the get command is available for multiple items. the others only update one stop at a time.\
 [Return to TOC](#table-of-contents)
 #### Get all the transit stops: GET /stops
-By sending a GET request on http://localhost:5000/api/stops, one receives all the stops in the database. The following is an example return for a valid request:
+By sending a GET request on http://localhost:5000/api/stops, one receives all the stops in the database. The following is an example return for a valid request:\
 
 {"success":true,\
 "data":[\
@@ -215,20 +214,20 @@ By sending a GET request on http://localhost:5000/api/stops, one receives all th
 &nbsp;&nbsp;&nbsp;&nbsp;{"stop_id":22,"name":"Test add new lines","is_station":true,"geography":"0101000020E6100000010000B06E6552C02F16B1849DC94640"}\
 ]}\
 
-As of current implementation, the database returns a raw hexadecimal in EPSG3857.
+As of current implementation, the database returns a raw hexadecimal in EPSG3857.\
 [Return to TOC](#table-of-contents)
 #### Getting a specific Transit stop: GET /stops/
-The route for transit stops allow the specification of a specific stop to get one item in particular. The stop id to retrieve is written into the URL. The full package is then returned to the user. For this example, we'll be retrieving stop_id = 20 by sending the request http://localhost:5000/api/stops/20 
+The route for transit stops allow the specification of a specific stop to get one item in particular. The stop id to retrieve is written into the URL. The full package is then returned to the user. For this example, we'll be retrieving stop_id = 20 by sending the request http://localhost:5000/api/stops/20 \
 
-{
-&nbsp;&nbsp;&nbsp;&nbsp;"success": true,
-&nbsp;&nbsp;&nbsp;&nbsp;"data": {
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stop_id": 20,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name": "St-Michel",
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"is_station": true,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"geography": "0101000020E610000001000088596652C01E667E4C70C74640"
-&nbsp;&nbsp;&nbsp;&nbsp;}
-}
+{\
+&nbsp;&nbsp;&nbsp;&nbsp;"success": true,\
+&nbsp;&nbsp;&nbsp;&nbsp;"data": {\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stop_id": 20,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name": "St-Michel",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"is_station": true,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"geography": "0101000020E610000001000088596652C01E667E4C70C74640"\
+&nbsp;&nbsp;&nbsp;&nbsp;}\
+}\
 [Return to TOC](#table-of-contents)
 #### Creating a new transit stop: POST /stops
 As of current implementation, the creation of new stops is done in EPSG4326 using a string command. The POST command is sent to http://localhost:5000/api/stops/ with the following data:\
@@ -248,7 +247,7 @@ Once the data is received and created on the database side, the API returns the 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"geography":"0101000020E610000001000070ED6252C084B7FD5462C44640"\
 &nbsp;&nbsp;&nbsp;&nbsp;}\
 }\
-This piece of documentation will likely require some work as the database being used for the test is still setup in 4326.
+This piece of documentation will likely require some work as the database being used for the test is still setup in 4326.\
 [Return to TOC](#table-of-contents)
 #### Updating a stop: PUT /stops/
 Same process as the post command, except in this instance the stop_id is being communicated in the URL. IN this instance, we're modifying stop 23 by sending a put request to http://localhost:5000/api/stops/23. The payload is as follows:\
@@ -267,7 +266,7 @@ The API returns the callback for confirmation:\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"geography":"0101000020E6100000010000F0C56452C0628E791627C34640"\
 &nbsp;&nbsp;&nbsp;&nbsp;}\
 }\
-Implementation to be determined once the database is converted over to EPSG3857
+Implementation to be determined once the database is converted over to EPSG3857.\
 [Return to TOC](#table-of-contents)
 #### Deleting a stop: DELETE /stops/
 Similar to other objects the stops can be deleted using the appropriate command. If I want to delete a specific stop. In this example, I'll delete stop_id/31 by sending a delete request to http://localhost:5000/api/stops/31. The API then returns a success flag if the delete is successful:
@@ -278,14 +277,14 @@ If the API is unsuccessful, it will send an error message with some relevant inf
 {
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"success":false,\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"error":"Stop not found"\
-}
+}\
 [Return to TOC](#table-of-contents)
 
 ### Transit Line API calls 
-The following section will detail the relevant API calls for transit lines. 
+The following section will detail the relevant API calls for transit lines. \
 
 #### Getting all the transit lines: GET /lines
-As with other objects, you can retrieve all the lines in the instance with a simple get command with no additional information. As an example, sending GET to http://localhost:5000/api/lines yields a object of the following format:
+As with other objects, you can retrieve all the lines in the instance with a simple get command with no additional information. As an example, sending GET to http://localhost:5000/api/lines yields a object of the following format:\
 {
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"success":true,\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"data":[\

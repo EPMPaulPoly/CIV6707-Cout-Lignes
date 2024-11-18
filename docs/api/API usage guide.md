@@ -238,7 +238,7 @@ As of current implementation, the creation of new stops is done in EPSG4326 usin
 &nbsp;&nbsp;&nbsp;&nbsp;"is_station":true\
 }\
 Once the data is received and created on the database side, the API returns the data:\
-{
+{\
 &nbsp;&nbsp;&nbsp;&nbsp;"success":true,\
 &nbsp;&nbsp;&nbsp;&nbsp;"data":{\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"stop_id":29,\
@@ -274,7 +274,7 @@ Similar to other objects the stops can be deleted using the appropriate command.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"success":true\
 }\
 If the API is unsuccessful, it will send an error message with some relevant information:\ 
-{
+{\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"success":false,\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"error":"Stop not found"\
 }\
@@ -327,6 +327,6 @@ Errors would be detected through the return message sending a false flag and an 
 {\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"success": false,\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"error": "Line not found"\
-}\
+}
 
 [Return to TOC](#table-of-contents)

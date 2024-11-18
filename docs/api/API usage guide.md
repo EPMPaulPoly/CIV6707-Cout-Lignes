@@ -232,11 +232,11 @@ The route for transit stops allow the specification of a specific stop to get on
 #### Creating a new transit stop: POST /stops
 As of current implementation, the creation of new stops is done in EPSG4326 using a string command. The POST command is sent to http://localhost:5000/api/stops/ with the following data:\
 
-{
-&nbsp;&nbsp;&nbsp;&nbsp;"name":"New Stop 16",/
-&nbsp;&nbsp;&nbsp;&nbsp;"geography":"SRID=4326;POINT(-73.54574203491212 45.53425085438269)",/
-&nbsp;&nbsp;&nbsp;&nbsp;"is_station":true/
-}/
+{\
+&nbsp;&nbsp;&nbsp;&nbsp;"name":"New Stop 16",\
+&nbsp;&nbsp;&nbsp;&nbsp;"geography":"SRID=4326;POINT(-73.54574203491212 45.53425085438269)",\
+&nbsp;&nbsp;&nbsp;&nbsp;"is_station":true\
+}\
 Once the data is received and created on the database side, the API returns the data:\
 {
 &nbsp;&nbsp;&nbsp;&nbsp;"success":true,\

@@ -14,7 +14,6 @@ This file aims to document the setup of the API. In the implementation of the do
     - [Transit stops](#transit-stops)
     - [Transit lines](#transit-lines)
       - [Transit lines global information](#transit-lines-global-information)
-      - [Transit Line Stops](#transit-line-stops)
     - [Tax lots](#tax-lots)
   - [API Calls](#api-calls)
     - [Transit Modes](#transit-modes)
@@ -189,7 +188,7 @@ If the database throws an error for whatever reason(for example your database is
 {
 &nbsp;&nbsp;&nbsp;&nbsp;"success":false,\
 &nbsp;&nbsp;&nbsp;&nbsp;"error":"Cannot delete mode as it is referenced by other records"\
-}
+}\
 [Return to TOC](#table-of-contents)
 ### Transit Stops
 Transit stop are the basic building block. In our case, they can  be real stops or simple waypoints which are treated using the is_station field. As with other items, GET,PUT,POST,DELETE commands are the 4 basic commands. Some the get command is available for multiple items. the others only update one stop at a time.\

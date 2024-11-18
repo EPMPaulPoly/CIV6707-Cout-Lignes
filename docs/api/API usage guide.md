@@ -217,7 +217,7 @@ By sending a GET request on http://localhost:5000/api/stops, one receives all th
 As of current implementation, the database returns a raw hexadecimal in EPSG3857.\
 [Return to TOC](#table-of-contents)
 #### Getting a specific Transit stop: GET /stops/
-The route for transit stops allow the specification of a specific stop to get one item in particular. The stop id to retrieve is written into the URL. The full package is then returned to the user. For this example, we'll be retrieving stop_id = 20 by sending the request http://localhost:5000/api/stops/20 \
+The route for transit stops allow the specification of a specific stop to get one item in particular. The stop id to retrieve is written into the URL. The full package is then returned to the user. For this example, we'll be retrieving stop_id = 20 by sending the request http://localhost:5000/api/stops/20 
 
 {\
 &nbsp;&nbsp;&nbsp;&nbsp;"success": true,\

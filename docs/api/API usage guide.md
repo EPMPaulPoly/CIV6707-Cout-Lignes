@@ -1,34 +1,36 @@
-# API Documentation {ignore=true}
+# API Documentation 
 
 This file aims to document the setup of the API. In the implementation of the docker instance, the API is hosted on localhost:5000. The following file will document the outward facing interface of the API. Namely, it will define the various paths which can be used, the input data which needs to be transmitted and what the API returns 
-## Table of contents {ignore=true}
+## Table of contents 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
 
-- [Return JSON](#return-json)
-- [Data structures](#data-structures)
-  - [Transport modes](#transport-modes)
-  - [Transit stops](#transit-stops)
-  - [Transit lines](#transit-lines)
-    - [Transit lines global information](#transit-lines-global-information)
-  - [Tax lots](#tax-lots)
-- [API Calls](#api-calls)
-  - [Transit Modes](#transit-modes)
-    - [Getting all transit modes: GET /modes](#getting-all-transit-modes-get-modes)
-    - [Getting a specific transit mode: GET /modes/](#getting-a-specific-transit-mode-get-modes)
-    - [Creating a new mode: POST /modes](#creating-a-new-mode-post-modes)
-    - [Modifying a mode: PUT /modes](#modifying-a-mode-put-modes)
-    - [Deleting a mode: DELETE /modes](#deleting-a-mode-delete-modes)
-  - [Transit Stops](#transit-stops-1)
-    - [Get all the transit stops: GET /stops](#get-all-the-transit-stops-get-stops)
-    - [Getting a specific Transit stop: GET /stops/](#getting-a-specific-transit-stop-get-stops)
-    - [Creating a new transit stop: POST /stops](#creating-a-new-transit-stop-post-stops)
-    - [Updating a stop: PUT /stops/](#updating-a-stop-put-stops)
-    - [Deleting a stop: DELETE /stops/](#deleting-a-stop-delete-stops)
-  - [Transit Line API calls](#transit-line-api-calls)
-    - [Getting all the transit lines: GET /lines](#getting-all-the-transit-lines-get-lines)
-    - [Getting a specific lines: GET /lines/](#getting-a-specific-lines-get-lines)
+- [API Documentation](#api-documentation)
+  - [Table of contents](#table-of-contents)
+  - [Return JSON](#return-json)
+  - [Data structures](#data-structures)
+    - [Transport modes](#transport-modes)
+    - [Transit stops](#transit-stops)
+    - [Transit lines](#transit-lines)
+      - [Transit lines global information](#transit-lines-global-information)
+    - [Tax lots](#tax-lots)
+  - [API Calls](#api-calls)
+    - [Transit Modes](#transit-modes)
+      - [Getting all transit modes: GET /modes](#getting-all-transit-modes-get-modes)
+      - [Getting a specific transit mode: GET /modes/](#getting-a-specific-transit-mode-get-modes)
+      - [Creating a new mode: POST /modes](#creating-a-new-mode-post-modes)
+      - [Modifying a mode: PUT /modes](#modifying-a-mode-put-modes)
+      - [Deleting a mode: DELETE /modes](#deleting-a-mode-delete-modes)
+    - [Transit Stops](#transit-stops-1)
+      - [Get all the transit stops: GET /stops](#get-all-the-transit-stops-get-stops)
+      - [Getting a specific Transit stop: GET /stops/](#getting-a-specific-transit-stop-get-stops)
+      - [Creating a new transit stop: POST /stops](#creating-a-new-transit-stop-post-stops)
+      - [Updating a stop: PUT /stops/](#updating-a-stop-put-stops)
+      - [Deleting a stop: DELETE /stops/](#deleting-a-stop-delete-stops)
+    - [Transit Line API calls](#transit-line-api-calls)
+      - [Getting all the transit lines: GET /lines](#getting-all-the-transit-lines-get-lines)
+      - [Getting a specific lines: GET /lines/](#getting-a-specific-lines-get-lines)
 
 <!-- /code_chunk_output -->
 
@@ -311,4 +313,21 @@ As with other objects, you can retrieve all the lines in the instance with a sim
 }\
 [Return to TOC](#table-of-contents)
 #### Getting a specific lines: GET /lines/
-A specific line can be obtained by adding its id number to the end of the request URL
+A specific line can be obtained by adding its id number to the end of the request URL. If I were to send http://localhost:5000/api/lines/1. I would recive the following as an example:\
+{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"success": true,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"data": {\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"id": 1,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name": "Metro Line",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"description": "Giving this better name",\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode_id": 1,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"color": "#00FF00"\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}\
+}\
+Errors would be detected through the return message sending a false flag and an error item. The following shows the occurence of an error for an non-existent line:
+{\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"success": false,\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"error": "Line not found"\
+}\
+
+[Return to TOC](#table-of-contents)

@@ -4,6 +4,7 @@
   "dependencies": {
     "axios": "latest",
     "leaflet": "latest",
+    "proj4": "^2.14.0",
     "proj4leaflet": "^1.0.2",
     "react": "^18.3.1",
     "react-dom": "latest",
@@ -12,6 +13,8 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "latest",
     "@types/leaflet": "latest",
+    "@types/proj4": "^2.5.5",
+    "@types/proj4leaflet": "^1.0.10",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "apk": "latest",

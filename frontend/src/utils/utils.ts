@@ -12,6 +12,7 @@ import {
 } from '../types/types';
 import { Dispatch, SetStateAction } from 'react';
 import { stopService, lineService, modeService } from '../services';
+import { Position } from '../types/types';
 
 // Define valid table names as a literal type
 type TableName = 'transitStops' | 'transitLines' | 'transportModes' | 'lineStops';
@@ -126,8 +127,8 @@ export const handleChange = async (
 };
 
 export interface MapHandlers {
-  handleStopAdd: (position: {x: number, y: number}) => void;
-  handleStopMove: (stopId: number, position: {x: number, y: number}) => void;
+  handleStopAdd: (position: Position) => void;
+  handleStopMove: (stopId: number, position: Position) => void;
   handleStopDelete: (stopId: number) => void;
   handleStopEdit: (stopId: number) => void;
   setNewStopName: (name: string) => void;
@@ -405,7 +406,7 @@ export const getDefaultValues = <T extends keyof typeof defaultValues>(
   return defaultValues[table];
 };
 
-export const wkbHexToPosition = (wkbHex: WKBHexString): {x: number, y: number} => {
+export const wkbHexToPosition = (wkbHex: WKBHexString): Position => {
   const hexToDouble = (hex: string): number => {
     const buffer = new DataView(new ArrayBuffer(8));
     for (let i = 0; i < 8; i++) {
@@ -437,7 +438,7 @@ export const createMapHandlers = (
   };
 
   return {
-    handleStopAdd: async (position: {x: number, y: number}) => {
+    handleStopAdd: async (position: Position) => {
       if (editingItem.table === 'transitStops' && editingItem.id === null) {
         try {
           const newStop: Omit<TransitStop, 'id' | 'isComplete'> = {
@@ -457,7 +458,7 @@ export const createMapHandlers = (
       }
     },
 
-    handleStopMove: async (stopId: number, position: {x: number, y: number}) => {
+    handleStopMove: async (stopId: number, position: Position) => {
       try {
         // Find the existing stop first
         const existingStop = transitStops.find(stop => stop.id === stopId);

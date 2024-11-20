@@ -1,8 +1,7 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
-import { LatLngExpression } from 'leaflet';
 import Map from './components/Map';
 import Table from './components/Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot } from './types/types';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot, Position } from './types/types';
 import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils/utils';
 import './App.css';
 import ResizableLayout from './components/ResizableLayout';
@@ -10,7 +9,10 @@ import { generateFullGrid, queryLotsNearLines } from './utils/generateTaxLots';
 import { stopService, lineService, modeService } from './services';
 
 const App: React.FC = () => {
-  const position: LatLngExpression = [45.549152, -73.61368]; // Montreal coordinates
+  const position: Position = {
+    x: -8210165.31, // Longitude de Montréal convertie en EPSG:3857
+    y: 5702755.96   // Latitude de Montréal convertie en EPSG:3857
+  };
 
   // États pour les données
   const [transitStops, setTransitStops] = useState<TransitStop[]>([]);

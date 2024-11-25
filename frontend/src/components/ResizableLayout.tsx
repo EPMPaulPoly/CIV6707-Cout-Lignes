@@ -233,7 +233,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             columns={['name', 'costPerKm', 'costPerStation', 'footprint']}
             editingItem={editingItem}
             handleChange={(id, field, value) => handleChange('transportModes', id, field, value, setTransportModes)}
-            handleEdit={(id) => handleEdit('transitLines', id, setEditingItem, transitLines, setOriginalItem)}
+            handleEdit={(id) => handleEdit('transportModes', id, setEditingItem, transportModes, setOriginalItem)}
             handleCancel={() => handleCancel(editingItem, setEditingItem, originalItem, setOriginalItem, setTransitLines, setNewItemCreation)}
             handleSave={() => handleSave('transportModes', editingItem, setTransportModes, setEditingItem, newItemCreation, setNewItemCreation, transportModes)}
             handleAdd={() => handleAdd('transportModes', transportModes, setTransportModes, setEditingItem, newItemCreation, setNewItemCreation)}

@@ -24,7 +24,7 @@ export const createStopsRouter = (pool: Pool): Router => {
   const getAllStops: RequestHandler = async (_req, res, next) => {
     try {
       const client = await pool.connect();
-      const result = await client.query<DbTransitStop>( `SELECT stop_id as id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y FROM transport.transit_stops` );
+      const result = await client.query<DbTransitStop>( `SELECT stop_id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y FROM transport.transit_stops` );
       res.json({ success: true, data: result.rows.map(row => ({...row, position: { x: row.x, y: row.y }}))});
       client.release();
     } catch (err) {

@@ -115,7 +115,7 @@ export interface TransitStopDB {
 }
 
 export interface TransitLineDB {
-  id: number;
+  line_id: number;
   name: string;
   description: string;
   mode_id: number;

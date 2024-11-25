@@ -101,7 +101,7 @@ export const createLinesRouter = (pool: Pool): Router => {
       const { name, description, mode_id, color } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>(
-        'UPDATE transport.transit_lines SET name=$1, description=$2, mode_id=$3,color=$4 WHERE id = $5 RETURNING *',
+        'UPDATE transport.transit_lines SET name=$1, description=$2, mode_id=$3,color=$4 WHERE line_id = $5 RETURNING *',
         [name, description, mode_id, color, id]
       );
       if (result.rows.length === 0) {

@@ -5,7 +5,6 @@ import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot,
 import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils/utils';
 import './App.css';
 import ResizableLayout from './components/ResizableLayout';
-import { generateFullGrid, queryLotsNearLines } from './utils/generateTaxLots';
 import { stopService, lineService, modeService } from './services';
 
 const App: React.FC = () => {
@@ -26,10 +25,7 @@ const App: React.FC = () => {
   const [editingItem, setEditingItem] = useState<EditingItem>({ table: '', id: null });
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
   const [newItemCreation,setNewItemCreation] = useState<boolean>(false)
-  // TaxLots states
-  //const [allLots] = useState(() => generateFullGrid());
-  //const [nearbyLots, setNearbyLots] = useState<TaxLot[]>([]);
-
+ 
   // Chargement initial des données
   useEffect(() => {
     const loadData = async () => {

@@ -1,24 +1,24 @@
-import { LatLng } from 'leaflet';
+import { LatLng, CRS, Point } from 'leaflet';
 import { Position } from '../types/types';
 
 export const leafletToPosition = (latLng: LatLng): Position => {
+  const point = CRS.EPSG3857.project(latLng);
   return {
-    x: latLng.lng,
-    y: latLng.lat
+    x: point.x,
+    y: point.y
   };
 };
 
 export const positionToLeaflet = (position: Position): LatLng => {
-  return new LatLng(position.y, position.x);
+  const point = new Point(position.x, position.y);
+  return CRS.EPSG3857.unproject(point);
 };
 
 export const positionToGeoJSON = (position: Position): [number, number] => {
-  return [position.x, position.y];
+  const latLng = positionToLeaflet(position);
+  return [latLng.lng, latLng.lat];
 };
 
 export const geoJSONToPosition = (coordinates: [number, number]): Position => {
-  return {
-    x: coordinates[0],
-    y: coordinates[1]
-  };
+  return leafletToPosition(new LatLng(coordinates[1], coordinates[0]));
 };

@@ -24,7 +24,7 @@ export const createStopsRouter = (pool: Pool): Router => {
   const getAllStops: RequestHandler = async (_req, res, next) => {
     try {
       const client = await pool.connect();
-      const result = await client.query<DbTransitStop>( `SELECT id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y FROM transport.transit_stops` );
+      const result = await client.query<DbTransitStop>( `SELECT stop_id as id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y FROM transport.transit_stops` );
       res.json({ success: true, data: result.rows.map(row => ({...row, position: { x: row.x, y: row.y }}))});
       client.release();
     } catch (err) {
@@ -38,7 +38,7 @@ export const createStopsRouter = (pool: Pool): Router => {
       const { id } = req.params;
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
-        `SELECT id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y FROM transport.transit_stops WHERE id = $1`, 
+        `SELECT stop_id as id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y FROM transport.transit_stops WHERE id = $1`, 
         [id]
       );
       if (result.rows.length === 0) {
@@ -76,8 +76,8 @@ export const createStopsRouter = (pool: Pool): Router => {
       const { name, is_station, position } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
-        `UPDATE transport.transit_stops SET name = $1, is_station = $2, geom = ST_SetSRID(ST_MakePoint($3, $4), 3857) WHERE id = $5 
-        RETURNING *, ST_X(geom) as x, ST_Y(geom) as y`,
+        `UPDATE transport.transit_stops SET name = $1, is_station = $2, geom = ST_SetSRID(ST_MakePoint($3, $4), 3857) WHERE stop_id = $5 
+        RETURNING stop_id as id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y`,
         [name, is_station, position.x, position.y, id]
       );
       if (result.rows.length === 0) {

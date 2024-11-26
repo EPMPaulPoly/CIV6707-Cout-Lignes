@@ -48,7 +48,7 @@ export const createLinesRouter = (pool: Pool): Router => {
     console.log('entering get all lines query')
     try {
       const client = await pool.connect();
-      const result = await client.query<DbTransitLine>('SELECT * FROM lignes_transport.transit_lines');
+      const result = await client.query<DbTransitLine>('SELECT * FROM transport.transit_lines');
       res.json({ success: true, data: result.rows });
       client.release();
     } catch (err) {
@@ -62,7 +62,7 @@ export const createLinesRouter = (pool: Pool): Router => {
       const { id } = req.params;
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>(
-        'SELECT * FROM lignes_transport.transit_lines WHERE id = $1',
+        'SELECT * FROM transport.transit_lines WHERE id = $1',
         [id]
       );
       if (result.rows.length === 0) {
@@ -83,7 +83,7 @@ export const createLinesRouter = (pool: Pool): Router => {
       const { name, description, mode_id, color } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>(
-        'INSERT INTO lignes_transport.transit_lines (name, description, mode_id,color) VALUES ($1, $2, $3, $4) RETURNING *',
+        'INSERT INTO transport.transit_lines (name, description, mode_id,color) VALUES ($1, $2, $3, $4) RETURNING *',
         [name, description, mode_id, color]
       );
       res.status(201).json({ success: true, data: result.rows[0] });
@@ -101,7 +101,7 @@ export const createLinesRouter = (pool: Pool): Router => {
       const { name, description, mode_id, color } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbTransitLine>(
-        'UPDATE lignes_transport.transit_lines SET name=$1, description=$2, mode_id=$3,color=$4 WHERE id = $5 RETURNING *',
+        'UPDATE transport.transit_lines SET name=$1, description=$2, mode_id=$3,color=$4 WHERE line_id = $5 RETURNING *',
         [name, description, mode_id, color, id]
       );
       if (result.rows.length === 0) {
@@ -121,7 +121,7 @@ export const createLinesRouter = (pool: Pool): Router => {
     try {
       const client = await pool.connect();
       const result = await client.query<RoutePointResponse>(
-        `SELECT * FROM lignes_transport.line_stops`,
+        `SELECT * FROM transport.line_stops`,
       );
       res.json({ success: true, data: result.rows });
       client.release();
@@ -135,7 +135,7 @@ export const createLinesRouter = (pool: Pool): Router => {
       const { id } = req.params;
       const client = await pool.connect();
       const result = await client.query<RoutePointResponse>(
-        `SELECT * FROM lignes_transport.line_stops WHERE stop_id = $1`,
+        `SELECT * FROM transport.line_stops WHERE stop_id = $1`,
         [id]
       );
       res.json({ success: true, data: result.rows });
@@ -151,7 +151,7 @@ export const createLinesRouter = (pool: Pool): Router => {
       const { stop_id, order_of_stop } = req.body;
       const client = await pool.connect();
       const result = await client.query<DbLineStop>(
-        'INSERT INTO lignes_transport.line_stops (line_id, stop_id, order_of_stop) VALUES ($1, $2, $3) RETURNING *',
+        'INSERT INTO transport.line_stops (line_id, stop_id, order_of_stop) VALUES ($1, $2, $3) RETURNING *',
         [id, stop_id, order_of_stop]
       );
       res.status(201).json({ success: true, data: result.rows[0] });
@@ -184,7 +184,7 @@ export const createLinesRouter = (pool: Pool): Router => {
         }));
 
         const sql = `
-          UPDATE lignes_transport.line_stops AS ls
+          UPDATE transport.line_stops AS ls
           SET 
             stop_id = CASE assoc_id 
               ${cases.map((c, i) => `WHEN ${c.assocId} THEN ${c.stopId}`).join('\n            ')}
@@ -249,7 +249,7 @@ export const createLinesRouter = (pool: Pool): Router => {
       client = await pool.connect();
 
       const result = await client.query<DbTransitLine>(
-        'DELETE FROM lignes_transport.transit_lines WHERE id=$1 RETURNING *',
+        'DELETE FROM transport.transit_lines WHERE id=$1 RETURNING *',
         [id]
       );
 
@@ -318,7 +318,7 @@ export const createLinesRouter = (pool: Pool): Router => {
 
       // Delete the route point
       const result = await client.query<DbLineStop>(
-        'DELETE FROM lignes_transport.line_stops WHERE line_id=$1 AND assoc_id=$2 RETURNING *',
+        'DELETE FROM transport.line_stops WHERE line_id=$1 AND assoc_id=$2 RETURNING *',
         [id, lsid]
       );
 
@@ -333,7 +333,7 @@ export const createLinesRouter = (pool: Pool): Router => {
 
       // Update the order_of_stop for remaining stops
       await client.query(
-        `UPDATE lignes_transport.line_stops 
+        `UPDATE transport.line_stops 
          SET order_of_stop = order_of_stop - 1 
          WHERE line_id = $1 
          AND order_of_stop > $2`,

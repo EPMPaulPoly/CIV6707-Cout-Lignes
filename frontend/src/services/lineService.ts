@@ -12,15 +12,22 @@ interface ApiLineStopDBResponse extends Omit<ApiLineStopResponse, 'data'> {
   data: TransitLineStopDB;
 }
 
+interface ApiLinesDBResponse extends Omit<ApiLineResponse, 'data'> {
+  data: TransitLineDB[];
+}
+
+interface ApiLineDBResponse extends Omit<ApiLineResponse, 'data'> {
+  data: TransitLineDB;
+}
+
 export const lineService = {
   getAll: async (): Promise<ApiLinesResponse> => {
-    const response: AxiosResponse<ApiLinesResponse> = await api.get('/lines');
+    const response: AxiosResponse<ApiLinesDBResponse> = await api.get('/lines');
     console.log('finished lineservice get all')
     return {
       success: response.data.success,
       data: response.data.data.map((line: TransitLineDB) => ({
-        ...line,
-        id: line.id,
+        id: line.line_id,
         name: line.name,
         description: line.description,
         mode_id: line.mode_id,
@@ -48,16 +55,28 @@ export const lineService = {
     };
   },
 
-  create: (data: Omit<TransitLine, 'id'>) =>
-    api.post<TransitLine>('/lines', data),
+  create: async(data: Omit<TransitLine, 'id'>):Promise<ApiLineResponse> =>{
+    const response: AxiosResponse<ApiLineDBResponse>=await api.post<ApiLineDBResponse>('/lines', data);
+    return{
+      success: response.data.success,
+      data: {
+        id: response.data.data.line_id,
+        name: response.data.data.name,
+        description: response.data.data.description,
+        mode_id: response.data.data.mode_id,
+        color: response.data.data.color
+      },
+      error: response.data.error
+    }
+  },
 
   update:async (id: number, data: Partial<TransitLine>):Promise<ApiLineResponse> =>{
-    const response: AxiosResponse<ApiLineResponse>=await api.put(`/lines/${id}`, data);
-    console.log('getting all routepoints')
+    const response: AxiosResponse<ApiLineDBResponse>=await api.put(`/lines/${id}`, data);
+    console.log('udpating line')
     return {
       success: response.data.success,
       data: {
-        id: response.data.data.mode_id,
+        id: response.data.data.line_id,
         name: response.data.data.name,
         description: response.data.data.description,
         mode_id: response.data.data.mode_id,

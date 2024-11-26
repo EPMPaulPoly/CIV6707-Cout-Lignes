@@ -4,6 +4,7 @@ import { createStopsRouter } from './stops';
 import { createLinesRouter } from './lines';
 import { createModesRouter } from './modes';
 import { createTaxLotsRouter } from './taxLots';
+import { createCadastreRouter } from './cadastreRoutes';
 
 export const createApiRouter = (pool: Pool) => {
   const router = Router();
@@ -12,5 +13,6 @@ export const createApiRouter = (pool: Pool) => {
   router.use('/lines', createLinesRouter(pool));
   router.use('/modes', createModesRouter(pool));
   router.use('/tax-lots', createTaxLotsRouter(pool));
+  router.use('/cadastre', createCadastreRouter(pool));
 
   return router;}

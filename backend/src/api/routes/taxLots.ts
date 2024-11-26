@@ -34,12 +34,12 @@ export const createTaxLotsRouter = (pool: Pool): Router => {
       
       const result = await client.query<DbTaxLot>(`
         SELECT DISTINCT tl.*
-        FROM lignes_transport.tax_lots tl
+        FROM transport.tax_lots tl
         JOIN line_stops ls ON ls.line_id = $1
         JOIN transit_stops ts ON ls.stop_id = ts.id
         WHERE ST_DWithin(
-          tl.polygon::geography,
-          ST_MakePoint(ts.longitude, ts.latitude)::geography,
+          tl.polygon::geom,
+          ST_MakePoint(ts.longitude, ts.latitude)::geom,
           300  -- distance en mètres
         )
       `, [lineId]);

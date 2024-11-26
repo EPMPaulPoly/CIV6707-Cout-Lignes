@@ -146,28 +146,48 @@ export const handleAdd = async (
 ) => {
   try {
     setNewItemCreation(true);
-    console.log('handleAdd called:', {
-      table,
-      currentData: data.length,
-      additionalProps
-    });
-    console.log(`Set newItemcreation to ${newItemCreation} `)
-    if (table === 'transitStops') {
-      // For transit stops, we'll set editing state with null ID to indicate new stop
-      console.log('Setting editing state for new transit stop');
-      setEditingItem({ table, id: null });
-    } else if (table === 'lineStops') {
-      // For line stops, toggle selection mode
-      if (setIsSelectingStops) {
-        setIsSelectingStops(true);
+    const getNextAvailableNumber = (items: any[], prefix: string) => {
+      let maxNumber = 0;
+      items.forEach(item => {
+        if (item.name.startsWith(prefix)) {
+          const number = parseInt(item.name.replace(prefix, ''));
+          if (!isNaN(number) && number > maxNumber) {
+            maxNumber = number;
+          }
+        }
+      });
+      return maxNumber + 1;
+    };
+    const getDefaultName = (table: TableName, items: any[]) => {
+      switch (table) {
+        case 'transitStops':
+          return `New Stop ${getNextAvailableNumber(items, 'New Stop ')}`;
+        case 'transitLines':
+          return `New Line ${getNextAvailableNumber(items, 'New Line ')}`;
+        case 'transportModes':
+          return `New Transport Mode ${getNextAvailableNumber(items, 'New Transport Mode ')}`;
+        default:
+          return '';
       }
+    };
+    if (table === 'transitStops') {
+      setEditingItem({ table, id: null });
+    } else if (table === 'lineStops' && setIsSelectingStops) {
+      setIsSelectingStops(true);
     } else {
-      // For other tables, add immediately
       const newId = Math.max(...data.map(item => item.id), 0) + 1;
-      const newItem = { id: newId, ...getDefaultValues(table), ...additionalProps };
+      const defaultName = getDefaultName(table, data);
+      const defaultValues = getDefaultValues(table);
+      
+      const newItem = {
+        id: newId,
+        ...defaultValues,
+        name: defaultName,  // Utilise le nom généré automatiquement
+        ...additionalProps
+      };
+
       setFunction([...data, newItem]);
       setEditingItem({ table, id: newId });
-      console.log(`Setting item ${newId} in table ${table}`)
     }
   } catch (error) {
     console.error(`Error adding to ${table}:`, error);
@@ -441,12 +461,24 @@ export const createMapHandlers = (
     handleStopAdd: async (position: Position) => {
       if (editingItem.table === 'transitStops' && editingItem.id === null) {
         try {
+          let defaultName = newStopName;
+          if (!defaultName) {
+            let maxNumber = 0;
+            transitStops.forEach(stop => {
+              if (stop.name.startsWith('New Stop ')) {
+                const number = parseInt(stop.name.replace('New Stop ', ''));
+                if (!isNaN(number) && number > maxNumber) {
+                  maxNumber = number;
+                }
+              }
+            });
+            defaultName = `New Stop ${maxNumber + 1}`;
+          }
           const newStop: Omit<TransitStop, 'id' | 'isComplete'> = {
-            name: newStopName || `New Stop ${transitStops.length + 1}`,
+            name: defaultName,
             position,
             isStation: true
           };
-          console.log('Test hot reload')
           const response = await stopService.create(newStop);
           if (response.success && response.data) {
             setTransitStops(prev => [...prev, response.data]);

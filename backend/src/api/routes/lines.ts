@@ -249,7 +249,7 @@ export const createLinesRouter = (pool: Pool): Router => {
       client = await pool.connect();
 
       const result = await client.query<DbTransitLine>(
-        'DELETE FROM transport.transit_lines WHERE id=$1 RETURNING *',
+        'DELETE FROM transport.transit_lines WHERE line_id=$1 RETURNING *',
         [id]
       );
 
@@ -362,10 +362,22 @@ export const createLinesRouter = (pool: Pool): Router => {
       }
     }
   };
-
+  const getLineCosts : RequestHandler = async(_req,res):Promise<void>=>{
+    try {
+      const client = await pool.connect();
+      console.log('to be implemented')
+      const result = await client.query<DbTransitLine>('SELECT b.line_id,COUNT(DISTINCT l.lot_id) AS parcels_within_buffer,SUM(r.value_total) AS total_property_value FROM transport.transit_lines b JOIN cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry) JOIN transport.lot_point_relationship l ON l.lot_id = c.ogc_fid JOIN foncier.role_foncier r ON l.role_foncier_id = r.id_provinc GROUP BY b.line_id;'
+      );
+      res.status(201).json({ success: true, data: result.rows[0] });
+      client.release();
+    } catch (err) {
+      res.status(500).json({ success: false, error: 'cost feature not yet implemented' });
+    }
+  };
   // Routes
   router.get('/', getAllLines);
   router.get('/route-points', getAllRoutePoints);
+  router.get('/costs',getLineCosts)
   router.get('/:id', getLine);
   router.put('/:id', validateLine, updateLine)
   router.delete('/:id', deleteLine);
@@ -374,6 +386,6 @@ export const createLinesRouter = (pool: Pool): Router => {
   router.post('/:id/route-points', addRoutePoint);
   router.put('/:id/route-points', updateRoutePoints);
   router.delete('/:id/route-points/:lsid', deleteRoutePoint);
-
+  
   return router;
 };

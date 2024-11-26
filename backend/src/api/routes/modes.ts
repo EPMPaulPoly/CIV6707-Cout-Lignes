@@ -1,27 +1,10 @@
 import { Router, Request, Response, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import { validateMode } from '../validators/modes';
-import { DbTransportMode } from '../../types/database';
+import { DbTransportMode,TransportModeRequest,DeleteModeResponse,ModeParams } from '../../types/database';
 import { ParamsDictionary } from 'express-serve-static-core';
 
-interface TransportModeRequest {
-  name: string;
-  cost_per_km: number;
-  cost_per_station: number;
-  footprint: number;
-}
 
-interface DeleteResponse {
-  success: boolean;
-  data?: DbTransportMode | null;
-  error?: string | null;
-  deletedRows?: number | null;
-}
-
-// Étendre ParamsDictionary au lieu de créer une nouvelle interface
-interface ModeParams extends ParamsDictionary {
-  id: string;
-}
 
 export const createModesRouter = (pool: Pool): Router => {
   const router = Router();
@@ -97,7 +80,7 @@ export const createModesRouter = (pool: Pool): Router => {
 
   const deleteMode: RequestHandler<
     ModeParams,
-    DeleteResponse,
+    DeleteModeResponse,
     TransportModeRequest
   > = async (req, res, next): Promise<void> => {  // Explicit Promise<void> return type
     let client;

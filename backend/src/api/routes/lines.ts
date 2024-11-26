@@ -1,47 +1,13 @@
 import { Router, Request, Response, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import { validateLine } from '../validators/lines';
-import { DbTransitLine, DbLineStop } from '../../types/database';
-import { ParamsDictionary } from 'express-serve-static-core';
+import { DbTransitLine, DbLineStop,CreateLineRequest,DeleteLineResponse,AddRoutePointRequest,RoutePointResponse,LineParams,RoutePointParams, LineCostReponse} from '../../types/database';
 
 // Types pour les requêtes
-interface CreateLineRequest {
-  name: string;
-  description: string;
-  mode_id: number;
-  color: string;
-}
 
-interface DeleteResponse {
-  success: boolean;
-  data?: DbTransitLine | null;
-  error?: string | null;
-  deletedRows?: number | null;
-}
-
-interface AddRoutePointRequest {
-  stop_id: number;
-  order_of_stop: number;
-  is_station: boolean;
-}
-
-interface RoutePointResponse extends DbLineStop {
-  stop_name: string;
-  latitude: number;
-  longitude: number;
-}
-interface LineParams extends ParamsDictionary {
-  id: string;
-}
-
-interface RoutePointParams extends ParamsDictionary {
-  id: string;
-  lsid: string;
-}
 
 export const createLinesRouter = (pool: Pool): Router => {
   const router = Router();
-
   // Get all lines
   // Get all lines
   const getAllLines: RequestHandler = async (_req, res): Promise<void> => {
@@ -231,7 +197,7 @@ export const createLinesRouter = (pool: Pool): Router => {
 
   const deleteLine: RequestHandler<
     LineParams,
-    DeleteResponse
+    DeleteLineResponse
   > = async (req, res, next): Promise<void> => {  // Explicit Promise<void> return type
     let client;
 
@@ -366,9 +332,9 @@ export const createLinesRouter = (pool: Pool): Router => {
     try {
       const client = await pool.connect();
       console.log('to be implemented')
-      const result = await client.query<DbTransitLine>('SELECT b.line_id,COUNT(DISTINCT l.lot_id) AS parcels_within_buffer,SUM(r.value_total) AS total_property_value FROM transport.transit_lines b JOIN cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry) JOIN transport.lot_point_relationship l ON l.lot_id = c.ogc_fid JOIN foncier.role_foncier r ON l.role_foncier_id = r.id_provinc GROUP BY b.line_id;'
+      const result = await client.query<LineCostReponse[]>('SELECT b.line_id,COUNT(DISTINCT l.lot_id) AS parcels_within_buffer,SUM(r.value_total) AS total_property_value, array_agg(DISTINCT l.lot_id) AS affected_lot_ids FROM transport.transit_lines b JOIN cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry) JOIN transport.lot_point_relationship l ON l.lot_id = c.ogc_fid JOIN foncier.role_foncier r ON l.role_foncier_id = r.id_provinc GROUP BY b.line_id;'
       );
-      res.status(201).json({ success: true, data: result.rows[0] });
+      res.status(201).json({ success: true, data: result.rows });
       client.release();
     } catch (err) {
       res.status(500).json({ success: false, error: 'cost feature not yet implemented' });

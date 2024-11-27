@@ -194,7 +194,8 @@ export const lineService = {
         id: line.line_id,
         parcelsWithinBuffer: line.parcels_within_buffer,
         totalPropertyValue: line.total_property_value,
-        affectedLotIds: line.affected_lot_ids
+        affectedLotIds: line.affected_lot_ids,
+        lineLength: line.line_length
       })),
       error: response.data.error
     };

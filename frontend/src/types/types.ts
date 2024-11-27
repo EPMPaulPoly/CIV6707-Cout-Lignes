@@ -36,6 +36,7 @@ export interface LineCostInventory {
   parcelsWithinBuffer: number;
   totalPropertyValue:number;
   affectedLotIds:string[];
+  lineLength:number;
 }
 
 export interface ColumnMapping {
@@ -48,6 +49,7 @@ export interface LineCostInventoryDB {
   parcels_within_buffer: number;
   total_property_value:number;
   affected_lot_ids:string[];
+  line_length:number;
 }
 
 export interface LineStop {

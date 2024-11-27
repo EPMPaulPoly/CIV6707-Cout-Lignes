@@ -332,7 +332,7 @@ export const createLinesRouter = (pool: Pool): Router => {
     try {
       const client = await pool.connect();
       console.log('Getting line costs')
-      const result = await client.query<LineCostReponse[]>('SELECT b.line_id,COUNT(DISTINCT l.lot_id) AS parcels_within_buffer,SUM(r.value_total) AS total_property_value, array_agg(DISTINCT l.lot_id) AS affected_lot_ids FROM transport.transit_lines b JOIN cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry) JOIN transport.lot_point_relationship l ON l.lot_id = c.ogc_fid JOIN foncier.role_foncier r ON l.role_foncier_id = r.id_provinc GROUP BY b.line_id;'
+      const result = await client.query<LineCostReponse[]>('SELECT b.line_id,COUNT(DISTINCT l.lot_id) AS parcels_within_buffer,SUM(r.value_total) AS total_property_value, array_agg(DISTINCT l.lot_id) AS affected_lot_ids,ST_Length(b.geom) AS line_length FROM transport.transit_lines b JOIN cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry) JOIN transport.lot_point_relationship l ON l.lot_id = c.ogc_fid JOIN foncier.role_foncier r ON l.role_foncier_id = r.id_provinc GROUP BY b.line_id;'
       );
       res.status(201).json({ success: true, data: result.rows });
       client.release();

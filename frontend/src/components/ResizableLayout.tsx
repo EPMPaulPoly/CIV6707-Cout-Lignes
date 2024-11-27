@@ -35,6 +35,7 @@ const COLUMN_MAPPINGS = {
     {field:'id',header:'Line Name'},
     {field: 'parcelsWithinBuffer',header: 'N lots'},
     {field: 'totalPropertyValue',header: 'Property Value'},
+    {field: 'lineLength',header:'Length'}
   ]
 };
 

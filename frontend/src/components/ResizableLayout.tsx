@@ -35,6 +35,10 @@ const COLUMN_MAPPINGS = {
     {field:'id',header:'Line Name'},
     {field: 'parcelsWithinBuffer',header: 'N lots'},
     {field: 'totalPropertyValue',header: 'Property Value'},
+    {field: 'lineLength',header:'Length'},
+    {field: 'linearInfraCost',header:'Track M$'},
+    {field: 'nStations',header:'N stat'},
+    {field: 'stationCost',header:'Stat M$'}
   ]
 };
 

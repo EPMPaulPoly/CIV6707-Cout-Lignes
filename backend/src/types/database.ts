@@ -117,6 +117,7 @@ export interface LineCostReponse{
   parcels_within_buffer:number;
   total_property_value:number;
   affected_lot_id:string[];
+  line_length:number;
 }
 
 export interface DbIntersectionResult {

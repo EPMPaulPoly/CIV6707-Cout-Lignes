@@ -191,7 +191,7 @@ export const lineService = {
     return {
       success: response.data.success,
       data: response.data.data.map((line: LineCostInventoryDB) => ({
-        id: line.id,
+        id: line.line_id,
         parcelsWithinBuffer: line.parcels_within_buffer,
         totalPropertyValue: line.total_property_value,
         affectedLotIds: line.affected_lot_ids

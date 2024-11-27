@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Table from '../components/Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot, InsertPosition, Position } from '../types/types';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot, InsertPosition, Position,LineCostInventory } from '../types/types';
 import { handleChange, handleAdd, handleEdit, handleCancel, handleSave, calculateNewOrder } from '../utils/utils';
 import Map from '../components/Map'
 import { lineService } from '../services';
 import { leafletToPosition, positionToLeaflet } from '../utils/coordinates';
+import StaticTable from './StaticTable';
 
 const COLUMN_MAPPINGS = {
   transitLines: [
@@ -29,6 +30,11 @@ const COLUMN_MAPPINGS = {
     { field: 'order_of_stop', header: 'Order' },
     { field: 'stop_id', header: 'Stop ID' },
     { field: 'stop_name', header: 'Stop name' }
+  ],
+  lineCosts: [
+    {field:'id',header:'Line Name'},
+    {field: 'parcelsWithinBuffer',header: 'N lots'},
+    {field: 'totalPropertyValue',header: 'Property Value'},
   ]
 };
 
@@ -37,6 +43,7 @@ interface ResizableLayoutProps {
   transportModes: TransportMode[];
   transitStops: TransitStop[];
   lineStops: LineStop[];
+  lineCosts: LineCostInventory[];
   editingItem: EditingItem;
   newItemCreation: boolean;
   selectedLine: number | null;
@@ -67,6 +74,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   transportModes,
   transitStops,
   lineStops,
+  lineCosts,
   editingItem,
   selectedLine,
   newItemCreation,
@@ -335,6 +343,15 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             />
           </div>
         );
+      case 'lineCosts':
+        return (
+          <StaticTable
+            table="lineCosts"
+            data={lineCosts}
+            columns={COLUMN_MAPPINGS.lineCosts}
+            transitLines={transitLines}
+          />
+        );
       default:
         return null;
     }
@@ -406,6 +423,12 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
               onClick={() => setActiveTable('lineStops')}
             >
               Line Stops
+            </button>
+            <button
+              className={activeTable === 'lineCosts' ? 'active' : ''}
+              onClick={() => setActiveTable('lineCosts')}
+            >
+              Line Costs
             </button>
           </div>
           <div className="active-table">

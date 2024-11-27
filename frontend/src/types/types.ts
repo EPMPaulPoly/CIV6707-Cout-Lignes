@@ -38,8 +38,13 @@ export interface LineCostInventory {
   affectedLotIds:string[];
 }
 
+export interface ColumnMapping {
+  field: string;
+  header: string;
+}
+
 export interface LineCostInventoryDB {
-  id: number;
+  line_id: number;
   parcels_within_buffer: number;
   total_property_value:number;
   affected_lot_ids:string[];

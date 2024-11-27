@@ -31,6 +31,8 @@ const StaticTable: React.FC<StaticTableProps> = ({
       return parseInt(value).toLocaleString('en');
     } else if (field === 'totalPropertyValue') {
       return parseInt(value).toLocaleString('en');
+    } else if(field ==='lineLength'){
+      return value !== null ? value.toFixed(1) : '';
     }
     return value;
   };

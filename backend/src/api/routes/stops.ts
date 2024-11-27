@@ -77,7 +77,7 @@ export const createStopsRouter = (pool: Pool): Router => {
       const client = await pool.connect();
       const result = await client.query<DbTransitStop>(
         `UPDATE transport.transit_stops SET name = $1, is_station = $2, geom = ST_SetSRID(ST_MakePoint($3, $4), 3857) WHERE stop_id = $5 
-        RETURNING stop_id as id, name, is_station, ST_X(geom) as x, ST_Y(geom) as y`,
+        RETURNING stop_id , name, is_station, ST_X(geom) as x, ST_Y(geom) as y`,
         [name, is_station, position.x, position.y, id]
       );
       if (result.rows.length === 0) {

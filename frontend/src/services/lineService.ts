@@ -1,11 +1,14 @@
 import api from './api';
-import { TransitLine, TransitLineDB, LineStop, TransitLineStopDB, ApiLinesResponse, ApiLineResponse, ApiStopResponse, ApiLineStopsResponse, ApiLineStopResponse } from '../types/types';
+import { TransitLine, TransitLineDB, LineStop, TransitLineStopDB, ApiLinesResponse, ApiLineResponse, ApiStopResponse, ApiLineStopsResponse, ApiLineStopResponse ,ApiLineCostsReponse, LineCostInventory,LineCostInventoryDB} from '../types/types';
 import { AxiosResponse } from 'axios';
 
 
 
 interface ApiLineStopsDBResponse extends Omit<ApiLineStopsResponse, 'data'> {
   data: TransitLineStopDB[];
+}
+interface ApiLineCostsDBResponse extends Omit<ApiLineCostsReponse, 'data'> {
+  data: LineCostInventoryDB[];
 }
 
 interface ApiLineStopDBResponse extends Omit<ApiLineStopResponse, 'data'> {
@@ -180,6 +183,21 @@ export const lineService = {
       console.error('Error deleting route point:', error);
       throw error;
     }
+  },
+
+  getAllLineCosts: async():Promise<ApiLineCostsReponse> =>{
+    console.log('Starting queries for line costs')
+    const response: AxiosResponse<ApiLineCostsDBResponse> = await api.get('lines/costs');
+    return {
+      success: response.data.success,
+      data: response.data.data.map((line: LineCostInventoryDB) => ({
+        id: line.line_id,
+        parcelsWithinBuffer: line.parcels_within_buffer,
+        totalPropertyValue: line.total_property_value,
+        affectedLotIds: line.affected_lot_ids
+      })),
+      error: response.data.error
+    };
   },
   // Calcul des prix
   calculatePrice: (id: number) =>

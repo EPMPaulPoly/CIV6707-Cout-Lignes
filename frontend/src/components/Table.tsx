@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { EditingItem, TransportMode, TransitStop, InsertPosition } from '../types/types';
+import { EditingItem, TransportMode, TransitStop, InsertPosition,ColumnMapping } from '../types/types';
 import { MapHandlers, getContrastColor } from '../utils/utils';
 
-interface ColumnMapping {
-  field: string;
-  header: string;
-}
+
 
 interface TableProps {
   table: string;

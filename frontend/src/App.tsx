@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import Map from './components/Map';
 import Table from './components/Table';
-import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot, Position } from './types/types';
+import { TransitStop, TransitLine, TransportMode, LineStop, EditingItem, TaxLot, Position, LineCostInventory } from './types/types';
 import { handleChange, handleAdd, handleEdit, handleSave, createMapHandlers, handleDelete } from './utils/utils';
 import './App.css';
 import ResizableLayout from './components/ResizableLayout';
@@ -18,6 +18,7 @@ const App: React.FC = () => {
   const [transitLines, setTransitLines] = useState<TransitLine[]>([]);
   const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
   const [lineStops, setLineStops] = useState<LineStop[]>([]);
+  const [lineCosts, setLineCosts] = useState<LineCostInventory[]>([]);
   
   // États pour l'UI
   const [loading, setLoading] = useState(true);
@@ -35,13 +36,15 @@ const App: React.FC = () => {
         const [stopsRes, linesRes, modesRes] = await Promise.all([
           stopService.getAll(),
           lineService.getAll(),
-          modeService.getAll()
+          modeService.getAll(),
+          //lineService.getAllLineCosts()
         ]);
         console.log('got response')
         console.log('Transport Modes response:', modesRes);
         setTransitStops(stopsRes.data);
         setTransitLines(linesRes.data);
         setTransportModes(modesRes.data);
+        //setLineCosts(costsRes.data);
         console.log('Set transport modes to:', modesRes.data);
         console.log('Set the local variables')
         if (linesRes.data.length > 0) {
@@ -129,6 +132,7 @@ const App: React.FC = () => {
         transportModes={transportModes}
         transitStops={transitStops}
         lineStops={lineStops}
+        lineCosts={lineCosts}
         editingItem={editingItem}
         selectedLine={selectedLine}
         newItemCreation={newItemCreation}
@@ -139,6 +143,7 @@ const App: React.FC = () => {
         setTransportModes={setTransportModes}
         setTransitStops={setTransitStops}
         setLineStops={setLineStops}
+        setLineCosts={setLineCosts}
         setEditingItem={setEditingItem}
         setNewItemCreation={setNewItemCreation}
         handleDelete={commonDeleteHandler}

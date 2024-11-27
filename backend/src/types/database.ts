@@ -1,3 +1,6 @@
+
+import { ParamsDictionary } from 'express-serve-static-core';
+
 export interface DbTransitStop {
   id: number;
   name: string;
@@ -57,6 +60,63 @@ export interface DbRoleFoncier {
   land_area_sq_m: number;
   building_levels: number;
   // Ajoutez d'autres champs si nécessaires
+}
+export interface CreateLineRequest {
+  name: string;
+  description: string;
+  mode_id: number;
+  color: string;
+}
+
+export interface DeleteLineResponse {
+  success: boolean;
+  data?: DbTransitLine | null;
+  error?: string | null;
+  deletedRows?: number | null;
+}
+export interface TransportModeRequest {
+  name: string;
+  cost_per_km: number;
+  cost_per_station: number;
+  footprint: number;
+}
+
+export interface DeleteModeResponse {
+  success: boolean;
+  data?: DbTransportMode | null;
+  error?: string | null;
+  deletedRows?: number | null;
+}
+
+// Étendre ParamsDictionary au lieu de créer une nouvelle interface
+export interface ModeParams extends ParamsDictionary {
+  id: string;
+}
+
+export interface AddRoutePointRequest {
+  stop_id: number;
+  order_of_stop: number;
+  is_station: boolean;
+}
+
+export interface RoutePointResponse extends DbLineStop {
+  stop_name: string;
+  latitude: number;
+  longitude: number;
+}
+export interface LineParams extends ParamsDictionary {
+  id: string;
+}
+
+export interface RoutePointParams extends ParamsDictionary {
+  id: string;
+  lsid: string;
+}
+export interface LineCostReponse{
+  line_id: number;
+  parcels_within_buffer:number;
+  total_property_value:number;
+  affected_lot_id:string[];
 }
 
 export interface DbIntersectionResult {

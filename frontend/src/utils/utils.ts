@@ -8,7 +8,8 @@ import {
   ApiLineResponse,
   ApiModeResponse, WKBHexString,
   ApiLineStopResponse, InsertPosition,
-  ApiLineStopsResponse
+  ApiLineStopsResponse,
+  LineCostInventory
 } from '../types/types';
 import { Dispatch, SetStateAction } from 'react';
 import { stopService, lineService, modeService } from '../services';

@@ -37,6 +37,9 @@ export interface LineCostInventory {
   totalPropertyValue:number;
   affectedLotIds:string[];
   lineLength:number;
+  linearInfraCost:number;
+  nStations:number;
+  stationCost:number;
 }
 
 export interface ColumnMapping {
@@ -50,6 +53,9 @@ export interface LineCostInventoryDB {
   total_property_value:number;
   affected_lot_ids:string[];
   line_length:number;
+  linear_infra_cost:number;
+  n_stations:number;
+  station_cost:number;
 }
 
 export interface LineStop {

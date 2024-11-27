@@ -195,7 +195,10 @@ export const lineService = {
         parcelsWithinBuffer: line.parcels_within_buffer,
         totalPropertyValue: line.total_property_value,
         affectedLotIds: line.affected_lot_ids,
-        lineLength: line.line_length
+        lineLength: line.line_length,
+        linearInfraCost: line.linear_infra_cost,
+        nStations: line.n_stations,
+        stationCost:line.station_cost
       })),
       error: response.data.error
     };

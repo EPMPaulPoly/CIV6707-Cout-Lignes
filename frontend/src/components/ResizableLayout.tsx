@@ -60,6 +60,7 @@ interface ResizableLayoutProps {
   setTransportModes: React.Dispatch<React.SetStateAction<TransportMode[]>>;
   setTransitStops: React.Dispatch<React.SetStateAction<TransitStop[]>>;
   setLineStops: React.Dispatch<React.SetStateAction<LineStop[]>>;
+  setLineCosts:React.Dispatch<React.SetStateAction<LineCostInventory[]>>;
   setEditingItem: React.Dispatch<React.SetStateAction<EditingItem>>;
   setNewItemCreation: React.Dispatch<React.SetStateAction<boolean>>;
   handleDelete: (table: string, id: number, setFunction: React.Dispatch<React.SetStateAction<any[]>>) => void;
@@ -85,6 +86,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   setTransportModes,
   setTransitStops,
   setLineStops,
+  setLineCosts,
   setEditingItem,
   setNewItemCreation,
   handleDelete,
@@ -350,6 +352,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             data={lineCosts}
             columns={COLUMN_MAPPINGS.lineCosts}
             transitLines={transitLines}
+            setLineCosts={setLineCosts}
           />
         );
       default:

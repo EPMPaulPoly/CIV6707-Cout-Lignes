@@ -33,18 +33,18 @@ const App: React.FC = () => {
       try {
         setLoading(true);
         console.log('Set loading True');
-        const [stopsRes, linesRes, modesRes,costsRes] = await Promise.all([
+        const [stopsRes, linesRes, modesRes] = await Promise.all([
           stopService.getAll(),
           lineService.getAll(),
           modeService.getAll(),
-          lineService.getAllLineCosts()
+          //lineService.getAllLineCosts()
         ]);
         console.log('got response')
         console.log('Transport Modes response:', modesRes);
         setTransitStops(stopsRes.data);
         setTransitLines(linesRes.data);
         setTransportModes(modesRes.data);
-        setLineCosts(costsRes.data);
+        //setLineCosts(costsRes.data);
         console.log('Set transport modes to:', modesRes.data);
         console.log('Set the local variables')
         if (linesRes.data.length > 0) {
@@ -143,6 +143,7 @@ const App: React.FC = () => {
         setTransportModes={setTransportModes}
         setTransitStops={setTransitStops}
         setLineStops={setLineStops}
+        setLineCosts={setLineCosts}
         setEditingItem={setEditingItem}
         setNewItemCreation={setNewItemCreation}
         handleDelete={commonDeleteHandler}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, Polygon, useMap } from 'react-leaflet';
-import L, { CRS, LeafletMouseEvent, LatLng } from 'leaflet';
+import L, { CRS, LeafletMouseEvent, LatLng, IconOptions } from 'leaflet';
 import { TransitStop, TransitLine, LineStop, TaxLot, InsertPosition, TransportMode, Position } from '../types/types';
 import { MapHandlers } from '../utils/utils';
 import { leafletToPosition, positionToLeaflet } from '../utils/coordinates';
@@ -29,6 +29,9 @@ interface MapProps {
 const editingMarkerStyle = `
   .editing-marker {
     filter: hue-rotate(195deg) brightness(1.3);
+  }
+  .editing-waypoint {
+    color: 'red';
   }
   .map-helper-text {
     position: absolute;
@@ -107,6 +110,27 @@ const EditingStationIcon = L.icon({
   className: 'editing-marker'
 });
 
+const WaypointIcon = L.icon({
+  iconUrl: 'https://www.svgrepo.com/show/493838/common-point.svg',
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
+  popupAnchor: [0, 0],
+});
+
+const createEditingWaypointIcon = (color:string) => L.icon({
+  iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="${color}">
+          <path d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10-10-4.48-10-10 4.48-10 10-10zm0 3c-3.87 0-7 3.13-7 7s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7zm0 2.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9z"/>
+      </svg>
+  `)}`,
+  iconSize: [30, 30],  // Size of the icon
+  iconAnchor: [15, 15], // Anchor point for the icon
+  popupAnchor: [0, 0],  // Popup position
+});
+
+// Example usage
+const redWaypointIcon = createEditingWaypointIcon('red');
+
 const EPSG3857_CRS = CRS.EPSG3857;
 
 const MapInteractionHandler: React.FC<{
@@ -162,6 +186,18 @@ const MapContent: React.FC<MapProps> = ({
       .map(stop => positionToLeaflet(stop.position));
     return stops;
   };
+  const getIconToUse=(stopId:number): L.Icon<IconOptions> =>{
+    const stop = transitStops.find(stop => stop.id === stopId);
+    if (isStopBeingEdited(stopId) ==true && stop?.isStation===true) {
+      return EditingStationIcon;
+    } else if (isStopBeingEdited(stopId) && stop?.isStation===false){
+      return redWaypointIcon;
+    } else if (stop?.isStation===false){
+      return WaypointIcon;
+    } else{
+      return StationIcon;
+    }
+  };
 
   const getModeName = (mode_id: number) => {
     if (!Array.isArray(transportModes)) {
@@ -216,7 +252,7 @@ const MapContent: React.FC<MapProps> = ({
         <Marker
           key={stop.id}
           position={positionToLeaflet(stop.position)}
-          icon={isStopBeingEdited(stop.id) ? EditingStationIcon : StationIcon}
+          icon={getIconToUse(stop.id)}
           draggable={isStopBeingEdited(stop.id)}
           eventHandlers={{
             click: (e) => {

@@ -1,5 +1,5 @@
 # Survol des coûts d'infrastructures de transport en commun
-
+ [Retour au README](../README.md)
 ## Introduction
 Ce document va donner de l'information de fond sur les coûts d'infraastructure de transpoort en commun, les meilleurs méthodes pour faire la prévision de coûts d'infrastructure et de l'information de base sur l'empreinte au sol d'infrastructure de transport. Les estimés de coûts ne sont pas nécessairement particulièrement faciles à trouver, particulièrement  considérant les structures des financement souvent opaques pour les grands projets. Ce document essaie donc d'utiliser des données d'instituts de recherche réputés plutôt que de se fier à la presse. D'autre part, les échéances du projet ne permettaient pas nécessairement de faire le travail de recherche documentaire.
 
@@ -60,7 +60,7 @@ L'empreinte au sol est pertinent pour permettre de déduire les coûts d'expropr
 |Toronto streetcar  | Tram       | 6.7m     | 2       | 43.64993216111484, -79.37433648089274   |
 |Eglington X-town | SLR          | 7.7m     | 2       | 43.71633433009492, -79.3522583658223    | 
 |Eg X-town plateformes | SLR     | 10.2m    | 2       | 43.72688162689146, -79.2920574973794    |
-
+| REM      | Train Rapide        | 9.2m     | 2       | 45.47477258653432, -73.5487022630743    |
 ## Bibliography
 Goldwyn, E., Levy, A., Ensari, E., & Chitti, M. (2023). Transit Costs Study Final Report. New York, NY, USA: NYU Marron.\
 

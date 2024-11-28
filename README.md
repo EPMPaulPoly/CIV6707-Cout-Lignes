@@ -17,6 +17,6 @@ Estimations du cout de nouvelles infrastructures de transport à partir du rôle
 
 [Requêtes SQL](docs/api/sql%20requests%20documentation.md)
 
-[Structure du frontend]{docs/frontend/frontend_doc.md}
+[Structure du frontend](docs/frontend/frontend_doc.md)
 
 ## Survol de l'application

@@ -1,11 +1,11 @@
 # Méthodologie d'installation
-
+[Retour au README](../../README.md)
 ## Requis d'installation
 node.js latest installation file: https://nodejs.org/dist/v20.17.0/node-v20.17.0-x64.msi \
 docker latest installation file: https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module&_gl=1*1q71v3*_gcl_au*MjQzMTQ2MTguMTcyNjk0MDM3Ng..*_ga*MTYzMTYzMjQ2My4xNzI2OTMxNDY2*_ga_XJWPQMJYHQ*MTcyNjk3Nzg4MC40LjEuMTcyNjk3Nzg4My41Ny4wLjA. \
 git : https://git-scm.com/download/win
 
-## Comment le faire marcher:
+## Clonage des données:
 
 La procédure a été pas mal chiante de mon côté donc je vais essayer de faire de mon mieux:
 1. Installer les fichiers ci-dessus
@@ -20,3 +20,9 @@ La procédure a été pas mal chiante de mon côté donc je vais essayer de fair
 9. Une fois la commande completée entrez la commande docker-compose up
 
 Vous devriez maintenant avoir une fenêtre ouverte qui montre notre application
+
+## Mise en place de la structure de la BD
+Une sauvegarde de la structure de la base de données a été ajouté au [github](../../sql_reference/database_structure_backup.sql) qui devrait permettre de mettre en places les tables pertinentes dans la base de données. Il sera potentiellement nécessaire de supprimer les schémas du cadastre lorsque ces derniers sont importés plus tard
+
+## Importation du cadastre et du rôle foncier. 
+Toutes les requêtes ont été créées en utilisant la version modifiée du rôle foncier fournie par la chaire Mobilité

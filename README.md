@@ -15,4 +15,6 @@ Estimations du cout de nouvelles infrastructures de transport à partir du rôle
 
 [Implémentation de l'API](docs/api/API%20implementation.md)
 
+[Requêtes SQL](docs/api/sql%20requests%20documentation.md)
+
 ## Survol de l'application

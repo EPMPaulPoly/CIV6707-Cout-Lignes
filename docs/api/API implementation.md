@@ -1,5 +1,6 @@
 # Implémentation de l'API
 [Retour au README.md](../../README.md)
+
 L'API est implémenté dans le dossier [backend](../../backend). La source pour le code se trouve dans le dossier [backend/src](../../backend/src). 
 ## Fichiers de configuration
 Dans le dossier principal se trouvent les fichiers suivants qui servent à faire fonctionner l'application:
@@ -13,22 +14,28 @@ Dans le dossier principal se trouvent les fichiers suivants qui servent à faire
 Le backend est structuré selon le graphique suivant. En réalité, les fonctions de validation sont parfois implémentées directement dans la fonction de l'API ce qui n'est pas une bonne pratique mais est arrivé au fil du temps du fait de l'utilsiation de l'IA générative qui n'était pas nécessairement contrainte. D'autre part la compréhension limité des auteurs en début de projet.
 ```mermaid
 graph TD;
+    subgraph entree["Intégration"]
     server.ts-->config.ts;
     server.ts-->api;
+    end;
     api-->routes;
+    subgraph routessub["Requetes par theme"]
     routes-->index.ts;
     index.ts-->stops.ts;
     index.ts-->lines.ts;
     index.ts-->modes.ts;
     index.ts-->tax-lots.ts;
+    end;
     stops.ts-->validators;
     lines.ts-->validators;
     modes.ts-->validators;
     tax-lots.ts-->validators;
+    subgraph validation["Validation requetes/réponses"]
     validators-->stops.ts_valid;
     validators-->modes.ts_valid;
     validators-->lines.ts_valid;
     validators-->tax-lots.ts_valid;
+    end;
 ```
 ### [server.ts](../../backend/src/server.ts)
 Tel qu'indiqué dans le package.json, server.ts est le point d'entrée dans le backend. C'est la qu'on créé le router pour l'api (en apellant à createApiRouter qui est localisé [ici](../../backend/src/api/routes/index.ts)) qui dispatche ensuite les requêtes selon l'appel spécifique (lignes, modes, arrets, lots cadastraux). D'autre part, le fichier server.ts va chercher le fichier config. Ce fichier est utilisé pour extraire l'information nécessaire à la connexion à la base de données.

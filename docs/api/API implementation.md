@@ -1,5 +1,5 @@
 # Implémentation de l'API
-
+[Retour au README.md](../../README.md)
 L'API est implémenté dans le dossier [backend](../../backend). La source pour le code se trouve dans le dossier [backend/src](../../backend/src). 
 ## Fichiers de configuration
 Dans le dossier principal se trouvent les fichiers suivants qui servent à faire fonctionner l'application:
@@ -47,9 +47,10 @@ Ce fichier requiert l'utilisation de la librairie dotenv
 
 ### [api/routes/index.ts](../../backend/src/api/routes/index.ts)
 routes est le point d'entrée du coeur de l'API. Il permet d'acheminer les requêtes vers différents fichiers (lines.ts,stops.ts). Le code est donc très simple avec seulement des commandes d'acheminement en utilisant les librairies express et pg. Un pool pg doit être fourni en entrée à la fonction create qui permet la connection à la base de données tandis que la librairie express permet de faire circulers les requêtes aux différents fichiers en fonction du chemin fourni par le client pour la requête.
-
+### Routes
+Encore une fois, les librairies pg et express sont utilisées. D'autre part, la librairie express fournit un type requesthandler, Request et Response qui permettent de gérer le corps de requetes d'API. L'ensemble des fonctions utilisent une résolution asynchrone avec des Promisepour permettre au reste du code du frontend de fonctionner pendant que les requêtes complètent.
 ### [api/routes/lines.ts](../../backend/src/api/routes/lines.ts)
-Encore une fois, les librairies pg et express sont utilisées. D'autre part, la librairie express fournit un type requesthandler, Request et Response qui permettent de gérer le corps de requetes d'API. L'ensemble des fonctions utilisent une résolution asynchrone pour permettre au reste du code d'attendre pendant que les requetes SQL se complètent. Ces fonctions sont cependant utilisées en mode asynchrone pour permettre au reste du code du frontend de fonctionner pendant que les requêtes complètent. Le fichier contient 5 sous fonctions à la fonction principale createLinesRouter qui permettent de compléter les différentes opérations requises:
+Il est ausiLe fichier contient 5 sous fonctions à la fonction principale createLinesRouter qui permettent de compléter les différentes opérations requises:
 - getAllLines: /GET va chercher l'information de toutes les lignes
 - getLine: /GET va chercher une ligne spécifiquement
 - createLine: /POST crée une ligne avec les données dans le corps et l'identifiant de ligne dans l'URL
@@ -61,5 +62,15 @@ Encore une fois, les librairies pg et express sont utilisées. D'autre part, la 
 - deleteRoutepoints: /DELETE supprime une entrée dans la table d'ordre des stations.
 - deleteLine: /DELETE supprime une ligne. 
 - getLineCosts: /GET calcule les coûts d'une ligne de transport avec une requête SQL.
+
+Il est important de noter que la fonction create ne gère pas la mise à jour des index des autres arrets dans la ligne qui doit donc être gérée dans le front end. Ceci n'est probablement pas l'implémentation la plus robuse. Une implémentation future donnant l'identifiant des autres points de routages dont les index doivent être incrémentés serait pertinente.
 ### [api/validators/lines.ts](../../backend/src/api/validators/lines.ts)
-Ce fichier contient une fonction de validation des entrées pour une ligne. Elle n'a pas été complétée pour les types successifs qui se sont ajouté
+Ce fichier contient une fonction de validation des entrées pour une ligne. Elle n'a pas été complétée pour les types successifs qui se sont ajoutés au fil du temps (couleur par exemple). Dautre part, aucune validation n'est faite pour les line_stops (point de routage) de la ligne de transport en commun.
+
+### [api/routes/stops.ts](../../backend/src/api/routes/stops.ts)
+Ce fichier permet de faire des opérations sur la base de données pour les arrêts. Malheureusement, l'implémentation de la validation devrait être faite dans la fonction de validation. Les fonctions suivantes sont implémentées pour les arrêts;
+ - getAllStops: /GET va chercher l'ensemble des arrets
+ - getStop: /GET qui va cherche un arrêt spécifié dans l'URL
+ - createStop: /POST qui crée un nouvel arret
+ - updateStop: /PUT qui met à jour l'arrêt spécifié dans l'URL
+ - deleteStop: /DELETE permet de supprimer un arret

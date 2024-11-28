@@ -29,11 +29,11 @@ graph TD;
     validators-->lines.ts_valid;
     validators-->tax-lots.ts_valid;
 ```
-### server.ts
+### [server.ts](../../backend/src/api/server.ts)
 Tel qu'indiqué dans le package.json, server.ts est le point d'entrée dans le backend. C'est la qu'on créé le router pour l'api (en apellant à createApiRouter qui est localisé [ici](../../backend/src/api/routes/index.ts)) qui dispatche ensuite les requêtes selon l'appel spécifique (lignes, modes, arrets, lots cadastraux). D'autre part, le fichier server.ts va chercher le fichier config. Ce fichier est utilisé pour extraire l'information nécessaire à la connexion à la base de données.
 
-### config.ts
-Ce fichier lit le fichier env qui doit se situer à la racine du projet et doit ressembler au valeurs suivantes:
+### [config.ts](../../backend/src/api/config.ts)
+Ce fichier lit le fichier env qui doit se situer à la racine du projet et doit contenir les valeurs suivantes spécifiques à votre implémentation de base de données:
 ```
 DB_USER = "postgres"
 DB_HOST = "localhost"
@@ -42,3 +42,5 @@ DB_PASSWORD = "entrez votre mdp"
 DB_PORT = "5432"
 SERVER_PORT = "5000"
 ```
+Ce fichier requiert l'utilisation de la librairie dotenv
+

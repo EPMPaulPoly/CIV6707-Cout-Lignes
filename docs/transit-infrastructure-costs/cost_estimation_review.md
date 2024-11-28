@@ -29,16 +29,16 @@ Pour revenir à Goldwyn et al., ils trouvent 5 facteurs explicatifs pour l'explo
  - Couts mous: les couts de planification, de conception et de gestion constituent entre 5-10% des couts dans les juridications à bas couts contre 20% en Amérique du Nord.
 ### Étude à Toronto
 D'autres études dans le contexte canadien (Wickens, 2020)ont regardé les coûts de construction dans le contexte torontois qui ont vu une explosion des couts eux aussi. Leurs recommandations sont listées ci-dessous:
-1- Étendre la conversation à crise au delà des experts
-2- Minimiser l'utilisation de tunnels et utiliser des tunnels le moins profond possible
-3- Planifier et protéger les corridors de transport en commun
-4- Augmenter l'ouverture et la transparence
-5- Repenser les facteurs qui rendent les stations spéciales
-6- Réutiliser les terres de manières bénéfiques
-7- Pro activement addresser les problèmes de main d'oeuvre
-8- Augmenter les efforts pour faire fonctionner les parternariats privés publics
-9- Approuver les plans d'expansion basés sur les faits plutôt que les motifs politiques
-10- Créer des produits, processus et incitatifs qui permettent aux stations et les aires à proximité
+1. Étendre la conversation à crise au delà des experts
+2. Minimiser l'utilisation de tunnels et utiliser des tunnels le moins profond possible
+3. Planifier et protéger les corridors de transport en commun
+4. Augmenter l'ouverture et la transparence
+5. Repenser les facteurs qui rendent les stations spéciales
+6. Réutiliser les terres de manières bénéfiques
+7. Pro activement addresser les problèmes de main d'oeuvre
+8. Augmenter les efforts pour faire fonctionner les parternariats privés publics
+9. Approuver les plans d'expansion basés sur les faits plutôt que les motifs politiques
+10. Créer des produits, processus et incitatifs qui permettent aux stations et les aires à proximité d'être mieux valorisées
 
 ## Points de départs pour les coûts
 Les points de départ sont suggérés selon les modes et pour des juridictions à bas coût qui ont de forts pouvoirs d'achat:

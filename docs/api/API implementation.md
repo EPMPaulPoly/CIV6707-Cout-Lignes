@@ -10,12 +10,13 @@ Dans le dossier principal se trouvent les fichiers suivants qui servent à faire
 
 ## Architecture du backend
 
-Le backend est structuré selon le graphique suivant.
+Le backend est structuré selon le graphique suivant. En réalité, les fonctions de validation sont parfois implémentées directement dans la fonction de l'API ce qui n'est pas une bonne pratique mais est arrivé au fil du temps du fait de l'utilsiation de l'IA générative qui n'était pas nécessairement contrainte. D'autre part la compréhension limité des auteurs en début de projet.
 ```mermaid
 graph TD;
     server.ts-->config.ts;
     server.ts-->api;
-    api-->index.ts;
+    api-->routes;
+    routes-->index.ts;
     index.ts-->stops.ts;
     index.ts-->lines.ts;
     index.ts-->modes.ts;
@@ -44,3 +45,21 @@ SERVER_PORT = "5000"
 ```
 Ce fichier requiert l'utilisation de la librairie dotenv
 
+### [api/routes/index.ts](../../backend/src/api/routes/index.ts)
+routes est le point d'entrée du coeur de l'API. Il permet d'acheminer les requêtes vers différents fichiers (lines.ts,stops.ts). Le code est donc très simple avec seulement des commandes d'acheminement en utilisant les librairies express et pg. Un pool pg doit être fourni en entrée à la fonction create qui permet la connection à la base de données tandis que la librairie express permet de faire circulers les requêtes aux différents fichiers en fonction du chemin fourni par le client pour la requête.
+
+### [api/routes/lines.ts](../../backend/src/api/routes/lines.ts)
+Encore une fois, les librairies pg et express sont utilisées. D'autre part, la librairie express fournit un type requesthandler, Request et Response qui permettent de gérer le corps de requetes d'API. L'ensemble des fonctions utilisent une résolution asynchrone pour permettre au reste du code d'attendre pendant que les requetes SQL se complètent. Ces fonctions sont cependant utilisées en mode asynchrone pour permettre au reste du code du frontend de fonctionner pendant que les requêtes complètent. Le fichier contient 5 sous fonctions à la fonction principale createLinesRouter qui permettent de compléter les différentes opérations requises:
+- getAllLines: /GET va chercher l'information de toutes les lignes
+- getLine: /GET va chercher une ligne spécifiquement
+- createLine: /POST crée une ligne avec les données dans le corps et l'identifiant de ligne dans l'URL
+- updateLine: /PUT met à jour une ligne avec les données dans le corps et l'identifiant de ligne dans l'URL
+- getAllRoutePoints: /GET va chercher la table qui contient l'ordre des stations dans toutes les lignes
+- getRoutePoints: /GET va chercher la table qui contient l'ordre des stations pour une ligne
+- addRoutePoints: /POST créer une nouvelle entrée dans la table pour l'ordre des stations
+- updateRoutePoint: /PUT met à jour un élément dans la table d'ordre des stations.
+- deleteRoutepoints: /DELETE supprime une entrée dans la table d'ordre des stations.
+- deleteLine: /DELETE supprime une ligne. 
+- getLineCosts: /GET calcule les coûts d'une ligne de transport avec une requête SQL.
+### [api/validators/lines.ts](../../backend/src/api/validators/lines.ts)
+Ce fichier contient une fonction de validation des entrées pour une ligne. Elle n'a pas été complétée pour les types successifs qui se sont ajouté

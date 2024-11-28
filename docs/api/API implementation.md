@@ -24,8 +24,8 @@ graph TD;
     lines.ts-->validators;
     modes.ts-->validators;
     tax-lots.ts-->validators;
-    validators->stops.ts;
-    validators->modes.ts;
-    validators->lines.ts;
-    validators->tax-lots.ts;
+    validators->stops.ts(valid);
+    validators->modes.ts(valid);
+    validators->lines.ts(valid);
+    validators->tax-lots.ts(valid);
 ```

@@ -15,11 +15,12 @@ De plus, un corpus de littérature(Sibony, O., Sunstein, C. R., & Kahneman, D. (
 D'autres(Themsen, 2019) émettent des doutes sur cette méthodologie en pronant que la sous-estimation initiale des coûts est inéluctable pour permettre le démarage des projets. Ils pronent que les estimations de coûts font simplement partie de l'élaboration d'un projet et sont un moyen de médier les intérêts des différentes parties prenantes. D'autre part, l'auteur indique que dans le projet qu'il étudie, la RCF a été utilisée et des explosions de coûts ont quand même eu lieu et que les projets devraient potentiellement être reconnus selon leur mérites, potentiellement autres que financiers.
 
 ### Sources de données
-Comme mentionné ci-haut, peu de littérature fiable et facilement disponible existe sur les coûts de ces projets. Des comparaisons dans des contextes géographiques, institutionnels et de pouvoir d'achat différentes. La meilleur référence trouvée était Goldwyn et al,2023 qui ont conduit une recherche bibliographique sur plusieurs projets sur des modes à haute capacité. En contraste, l'ITDP a aussi créé un manuel de planification qui donne des indications des coûts de construction pour l'infrastructure pour les Service Rapides de bus(Institute for Transportation and Development Policy, & Protocubo Consultoria Ltda.,2018).\
+Comme mentionné ci-haut, peu de littérature fiable et facilement disponible existe sur les coûts de ces projets. Des comparaisons dans des contextes géographiques, institutionnels et de pouvoir d'achat différentes. La meilleur référence trouvée était Goldwyn et al,2023 qui ont conduit une recherche bibliographique sur plusieurs projets sur des modes à haute capacité. En contraste, l'ITDP a aussi créé un manuel de planification qui donne des indications des coûts de construction pour l'infrastructure pour les Service Rapides de bus(Institute for Transportation and Development Policy, & Protocubo Consultoria Ltda.,2018).
 
-Les deux outils mentionnés ci-haut donnent seulement des coûts agrégés sur une variété de projets allant de projets de tram à des projets de Train Rapide. Bien que cette approche pourrait sembler peu fiable, une partie de la littérature (Flyvbjerg & Gardner (2023)) indique que l'utilisation de méthodes d'estimations par classe de référence tendent à donner de meilleurs estimés. La raison postulée est que de faire des estimations à partir de projets existant permet de prendre en compte les risques associés au type de projet en cours. Ainsi, le projet est mis dans une catégorie et adimensionalisée  et ensuite un estimé est complété sur une base statistique.\
+Les deux outils mentionnés ci-haut donnent seulement des coûts agrégés sur une variété de projets allant de projets de tram à des projets de Train Rapide. Bien que cette approche pourrait sembler peu fiable, une partie de la littérature (Flyvbjerg & Gardner (2023)) indique que l'utilisation de méthodes d'estimations par classe de référence tendent à donner de meilleurs estimés. La raison postulée est que de faire des estimations à partir de projets existant permet de prendre en compte les risques associés au type de projet en cours. Ainsi, le projet est mis dans une catégorie et adimensionalisée  et ensuite un estimé est complété sur une base statistique.
 
 Ces méthodes tentent de réduire les biais relativement bien connus par les psychologues des organisations dont les biais d'optimisme et d'unicité.
+
 ### Facteurs explicatifs de l'explosion des coûts: Transit Costs
 Pour revenir à Goldwyn et al., ils trouvent 5 facteurs explicatifs pour l'explosion des coûts des projets de transport de rail dans les pays anglo saxons:
  - Structures physiques - surdimensionnement et gouvernance: Les agences de transport d'Amérique du Nord tendent à surconstruire pour accomoder différentes parties prenantes(transit agencies)menant à des infrastructures très sur-dimensionnées comparées aux besoins. Les coûts de relocalisation d'infrastructures électriques et les couts interagences servent aussi à artificiellement augmenter les coûts
@@ -27,6 +28,7 @@ Pour revenir à Goldwyn et al., ils trouvent 5 facteurs explicatifs pour l'explo
  - Main d'oeuvre: la main d'oeuvre représent entre 40 et 60% des coûts durs en Amérique du Nord. Dans les cas étudiés à faible coûts la main d'oeuvre représente beaucoup moins descendant jusqu'à  23 % en Suède. Ceci représente une augemntation de 50% dans les coûts de projets globaux.
  - Structure des contrats (Procurement): les normes contractuelles dans les acahts en Amérique du Nord sont un vecteur important des coûts supérieurs en Amérique du Nord. Une culture du secret, un manque de capacité dans les agences, de l'adversité entre les agences et les contractuels menant à un facteur de 1.85 sur les pcouts de projets. De plus,les réformes actuelles visant à privatiser les risques ont mené à une explosion des coûts dans les juridictions qui ont essayé.
  - Couts mous: les couts de planification, de conception et de gestion constituent entre 5-10% des couts dans les juridications à bas couts contre 20% en Amérique du Nord.
+
 ### Étude à Toronto
 D'autres études dans le contexte canadien (Wickens, 2020)ont regardé les coûts de construction dans le contexte torontois qui ont vu une explosion des couts eux aussi. Leurs recommandations sont listées ci-dessous:
 1. Étendre la conversation à crise au delà des experts
@@ -48,7 +50,16 @@ Les points de départ sont suggérés selon les modes et pour des juridictions �
 
 ## Empreinte au sol
 L'empreinte au sol est pertinent pour permettre de déduire les coûts d'expropriation du fait de la méthode de calcul et d'estimation pour les couts d'expropriation. 
-
+| Endroit    | Mode              |Largeur   | N_voies | Lieu   |
+|------------|-------------------|----------|---------|--------|
+|RER A Paris |Train de banlieue  | 8.7 m    | 2       | 48.903750007347504, 2.199707434059951   |
+|GO transit  |Train de banlieue  | 8.7 m    | 2       | 43.94120923220577, -79.39891936151736   |
+|GO transit  |Train de banlieue  | 11.7m    | 2       | 43.58502603285974, -79.62173891053689   |
+|Sky train   |Train Rapide       | 9.5m     | 2       | 49.210531813584026, -123.11696666548359 |
+|Calgary light rail | SLR        | 10.2m    | 2       | 51.0470408561333, -114.08949392975752   |
+|Toronto streetcar  | Tram       | 6.7m     | 2       | 43.64993216111484, -79.37433648089274   |
+|Eglington X-town | SLR          | 7.7m     | 2       | 43.71633433009492, -79.3522583658223    | 
+|Eg X-town plateformes | SLR     | 10.2m    | 2       | 43.72688162689146, -79.2920574973794    |
 
 ## Bibliography
 Goldwyn, E., Levy, A., Ensari, E., & Chitti, M. (2023). Transit Costs Study Final Report. New York, NY, USA: NYU Marron.\

@@ -10,7 +10,7 @@ Dans le dossier principal se trouvent les fichiers suivants qui servent à faire
 
 ## Architecture du backend
 
-Le backend est structuré selon le graphique suivant
+Le backend est structuré selon le graphique suivant.
 ```mermaid
 graph TD;
     server.ts-->config.ts;
@@ -19,6 +19,13 @@ graph TD;
     index.ts-->stops.ts;
     index.ts-->lines.ts;
     index.ts-->modes.ts;
-    index.ts-->stops.ts;
     index.ts-->tax-lots.ts;
+    stops.ts-->validators;
+    lines.ts-->validators;
+    modes.ts-->validators;
+    tax-lots.ts-->validators;
+    validators->stops.ts;
+    validators->modes.ts;
+    validators->lines.ts;
+    validators->tax-lots.ts;
 ```

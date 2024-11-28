@@ -29,3 +29,5 @@ graph TD;
     validators-->lines.ts_valid;
     validators-->tax-lots.ts_valid;
 ```
+### server.ts
+Tel qu'indiqué dans le package.json, server.ts est le point d'entrée dans le backend. C'est la qu'on créé le router pour l'api (en apellant à createApiRouter qui est localisé [ici](../../backend/api/index.ts)

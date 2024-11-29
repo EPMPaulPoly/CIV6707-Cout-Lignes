@@ -75,7 +75,7 @@ Des **trigger functions** ont été créées pour automatiser les mises à jour 
 Lorsqu’un arrêt d'une ligne est ajouté, supprimé ou modifié :
 
 - La géométrie de la ligne de transport est recalculée en prenant en compte l'ordre des arrêts.
-- Mise à jour réalisée dans le système de référence spatial **SRID 3857**.
+
 
 ### Modification du footprint d'un mode de transport
 Si l'empreinte d'un mode de transport change (par exemple, sa taille ou son impact) :

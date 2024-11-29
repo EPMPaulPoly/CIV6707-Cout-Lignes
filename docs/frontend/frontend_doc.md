@@ -59,3 +59,5 @@ flowchart LR
     cadservice-->api;
     end;
 ```
+
+## États de l'application utilisés pour transférer les données

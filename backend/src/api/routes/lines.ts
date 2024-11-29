@@ -1,7 +1,7 @@
 import { Router, Request, Response, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import { validateLine } from '../validators/lines';
-import { DbTransitLine, DbLineStop,CreateLineRequest,DeleteLineResponse,AddRoutePointRequest,RoutePointResponse,LineParams,RoutePointParams, LineCostReponse} from '../../types/database';
+import { DbTransitLine, DbLineStop, CreateLineRequest, DeleteLineResponse, AddRoutePointRequest, RoutePointResponse, LineParams, RoutePointParams, LineCostReponse } from '../../types/database';
 
 // Types pour les requêtes
 
@@ -278,7 +278,7 @@ export const createLinesRouter = (pool: Pool): Router => {
       }
 
       client = await pool.connect();
-      
+
       // Start transaction
       await client.query('BEGIN');
 
@@ -328,35 +328,52 @@ export const createLinesRouter = (pool: Pool): Router => {
       }
     }
   };
-  const getLineCosts : RequestHandler = async(_req,res):Promise<void>=>{
+  const getLineCosts: RequestHandler = async (_req, res): Promise<void> => {
     try {
       const client = await pool.connect();
       console.log('Getting line costs')
-      const result = await client.query<LineCostReponse[]>(`SELECT 
+      const result = await client.query<LineCostReponse[]>(`-- Aggregate property values grouped by line_id
+WITH aggregated_line_lot_values AS (
+    SELECT 
         b.line_id,
-        COALESCE(COUNT(DISTINCT l.lot_id),0) AS parcels_within_buffer,
-        COALESCE(SUM(r.value_total),0) AS total_property_value,
-        COALESCE(array_agg(DISTINCT l.lot_id),'{}') AS affected_lot_ids,
-        ST_Length(b.geom) AS line_length,
-        (ST_Length(b.geom) * tm.cost_per_km / 1000) AS linear_infra_cost,  -- Corrected expression
-        COUNT(DISTINCT ts.stop_id) AS n_stations,
-        (COUNT(DISTINCT ts.stop_id) * tm.cost_per_station) AS station_cost
-      FROM 
-          transport.transit_lines b
-      JOIN 
-          cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry)
-      JOIN 
-          transport.lot_point_relationship l ON l.lot_id = c.ogc_fid
-      JOIN 
-          foncier.role_foncier r ON l.role_foncier_id = r.id_provinc
-      JOIN 
-          transport.transit_modes tm ON tm.mode_id = b.mode_id
-      LEFT JOIN 
-          transport.line_stops ls ON ls.line_id = b.line_id  -- Join linestops table to get stop information
-      LEFT JOIN 
-          transport.transit_stops ts ON ts.stop_id = ls.stop_id AND ts.is_station = true  -- Only count stops that are stations
-      GROUP BY 
-          b.line_id, tm.cost_per_km, tm.cost_per_station; `
+        SUM(r.value_total) AS total_property_value
+    FROM 
+        transport.transit_lines b
+    JOIN 
+        cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry)
+    JOIN 
+        transport.lot_point_relationship l ON l.lot_id = c.ogc_fid
+    JOIN 
+        foncier.role_foncier r ON l.role_foncier_id = r.id_provinc
+    GROUP BY 
+        b.line_id
+)
+-- Main query with the LEFT JOIN after other calculations
+SELECT 
+    b.line_id,
+    COALESCE(COUNT(DISTINCT l.lot_id), 0) AS parcels_within_buffer,
+    COALESCE(alv.total_property_value, 0) AS total_property_value,  -- Join aggregated lot values
+    COALESCE(array_agg(DISTINCT l.lot_id), '{}') AS affected_lot_ids,
+    ST_Length(b.geom) AS line_length,
+    (ST_Length(b.geom) * tm.cost_per_km / 1000) AS linear_infra_cost,
+    COUNT(DISTINCT ts.stop_id) AS n_stations,
+    (COUNT(DISTINCT ts.stop_id) * tm.cost_per_station) AS station_cost
+FROM 
+    transport.transit_lines b
+JOIN 
+    cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry)
+JOIN 
+    transport.lot_point_relationship l ON l.lot_id = c.ogc_fid
+JOIN 
+    transport.transit_modes tm ON tm.mode_id = b.mode_id
+LEFT JOIN 
+    transport.line_stops ls ON ls.line_id = b.line_id
+LEFT JOIN 
+    transport.transit_stops ts ON ts.stop_id = ls.stop_id AND ts.is_station = true
+LEFT JOIN 
+    aggregated_line_lot_values alv ON alv.line_id = b.line_id  -- Join pre-aggregated lot values
+GROUP BY 
+    b.line_id, tm.cost_per_km, tm.cost_per_station, alv.total_property_value;`
       );
       res.status(201).json({ success: true, data: result.rows });
       client.release();
@@ -367,7 +384,7 @@ export const createLinesRouter = (pool: Pool): Router => {
   // Routes
   router.get('/', getAllLines);
   router.get('/route-points', getAllRoutePoints);
-  router.get('/costs',getLineCosts)
+  router.get('/costs', getLineCosts)
   router.get('/:id', getLine);
   router.put('/:id', validateLine, updateLine)
   router.delete('/:id', deleteLine);
@@ -376,6 +393,6 @@ export const createLinesRouter = (pool: Pool): Router => {
   router.post('/:id/route-points', addRoutePoint);
   router.put('/:id/route-points', updateRoutePoints);
   router.delete('/:id/route-points/:lsid', deleteRoutePoint);
-  
+
   return router;
 };

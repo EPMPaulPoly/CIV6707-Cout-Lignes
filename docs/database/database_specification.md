@@ -51,7 +51,7 @@ erDiagram
       string id_provinc FK
     }
     role_foncier ||--o{ lot_point_relationship: id_provinc
-    cadastre ||--|{ lot_point_relationship: ogc_fid 
+    cadastre ||--|| lot_point_relationship: ogc_fid 
     transit_lines||--o{ cadastre: intersect
 ```
 Les sections suivantes détailleront les champs de la base de données, ainsi que certains modifications en termes de clés, de fonctions déclenchées qui doivent être mises en place pour que la géométrie des lignes et des zones tampons des lignes soient mises à jour avec les modifications sur les champs qui affecte le tracé et les zones tampons.

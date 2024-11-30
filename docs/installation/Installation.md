@@ -38,7 +38,11 @@ Pour importer le cadastre, utiliser la procédure suivante:
 - Allez télécharger le cadastre de l'année du rôle foncier sur [géo-index](https://geoapp.bibl.ulaval.ca/)
 - Ouvrir le shpfile résultant dans qgis
 - Faites un clic droit sur la couche
+
 <img width="591" alt="exportation_sql" src="https://github.com/user-attachments/assets/6e5a8911-39f8-4965-abb7-d131e03dade0">
+
 - assurer vous de rentrer le nom wkb_geometry comme nom de géométrie et choisissez un fichier à utiliser
+
   <img width="782" alt="save_sql" src="https://github.com/user-attachments/assets/b3eb3d24-2f0d-451a-b361-2c56d20ef259">
+  
 - Répétez la procédure utilisant psql utilisée pour le rôle foncier.

@@ -1,4 +1,6 @@
 # Architecture
+[Retour au README.md](../../README.md)
+
 ## Introduction et schéma de base
 L'architecture du site est relativement conventionnelle avec un frontend qui gère l'interface avec l'utilisateur, affiche les réseaux de transport et permet à l'utilisateur de modifier les données. La segmentation entre le frontend et le backend permet de séparer les fonctions, facilitant le développement et permettant de réutiliser le backend pour d'autres utilisations ou par d'autres site web si le point d'entrée est exposé au public. 
 ```mermaid

@@ -203,11 +203,11 @@ const MapContent: React.FC<MapProps> = ({
   const onEachFeature = (feature: any, layer: L.Layer) => {
     // This function is called for each feature
     if (feature.properties) {
-      const { id, value_total } = feature.properties;
+      const { ogc_fid, value_total } = feature.properties;
 
       // Create a popup with the id and value_total
       layer.bindPopup(`
-        <strong>ID:</strong> ${id}<br />
+        <strong>ID:</strong> ${ogc_fid}<br />
         <strong>Value Total:</strong> ${value_total}
       `);
     }

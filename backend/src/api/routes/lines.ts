@@ -333,47 +333,94 @@ export const createLinesRouter = (pool: Pool): Router => {
       const client = await pool.connect();
       console.log('Getting line costs')
       const result = await client.query<LineCostReponse[]>(`-- Aggregate property values grouped by line_id
-        WITH aggregated_line_lot_values AS (
+        -- Compute lot values and areas for intersected geometries
+        WITH line_lot_values AS (
             SELECT 
                 b.line_id,
-                SUM(r.value_total) AS total_property_value
+                CASE 
+                    WHEN c.va_suprf_l < 5000 THEN c.va_suprf_l
+                    ELSE ST_Area(ST_Transform(ST_Intersection(c.wkb_geometry, b.buffer_geom), 4326)::geography)
+                END AS area,
+                c.va_suprf_l AS lot_area,
+                r.value_total AS lot_value,
+                r.value_total * 
+                CASE 
+                    WHEN c.va_suprf_l < 5000 THEN 1
+                    ELSE ST_Area(ST_Transform(ST_Intersection(c.wkb_geometry, b.buffer_geom), 4326)::geography) / c.va_suprf_l
+                END AS value_to_sum,
+                l.lot_id AS affected_lot_ids,
+                r.id_provinc AS affected_tax_ids
             FROM 
                 transport.transit_lines b
             JOIN 
-                cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry)
+                cadastre.cadastre_quebec c 
+                ON ST_Intersects(b.buffer_geom, c.wkb_geometry)
             JOIN 
-                transport.lot_point_relationship l ON l.lot_id = c.ogc_fid
+                transport.lot_point_relationship l 
+                ON l.lot_id = c.ogc_fid
             JOIN 
-                foncier.role_foncier r ON l.role_foncier_id = r.id_provinc
+                foncier.role_foncier r 
+                ON l.role_foncier_id = r.id_provinc
+        ),
+
+        -- Aggregate lot values and areas for each line
+        aggregated_line_lot_values AS (
+            SELECT
+                llv.line_id,
+                COUNT(DISTINCT llv.affected_lot_ids) AS parcels_within_buffer,
+                SUM(llv.lot_value) AS total_potential_lot_value,
+                SUM(llv.value_to_sum) AS total_property_value,
+                ARRAY_AGG(DISTINCT llv.affected_lot_ids) AS affected_lot_ids,
+                ARRAY_AGG(DISTINCT llv.affected_tax_ids) AS affected_tax_ids
+            FROM 
+                line_lot_values llv
             GROUP BY 
-                b.line_id
+                llv.line_id
+        ),
+
+        -- Forecast costs for infrastructure based on line length and stops
+        reference_class_forecast AS (
+            SELECT
+                b.line_id,
+                ST_Length(ST_Transform(b.geom, 4326)::geography) AS line_length,
+                ST_Length(ST_Transform(b.geom, 4326)::geography) * tm.cost_per_km / 1000 AS linear_infra_cost,
+                COUNT(DISTINCT ts.stop_id) AS n_stations,
+                COUNT(DISTINCT ts.stop_id) * tm.cost_per_station AS station_cost
+            FROM 
+                transport.transit_lines b
+            LEFT JOIN 
+                transport.line_stops ls 
+                ON ls.line_id = b.line_id
+            LEFT JOIN 
+                transport.transit_stops ts 
+                ON ts.stop_id = ls.stop_id AND ts.is_station = TRUE
+          LEFT JOIN
+            transport.transit_modes tm
+            on tm.mode_id = b.mode_id
+            GROUP BY 
+                b.line_id, tm.cost_per_km, tm.cost_per_station
         )
-        -- Main query with the LEFT JOIN after other calculations
+
+        -- Combine results into the final output
         SELECT 
             b.line_id,
-            COALESCE(COUNT(DISTINCT l.lot_id), 0) AS parcels_within_buffer,
-            COALESCE(alv.total_property_value, 0) AS total_property_value,  -- Join aggregated lot values
-            COALESCE(array_agg(DISTINCT l.lot_id), '{}') AS affected_lot_ids,
-            ST_Length(ST_Transform(b.geom, 4326)::geography) AS line_length,
-            (ST_Length(ST_Transform(b.geom, 4326)::geography) * tm.cost_per_km / 1000) AS linear_infra_cost,
-            COUNT(DISTINCT ts.stop_id) AS n_stations,
-            (COUNT(DISTINCT ts.stop_id) * tm.cost_per_station) AS station_cost
+            allv.parcels_within_buffer,
+            allv.total_potential_lot_value,
+            allv.total_property_value,
+            allv.affected_lot_ids,
+            allv.affected_tax_ids,
+            rcf.line_length,
+            rcf.linear_infra_cost,
+            rcf.n_stations,
+            rcf.station_cost
         FROM 
             transport.transit_lines b
-        JOIN 
-            cadastre.cadastre_quebec c ON ST_Intersects(b.buffer_geom, c.wkb_geometry)
-        JOIN 
-            transport.lot_point_relationship l ON l.lot_id = c.ogc_fid
-        JOIN 
-            transport.transit_modes tm ON tm.mode_id = b.mode_id
         LEFT JOIN 
-            transport.line_stops ls ON ls.line_id = b.line_id
+            aggregated_line_lot_values allv 
+            ON allv.line_id = b.line_id
         LEFT JOIN 
-            transport.transit_stops ts ON ts.stop_id = ls.stop_id AND ts.is_station = true
-        LEFT JOIN 
-            aggregated_line_lot_values alv ON alv.line_id = b.line_id  -- Join pre-aggregated lot values
-        GROUP BY 
-            b.line_id, tm.cost_per_km, tm.cost_per_station, alv.total_property_value;`
+            reference_class_forecast rcf 
+            ON rcf.line_id = b.line_id;`
       );
       res.status(201).json({ success: true, data: result.rows });
       client.release();

@@ -169,6 +169,8 @@ export interface CadastreProperties {
   no_lot: string;
   va_suprf_l: number;
   shape_area: number;
+  total_value:number;
+  tax_ids: string[]
 }
 
 export interface RoleFoncierProperties {
@@ -180,8 +182,10 @@ export interface RoleFoncierProperties {
   building_levels: number;
 }
 
-export interface CadastreFeature extends GeoJSON.Feature {
-  properties: CadastreProperties;
+export interface CadastreFeature {
+  ogc_fid: number;
+  value_total: number;
+  geojson_geometry: GeoJSON.GeoJSON;
 }
 
 export interface RoleFoncierFeature extends GeoJSON.Feature {

@@ -44,8 +44,44 @@ export const createCadastreRouter = (pool: Pool): Router => {
     }
   };
 
+  const getCadastreById: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+      const { ids } = req.body;
+      console.log('Request Data:', { ids });
+      const client = await pool.connect();
+       // Using parameterized query with array
+      const query = `
+      SELECT
+        cq.ogc_fid,
+        COALESCE(SUM(rf.value_total), 0) AS value_total,
+        ST_AsGeoJSON(ST_Transform(cq.wkb_geometry, 4326)) AS geojson_geometry
+      FROM
+        cadastre.cadastre_quebec cq
+      JOIN
+        transport.lot_point_relationship lpr 
+        ON lpr.lot_id = cq.ogc_fid
+      JOIN
+        foncier.role_foncier rf 
+        ON rf.id_provinc = lpr.role_foncier_id
+      WHERE
+        cq.ogc_fid = ANY($1::bigint[]) -- Use PostgreSQL array handling
+      GROUP BY 
+        cq.ogc_fid, cq.wkb_geometry;
+    `;
+
+      // Pass `ids` as a PostgreSQL array
+      const result = await client.query(query, [ids]); // Note: `ids` must be an array
+      res.json({ success: true, data: result.rows });
+      client.release();
+    } catch (err) {
+      console.error('Error in getCadastreInBounds:', err);
+      res.status(500).json({ success: false, error: 'Database error' });
+    }
+  };
+
   // Route simplifiée
   router.post('/bounds', validateGeometry, getCadastreInBounds);
-
+  router.post('/ids',getCadastreById);
   return router;
 };

@@ -106,3 +106,45 @@ Prenons la ligne dont l'identificant est line_id = 1. Le premier arrêt de cette
 | XX | 1 | 3 | 2|
 | XX | 1 | 4 | 3 |
 | XX | 1 | 12 | 4 |
+## cadastre
+La table du cadastre reproduit les champs issus du fichier tiré de géo-index. Seuils ceux qui sont utilisés sont discuté à des fins de clarté. La plupart des champs ne sont pas particulièrement utiles, même dans un autre contexte:
+|Champs | Type | Clé |Description |
+|-------|------|-----|------------|
+| ogc_fid | entier serial | PK | Identifiant du lot|
+| wkb_geometry | geometry - MultiPolygon |  | Géométrie du lot|
+| c.va_suprf_l | numeric |  | Superficie du lot utilisée pour trouver la proportion du lot à exproprier pour les lots de plus de 5000m2|
+
+## role_foncier
+
+Le rôle foncier est une base de données donnant les valeurs foncières et certaines caractéristiques géométriques des bâtiments. Une version modifiée du rôle foncier a été utilisée qui a été fournie par la chaire mobilité. Cette version a déplacé lespoints du centre géométrique à la porte d'entrée. Pour assurer que le rôle foncier puisse directement utilisé dans une version future. Les principaux champs sont listés ci-dessous d'autre existent au rôle foncier Ministère des Affaires Municipales et de l’Habitation. (2024).
+| Champs CM | Champs Original | Type | Clé |Description |
+|-------|----|--|-----|------------|
+| id_provinc | id_provinc |caractère variant | PK | Identifiant du |
+| date_entree | RL0201Gx | entier | |date initial d'inscription au rôle du propriétaire concerneé|
+| anrole | RLM02A | entier | |Date du rôle foncier considéré.|
+| code_utilisation | RL0105A | entier | | Code de l’utilisation prédominante de l’unité d’évaluation |
+| code_mun | RLM01A | entier | | Code de la municipalité |
+| land_width_m | RL0301A| réel | | Dimension linéaire du terrain en front sur la voie publique  |
+| land_area_sq_m | RL0302A | réel | | Superficie du terrain porté au rôle|
+| code_lien_physique | RL0309A| caractère | | Code du lien physique de l’unité d’évaluation lorsqu’il existe un seul bâtiment principal |
+| building_flats |RL0311A| entier | | Nombre total de logements de l’unité d’évaluation|
+| building_rental_rooms |RL0312A| entier | | Nombre total de chambres locatives de l’unité d’évaluation|
+|building_non_flats_spaces | RL0313A| entier | | Nombre total de locaux non résidentiels de l’unité d’évaluation|
+| value_land | RL0402A | entier | | Valeur du terrain inscrite au rôle en vigueur|
+| value_building | RL0403A| entier | | Valeur du ou des bâtiments inscrite au rôle en vigueur|
+| value_total | RL0404A| entier | | Valeur de l’immeuble inscrite au rôle en vigueur|
+
+## lot_point_relationship
+Cette table est une jointure spatiale. Bien que cette jointure peut être formulée pour être performée régulièrement. Elle est demandante. D'autre part, les données du rôle foncier et du cadastre changent rarement et il est donc pertinent de faire la jointure spatiale une fois, d'en enregistrer le résultat qui est plus rapide à accéder. La requête SQL pour créer cette table est donnée ci-dessous:
+```
+CREATE TABLE transport.lot_point_relationship AS
+SELECT 
+    c.ogc_fid AS lot_id,
+    r.id_provinc AS role_foncier_id
+FROM cadastre.cadastre_quebec c
+JOIN foncier.role_foncier r
+    ON ST_Intersects(c.wkb_geometry, r.geog::geometry);
+```
+# Bibliographie
+Ministère des Affaires Municipales et de l’Habitation. (2024). Rôles d’évaluation foncière du Québec—Rôles d’évaluation foncière du Québec géoréférencés 2024—Données Québec [Dataset]. https://www.donneesquebec.ca/recherche/dataset/roles-d-evaluation-fonciere-du-quebec/resource/fe31dfcd-0753-4769-9868-d897d9c5a0ba
+

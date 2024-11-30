@@ -3,7 +3,7 @@ Estimations du cout de nouvelles infrastructures de transport à partir du rôle
 
 ## Table des matières
 
-[Installation](docs/installation/installation.md)
+[Installation](docs/installation/Installation.md)
 
 [Revue de littérature sur les projections de coûts](docs/transit-infrastructure-costs/cost_estimation_review.md)
 

@@ -7,7 +7,7 @@ Estimations du cout de nouvelles infrastructures de transport à partir du rôle
 
 [Revue de littérature sur les projections de coûts](docs/transit-infrastructure-costs/cost_estimation_review.md)
 
-[L'expropriation au Québec](docs/transit-infrastructure-costs/expropriation_au_quebec.md)
+[L'expropriation au Québec](docs/transit-infrastructure-costs/expropriation_au_qc.md)
 
 [Architecture de l'application](docs/architecture/architecture.md)
 

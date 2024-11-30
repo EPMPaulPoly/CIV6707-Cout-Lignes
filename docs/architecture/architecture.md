@@ -24,4 +24,4 @@ flowchart LR
 
 ```
 ## Front end
-Le front end est une application REACT. REACT est un module de javascript qui permet de créer des applications dynamiques qui peuvent s'adapter au contexte et générer des block HTML réutilisés par l'index.hmtl qui est le point d'entrée du site web. Les détails du frontend sont donnés [ici](../../frontend)
+Le front end est une application REACT. REACT est un module de javascript qui permet de créer des applications dynamiques qui peuvent s'adapter au contexte et générer des block HTML réutilisés par l'index.hmtl qui est le point d'entrée du site web. Les détails du frontend sont donnés [ici](../../frontend/frontend_doc.md)

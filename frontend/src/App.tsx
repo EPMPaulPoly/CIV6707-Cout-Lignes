@@ -19,6 +19,8 @@ const App: React.FC = () => {
   const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
   const [lineStops, setLineStops] = useState<LineStop[]>([]);
   const [lineCosts, setLineCosts] = useState<LineCostInventory[]>([]);
+  const [cadastreLots, setCadastreLots] = useState<GeoJSON.FeatureCollection | null>(null);
+  
   
   // États pour l'UI
   const [loading, setLoading] = useState(true);
@@ -133,6 +135,7 @@ const App: React.FC = () => {
         transitStops={transitStops}
         lineStops={lineStops}
         lineCosts={lineCosts}
+        cadastreLots={cadastreLots}
         editingItem={editingItem}
         selectedLine={selectedLine}
         newItemCreation={newItemCreation}
@@ -146,6 +149,7 @@ const App: React.FC = () => {
         setLineCosts={setLineCosts}
         setEditingItem={setEditingItem}
         setNewItemCreation={setNewItemCreation}
+        setCadastreLots={setCadastreLots}
         handleDelete={commonDeleteHandler}
         //TaxLotDataLay={nearbyLots}
       />

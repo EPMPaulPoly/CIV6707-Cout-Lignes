@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, Polygon, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents,GeoJSON, Polygon, useMap } from 'react-leaflet';
 import L, { CRS, LeafletMouseEvent, LatLng, IconOptions } from 'leaflet';
 import { TransitStop, TransitLine, LineStop, TaxLot, InsertPosition, TransportMode, Position } from '../types/types';
 import { MapHandlers } from '../utils/utils';
@@ -10,6 +10,7 @@ interface MapProps {
   transitLines: TransitLine[];
   lineStops: LineStop[];
   transportModes: TransportMode[];
+  cadastreLots: GeoJSON.FeatureCollection | null;
   position: { x: number, y: number };
   onStopAdd: (position: { x: number, y: number }) => void;
   onStopMove: (stopId: number, position: { x: number, y: number }) => void;
@@ -156,6 +157,7 @@ const MapContent: React.FC<MapProps> = ({
   transitLines,
   lineStops,
   transportModes,
+  cadastreLots,
   position,
   onStopAdd,
   onStopMove,
@@ -198,7 +200,18 @@ const MapContent: React.FC<MapProps> = ({
       return StationIcon;
     }
   };
+  const onEachFeature = (feature: any, layer: L.Layer) => {
+    // This function is called for each feature
+    if (feature.properties) {
+      const { ogc_fid, value_total } = feature.properties;
 
+      // Create a popup with the id and value_total
+      layer.bindPopup(`
+        <strong>ID:</strong> ${ogc_fid}<br />
+        <strong>Value Total:</strong> ${value_total}
+      `);
+    }
+  };
   const getModeName = (mode_id: number) => {
     if (!Array.isArray(transportModes)) {
       console.error('transportModes is not an array:', transportModes);
@@ -210,7 +223,12 @@ const MapContent: React.FC<MapProps> = ({
   const isStopBeingEdited = (stopId: number): boolean => {
     return editingItem.table === 'transitStops' && editingItem.id === stopId;
   };
-
+  const geoJsonStyle = {
+    fillColor: 'blue', // Fill color
+    weight: 2,         // Border width
+    opacity: 1,        // Border opacity
+    fillOpacity: 0.5   // Fill opacity
+  };
   const getLineColor = (line: TransitLine | undefined): string => {
     if (!line) return '#808080';
     const color: string = line.color;
@@ -223,9 +241,18 @@ const MapContent: React.FC<MapProps> = ({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
+    {cadastreLots && (
+      <>
+        {cadastreLots.features?.map((feature, index) => {
+          console.log(`Feature ${index + 1}:`, feature);
+          return null; // We return null because we're only logging, not rendering anything here.
+        })}
+        <GeoJSON data={cadastreLots} style={geoJsonStyle} onEachFeature={onEachFeature} />
+      </>
+      )}
       <MapInteractionHandler
         onStopAdd={onStopAdd}
-        isAddingNewStop={isAddingNewStop}
+          isAddingNewStop={isAddingNewStop}
       />
       {transitLines.map(line => {
         const coordinates = getLineCoordinates(line.id);

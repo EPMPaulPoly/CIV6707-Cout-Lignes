@@ -48,6 +48,7 @@ interface ResizableLayoutProps {
   transitStops: TransitStop[];
   lineStops: LineStop[];
   lineCosts: LineCostInventory[];
+  cadastreLots: GeoJSON.FeatureCollection | null;
   editingItem: EditingItem;
   newItemCreation: boolean;
   selectedLine: number | null;
@@ -67,6 +68,7 @@ interface ResizableLayoutProps {
   setLineCosts:React.Dispatch<React.SetStateAction<LineCostInventory[]>>;
   setEditingItem: React.Dispatch<React.SetStateAction<EditingItem>>;
   setNewItemCreation: React.Dispatch<React.SetStateAction<boolean>>;
+  setCadastreLots:React.Dispatch<React.SetStateAction<GeoJSON.FeatureCollection | null>>;
   handleDelete: (table: string, id: number, setFunction: React.Dispatch<React.SetStateAction<any[]>>) => void;
   initialRightWidth?: number;
   minRightWidth?: number;
@@ -80,6 +82,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   transitStops,
   lineStops,
   lineCosts,
+  cadastreLots,
   editingItem,
   selectedLine,
   newItemCreation,
@@ -93,6 +96,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   setLineCosts,
   setEditingItem,
   setNewItemCreation,
+  setCadastreLots,
   handleDelete,
   initialRightWidth = 400,
   minRightWidth = 300,
@@ -357,6 +361,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             columns={COLUMN_MAPPINGS.lineCosts}
             transitLines={transitLines}
             setLineCosts={setLineCosts}
+            setCadastreLots={setCadastreLots}
           />
         );
       default:
@@ -371,6 +376,7 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           transitStops={transitStops}
           position={position}
           lineStops={lineStops}
+          cadastreLots={cadastreLots}
           transportModes={transportModes}
           transitLines={transitLines}
           onStopAdd={mapHandlers.handleStopAdd}

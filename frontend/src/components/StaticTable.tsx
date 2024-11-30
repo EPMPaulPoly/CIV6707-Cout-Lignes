@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { LineCostInventory, TransitLine } from '../types/types';
 import { lineService } from '../services';
-
+import { cadastreService } from '../services/cadastreService';
+import { Feature, FeatureCollection, GeoJsonProperties, Polygon,MultiPolygon } from 'geojson';
 interface ColumnMapping {
   field: string;
   header: string;
+}
+
+interface CadastreProperties {
+  ogc_fid:number;
+  value_total: number;
 }
 
 interface StaticTableProps {
@@ -13,6 +19,7 @@ interface StaticTableProps {
   columns: ColumnMapping[];
   transitLines: TransitLine[];
   setLineCosts: React.Dispatch<React.SetStateAction<LineCostInventory[]>>;
+  setCadastreLots: React.Dispatch<React.SetStateAction<GeoJSON.FeatureCollection | null>>;
 }
 
 const StaticTable: React.FC<StaticTableProps> = ({
@@ -20,7 +27,8 @@ const StaticTable: React.FC<StaticTableProps> = ({
   data,
   columns,
   transitLines,
-  setLineCosts
+  setLineCosts,
+  setCadastreLots
 }) => {
   // Filter out latitude and longitude columns for transit stops table
   const visibleColumns = table === 'lineCosts'
@@ -48,6 +56,43 @@ const StaticTable: React.FC<StaticTableProps> = ({
     const [costResponse] = await Promise.all([
       lineService.getAllLineCosts()
     ]);
+    const lotIds = costResponse.data.flatMap((costItem: any) => costItem.affectedLotIds);
+    const [lots_response] = await Promise.all([
+      cadastreService.getCadastreByIds(lotIds)
+    ]);
+  
+    // Ensure the geojsonData is of type Feature<Polygon, CadastreProperties>[]
+    const geojsonData: Feature<Polygon | MultiPolygon, CadastreProperties>[] = lots_response.data
+      .map(item => {
+        const geometry = item.geojson_geometry;  // Assuming it's already GeoJSON (or in 4326)
+      
+        if (geometry) {
+          // Check if the geometry is a Polygon or MultiPolygon
+          if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
+            return {
+              type: "Feature",
+              geometry: geometry,  // It could be either Polygon or MultiPolygon
+              properties: {
+                ogc_fid:item.ogc_fid,
+                value_total: item.value_total
+              },
+            } as Feature<Polygon | MultiPolygon, CadastreProperties>;
+          }
+          
+          console.warn('Unexpected geometry type:', geometry.type);
+        }
+    
+        return null;  // Return null for invalid geometries
+      })
+      .filter((item): item is Feature<Polygon | MultiPolygon, CadastreProperties> => item !== null); // Type guard to remove nulls
+  
+    // Wrap in FeatureCollection
+    const geojsonFeatureCollection: FeatureCollection<Polygon| MultiPolygon, CadastreProperties> = {
+      type: "FeatureCollection",
+      features: geojsonData,
+    };
+  
+    setCadastreLots(geojsonFeatureCollection);
     setLineCosts(costResponse.data);
   };
 

@@ -3,16 +3,18 @@
   "version": "1.0.0",
   "dependencies": {
     "axios": "latest",
-    "leaflet": "latest",
+    "leaflet":  "^1.7.1",  
     "react": "^18.3.1",
     "react-dom": "latest",
-    "react-leaflet": "latest"
+    "react-leaflet": "^3.2.0",  
+    "geojson":"latest"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "latest",
-    "@types/leaflet": "latest",
+    "@types/leaflet": "^1.7.0", 
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/geojson": "^7946.0.0",
     "apk": "latest",
     "react-scripts": "latest",
     "typescript": "latest"

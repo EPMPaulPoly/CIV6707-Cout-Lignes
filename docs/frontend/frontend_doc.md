@@ -60,7 +60,7 @@ flowchart LR
     end;
 ```
 
-## États de l'application utilisés pour transférer les données
+## États de l'application utilisés dans l'entièreté de l'application
 Plusieurs états permettent à l'application de mettre à jour les géométries et tables requises pour faire fonctionner l'interface. Chaque état se voit attribuer une fonction de remise à jour. 
 ### États des variables pertinentes
 Les états suivants sont utilisés pour gérer les données reliées à ce qu'on essaie de calculer

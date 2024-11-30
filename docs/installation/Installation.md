@@ -24,5 +24,21 @@ Vous devriez maintenant avoir une fenêtre ouverte qui montre notre application
 ## Mise en place de la structure de la BD
 Une sauvegarde de la structure de la base de données a été ajouté au [github](../../sql_reference/database_structure_backup.sql) qui devrait permettre de mettre en places les tables pertinentes dans la base de données. Il sera potentiellement nécessaire de supprimer les schémas du cadastre lorsque ces derniers sont importés plus tard
 
-## Importation du cadastre et du rôle foncier. 
-Toutes les requêtes ont été créées en utilisant la version modifiée du rôle foncier fournie par la chaire Mobilité
+## Importation du rôle foncier. 
+Toutes les requêtes ont été créées en utilisant la version modifiée du rôle foncier fournie par la chaire Mobilité. Pour charger les données, le logiciel psql est utilisé pour importer les données
+- Entrez vos informations de connection
+- Entrez la commande suivante:
+```
+  \i 'C:\\Users\\... le reste du chemin vers le fichier obtenu\\cadastre.sql'
+```
+- Les entrées du rôle seront alors ajoutées à la base de données. Un peu de travail sera potentiellement requis dans pgadmin pour s'assurer que la table du role foncier soit dans le scheme "foncier" et le nom de la table soit 
+role_foncier
+## Importation du cadastre
+Pour importer le cadastre, utiliser la procédure suivante:
+- Allez télécharger le cadastre de l'année du rôle foncier sur [géo-index](https://geoapp.bibl.ulaval.ca/)
+- Ouvrir le shpfile résultant dans qgis
+- Faites un clic droit sur la couche
+<img width="591" alt="exportation_sql" src="https://github.com/user-attachments/assets/6e5a8911-39f8-4965-abb7-d131e03dade0">
+- assurer vous de rentrer le nom wkb_geometry comme nom de géométrie et choisissez un fichier à utiliser
+  <img width="782" alt="save_sql" src="https://github.com/user-attachments/assets/b3eb3d24-2f0d-451a-b361-2c56d20ef259">
+- Répétez la procédure utilisant psql utilisée pour le rôle foncier.

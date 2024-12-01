@@ -16,6 +16,7 @@
 
 ### Chapitre E-25 - Loi concernant l’expropriation (Aussi appelé projet de loi 22) 
 La Loi concernant l’expropriation, LQ 2023, c. 27, a été sanctionnée le 29 novembre 2023 et entre en vigueur le 29 décembre 2023 (PL 22). Cette loi remplace la Loi sur l’expropriation afin d'établir notamment un nouvel encadrement en matière d’expropriation de droits qui portent sur un immeuble. Cette réforme de la loi sur l’expropriation vise à simplifier et réduire substantiellement les indemnités versées aux parties expropriées par le gouvernement du Québec, les organismes parapublics provinciaux et les municipalités. Les expropriations se basent dorénavant sur la valeur marchande du droit exproprié, c’est-à-dire un immeuble, le terrain ou une partie. Le projet de loi 22 vient remplacer le concept de valeur au propriétaire par celui de la valeur marchande dans la détermination de l’indemnité. (STM, 2023)  De plus, la loi concernant l’expropriation prévoit notamment une dispense d’indemnité pour tout dommage causé par la construction du projet d’infrastructure donnant lieu à l’expropriation (ex : bruit, poussière ou toute autre nuisance causant la perte de bénéfice ou d’achalandage d’une entreprise). (Fasken, 2023) 
+
 ![modificationsLoi22](https://github.com/user-attachments/assets/737155ff-9999-4cd7-8bf0-10ded787fc5b)
 ![approches_indemnisation](https://github.com/user-attachments/assets/fc63397a-6c33-4845-82f6-20912296e354)
 ![declaration_detaillee](https://github.com/user-attachments/assets/f059b97d-33ad-4ba1-8f8f-0064f84db8bc)

@@ -32,11 +32,13 @@ Lors de travaux de construction d’un tunnel lié à un projet d’infrastructu
 
 ### Prolongement de la ligne bleue du métro de Montréal (PLB) 
 Dans le cas du prolongement de la ligne bleue (PLB), les coûts d’acquisition de terrain représenteront environ 800 M$, soit près de 13 % des coûts totaux de projets. (STM, 2023). La moyenne des coûts d’acquisition pour les projets de maintien d’actifs est 3 à 5 % des coûts des projets à l’international. (STM, 2023).  Le coût des expropriations liées au projet de la ligne bleue a presque quadruplé de 2018 à 2021, pour atteindre 1,2 milliard. (La Presse, 2022) . L’indemnité pour perte de valeur de convenance est définie et plafonnée à 20 000 $, tandis que l’indemnité pour les troubles, les ennuis et les inconvénients est plafonnée à 5000 $. (STM, 2023). Nombre de propriétés pouvant être affectées dans le cadre d’un projet de grande ampleur (plus de 400 pour le PLB) (STM, 2023) L’article 151 de la LSTC qui permet à la STM de percer le tunnel sous tout immeuble, quel qu’en soit le propriétaire, ainsi qu’avec l’article 156 de la LSTC qui prévoit que la STM est seule propriétaire des biens afférents au métro. 
+
 ![article_246](https://github.com/user-attachments/assets/c4128921-63ba-4761-863e-d72a4961f20b)
 
 Pour le projet de Grand Paris Express qui prévoit la construction de 200 km de métro et doit engendrer la construction de plus de 200 000 logements, l’autorité responsable peut ainsi recourir à l’expropriation dans un rayon de 600 mètres autour des stations (STM, 2023). La capacité à recourir à l’expropriation de la STM ou des sociétés de transport est actuellement limitée aux propriétés strictement nécessaires pour construire les infrastructures de transport collectif 
 ### Réseau Express Métropolitain (REM) 
 Il s’agit du MTQ (ministère des Transports du Québec) qui s’occupe de l’expropriation des terrains pour le REM. Ensuite, après avoir conclu l’expropriation de droit (immeuble, terrain), le ministre fait un transfert de propriété à la CDPQ. 
+
 ![REM1](https://github.com/user-attachments/assets/6bae863c-10bc-4579-a3ff-b34dc5908452)
 ![REM2](https://github.com/user-attachments/assets/987d8832-0bd0-4037-a672-3e2cb55eaa26)
 ![REM3](https://github.com/user-attachments/assets/0b7022e9-7b8b-452f-b956-3801df19b27f)

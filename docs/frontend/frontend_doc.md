@@ -91,3 +91,81 @@ En plus de la gestion de données, des fonctions anciliaires sont gérées par l
 - getDefaultValues: met a disposition des valeurs lors de la création d'un nouvel item.
 - wkbHexToPosition: permet de changer les données hexa décimales à des positions lisibles par leaflet
 - getContrastColor: génère une couleur contrastée pour les dropdown list de couleurs
+
+## Composants principaux
+
+### ResizableLayout - Composant central de l'application
+- Gère la mise en page adaptative (carte + panneau de configuration)
+- Coordonne les interactions entre composants
+- Implémente le système d'onglets pour différentes vues :
+  - Transit Lines
+  - Transport Modes
+  - Transit Stops
+  - Line Stops
+  - Line Costs
+
+### Map - Gestion cartographique
+- Utilise React-Leaflet avec projection EPSG:3857
+- Gère trois types d'éléments :
+  - Marqueurs pour les arrêts (stations et points de passage)
+  - Polylines pour les lignes de transport
+  - Couches GeoJSON pour les zones cadastrales
+- Implémente différents modes d'interaction :
+  - Mode ajout d'arrêt avec curseur spécifique
+  - Mode édition avec marqueurs déplaçables
+  - Mode sélection pour l'ajout d'arrêts aux lignes
+
+#### Table & StaticTable - Gestion des données
+- Table : Composant générique d'édition CRUD
+- StaticTable : Version lecture seule pour coûts
+- Système de colonnes configurable via COLUMN_MAPPINGS
+
+## Gestion des types
+
+#### Types principaux
+```typescript
+interface TransitStop {
+  id: number;
+  name: string;
+  position: Position;  // Coordonnées EPSG:3857
+  isStation: boolean;
+  isComplete: boolean;
+}
+
+interface TransitLine {
+  id: number;
+  name: string;
+  description: string;
+  mode_id: number;
+  color: string;
+}
+
+interface TransportMode {
+  id: number;
+  name: string;
+  costPerKm: number;
+  costPerStation: number;
+  footprint: number;
+}
+
+interface LineStop {
+  id: number;
+  line_id: number;
+  stop_id: number;
+  order_of_stop: number;
+}
+```
+
+#### Types de gestion d'état
+```typescript
+interface EditingItem {
+  table: string;
+  id: number | null;
+}
+
+interface InsertPosition {
+  type: 'first' | 'last' | 'after';
+  afterStopId?: number;
+}
+```
+

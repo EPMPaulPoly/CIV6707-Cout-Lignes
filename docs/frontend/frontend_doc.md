@@ -115,14 +115,14 @@ En plus de la gestion de données, des fonctions anciliaires sont gérées par l
   - Mode édition avec marqueurs déplaçables
   - Mode sélection pour l'ajout d'arrêts aux lignes
 
-#### Table & StaticTable - Gestion des données
+### Table & StaticTable - Gestion des données
 - Table : Composant générique d'édition CRUD
 - StaticTable : Version lecture seule pour coûts
 - Système de colonnes configurable via COLUMN_MAPPINGS
 
 ## Gestion des types
 
-#### Types principaux
+### Types principaux
 ```typescript
 interface TransitStop {
   id: number;
@@ -156,7 +156,7 @@ interface LineStop {
 }
 ```
 
-#### Types de gestion d'état
+### Types de gestion d'état
 ```typescript
 interface EditingItem {
   table: string;
@@ -169,3 +169,150 @@ interface InsertPosition {
 }
 ```
 
+## Gestion des données
+
+### Services API
+L'application utilise plusieurs services spécialisés pour communiquer avec le backend.
+
+#### Configuration de base (api.ts)
+```typescript
+// Configuration Axios avec intercepteurs
+const api = axios.create({
+  baseURL: `${process.env.REACT_APP_API_URL}/api`,
+  headers: { 'Content-Type': 'application/json' }
+});
+```
+- Intercepteurs pour logging des requêtes/réponses
+- Gestion centralisée des erreurs
+- Configuration du baseURL via variables d'environnement
+
+#### Service des lignes (lineService)
+```typescript
+lineService = {
+  // Gestion des lignes
+  getAll: () => Promise<ApiLinesResponse>,              // Récupère toutes les lignes
+  getById: (id: number) => Promise<ApiLineResponse>,    // Récupère une ligne
+  create: (data: Omit<TransitLine, 'id'>) => Promise<ApiLineResponse>, 
+  update: (id: number, data: Partial<TransitLine>) => Promise<ApiLineResponse>,
+  delete: (id: number) => Promise<void>,
+
+  // Gestion des arrêts sur une ligne
+  getAllRoutePoints: () => Promise<ApiLineStopsResponse>,   // Tous les arrêts de toutes les lignes
+  getRoutePoints: (id: number) => Promise<LineStop[]>,      // Arrêts d'une ligne
+  addRoutePoint: (lineId: number, data: Omit<LineStop, 'id'>) => Promise<ApiLineStopResponse>,
+  updateRoutePoints: (lineId: number, data: LineStop[]) => Promise<ApiLineStopsResponse>,
+  deleteRoutePoint: (lineId: number, stopAssocId: number) => Promise<ApiLineStopResponse>,
+
+  // Calculs de coûts
+  getAllLineCosts: () => Promise<ApiLineCostsResponse>,     // Coûts pour toutes les lignes
+  calculatePrice: (id: number) => Promise<void>             // Calcul pour une ligne
+}
+```
+- Gestion CRUD complète des lignes de transport
+- Gestion de l'association lignes-arrêts avec ordonnancement
+- Calcul des coûts d'infrastructure et d'expropriation
+
+#### Service des arrêts (stopService)
+```typescript
+stopService = {
+  getAll: () => Promise<ApiStopsResponse>,
+  getById: (id: number) => Promise<ApiStopResponse>,
+  create: (data: Omit<TransitStop, 'id'>) => Promise<ApiStopResponse>,
+  update: (id: number, data: Partial<TransitStop>) => Promise<ApiStopResponse>,
+  delete: (id: number) => Promise<void>
+}
+```
+- Transformation automatique des coordonnées EPSG:3857
+- Gestion du statut station/point de passage
+- Validation des données avant envoi
+
+#### Service des modes (modeService)
+```typescript
+modeService = {
+  getAll: () => Promise<ApiModesResponse>,
+  getById: (id: number) => Promise<ApiModeResponse>,
+  create: (data: Omit<TransportMode, 'id'>) => Promise<ApiModeResponse>,
+  update: (id: number, data: Partial<TransportMode>) => Promise<ApiModeResponse>,
+  delete: (id: number) => Promise<void>
+}
+```
+- Gestion des coûts par kilomètre et par station
+- Conversion camelCase (frontend) ↔ snake_case (backend)
+- Transformation bidirectionnelle des données
+
+#### Service cadastral (cadastreService)
+```typescript
+cadastreService = {
+  getIntersections: (geometry: GeoJSON) => Promise<ApiCadastreIntersectionResponse>,
+  getCadastreInBounds: (bounds: GeoJSON) => Promise<ApiCadastresResponse>,
+  getRoleFoncierInBounds: (bounds: GeoJSON) => Promise<ApiRoleFonciersResponse>,
+  getCadastreByIds: (ids: number[]) => Promise<ApiCadastresResponse>
+}
+```
+- Gestion des données géospatiales (GeoJSON)
+- Calcul des intersections avec les tracés
+- Récupération des informations foncières
+
+#### Service du rôle foncier (taxLotService)
+```typescript
+taxLotService = {
+  getAll: () => Promise<TaxLot[]>,
+  getById: (id: string) => Promise<TaxLot>,
+  getNearLine: (lineId: number) => Promise<TaxLot[]>
+}
+```
+- Récupération des informations fiscales
+- Analyse des lots impactés par les lignes
+- Calcul des coûts d'expropriation
+
+### Gestion des coordonnées
+Utilitaires de conversion entre systèmes de coordonnées :
+```typescript
+leafletToPosition: LatLng → Position (EPSG:3857)
+positionToLeaflet: Position → LatLng
+positionToGeoJSON: Position → [lng, lat]
+geoJSONToPosition: [lng, lat] → Position
+```
+
+## Flux de données
+
+### Ajout d'éléments
+```typescript
+handleAdd(table, data) → 
+  1. Création état temporaire
+  2. Mode édition
+  3. Validation
+  4. Sauvegarde API
+  5. Mise à jour état local
+```
+
+### Suppression sécurisée
+```typescript
+handleDelete(table, id) →
+  1. Vérification des dépendances
+  2. Confirmation utilisateur
+  3. Suppression API
+  4. Mise à jour état local
+```
+
+### Gestion des modifications
+- Modifications locales via le système d'état React
+- Validation et persistence via les services API
+- Utilisation de handleChange, handleSave, handleCancel
+
+## Optimisations techniques
+
+### Performance
+- Chargement des données cadastrales à la demande
+- Memorization des handlers fréquents
+- Mise à jour sélective des états React
+- 
+### Sécurité des données
+- Validation des entrées avant envoi API
+- Vérification des dépendances avant suppression
+- Gestion des sessions et autorisations
+
+### Gestion d'erreurs
+- Typage fort avec TypeScript
+- Vérification des réponses API
+- Retours utilisateur sur erreurs

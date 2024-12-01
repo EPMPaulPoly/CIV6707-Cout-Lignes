@@ -48,16 +48,26 @@ L’opération expropriation est pratiquement terminée pour le Réseau express 
 ## Bibliographie 
 
 BERGERON, Maxime. Suncor traîne Québec devant les tribunaux. La Presse, 6 avril 2022. https://www.lapresse.ca/affaires/entreprises/2022-04-06/expropriations-liees-au-rem-et-a-la-ligne-bleue/suncor-traine-quebec-devant-les-tribunaux.php# 
+
 DUBUC, André. REM: l’opération expropriation, presque terminée. La Presse, 27 juillet 2019. https://www.lapresse.ca/affaires/economie/2019-07-27/rem-l-operation-expropriation-presque-terminee 
+
 FASKEN. La réforme du droit de l’expropriation au Québec par le projet de loi 22 : dérive du droit de propriété et déclassement du Québec à l’échelle de l’Amérique du Nord. Fasken, 2 octobre 2023. https://www.fasken.com/fr/knowledge/2023/10/reforme-du-droit-de-lexpropriation-au-quebec-par-le-projet-de-loi-22 
+
 Loi concernant l’expropriation. LQ. (2024). E-25. https://www.legisquebec.gouv.qc.ca/fr/document/lc/E-25 
+
 REM. Publication de l’entente de gestion et de réalisation et de l’entente d’intégration du Réseau express métropolitain. Réseau express métropolitain, 2024. https://rem.info/fr/communiques/publication-ententes-gestion-realisation-integration-rem#:~:text=L'entente%20d'int%C3%A9gration%20du%20REM%20fait%20partie%20des%20ententes,vision%20globale%20du%20transport%20m%C3%A9tropolitain. 
+
 STM. Mémoire de la STM sur le projet de loi 22 – Loi concernant l’expropriation. Montréal, STM, 18 septembre 2023, 13 p.  
 
 # Liens pertinents 
 Chapitre A-2.001 - Loi concernant l’accélération de certains projets d’infrastructure https://www.legisquebec.gouv.qc.ca/fr/document/lc/A-2.001 
+
 Chapitre M-28 - Loi sur le ministère des Transports https://www.legisquebec.gouv.qc.ca/fr/document/lc/M-28?&cible= 
+
 Chapitre R-25.02 - Loi concernant le Réseau électrique métropolitain https://www.legisquebec.gouv.qc.ca/fr/document/lc/R-25.02 
+
 Chapitre R-25.03 - Loi concernant le Réseau structurant de transport en commun de la Ville de Québec https://www.legisquebec.gouv.qc.ca/fr/document/lc/R-25.03 
+
 Chapitre T-12 - Loi sur les transports https://www.legisquebec.gouv.qc.ca/fr/document/lc/T-12?&cible= 
 Projet de loi 62 https://www.blg.com/fr/insights/2024/05/les-projets-majeurs-dinfrastructures-publiques-au-quebec-une-reforme-importante-du-cadre-legislatif 
+

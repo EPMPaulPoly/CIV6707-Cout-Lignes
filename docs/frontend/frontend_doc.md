@@ -1,5 +1,5 @@
 # Frontend
-Le frontend est l'application qui permet de visualiser les résultats ainsi qu'à l'utilisateur de définir les intrants nécessaires pour calculer les coûts. Ces derniers doivent définir les géométries des lignes, les couts par km des infrastructures en fonction du mode, ainsi que l'empreinte au sol du mode pour trouver les propriétés qui devront potentiellement être expropriées. La figure suivante donne un aperçu de l'architecture du frontend
+Le frontend est l'application qui permet à l'utilisateur de visualiser les résultats et de définir les intrants nécessaires pour calculer les coûts. L'utilisateur doit définir les géométries des lignes, les couts par km des infrastructures en fonction du mode, ainsi que l'empreinte au sol du mode pour trouver les propriétés qui devront potentiellement être expropriées. La figure suivante donne un aperçu de l'architecture du frontend
 ```mermaid
 %%{init: {"flowchart": {"htmlLabels": false}} }%%
 flowchart LR
@@ -68,7 +68,7 @@ Les états suivants sont utilisés pour gérer les données reliées à ce qu'on
 - transitLines, setTransitLines: est la variable d'état qui contient les données sur les lignes de transport
 - transportModes, setTransportModes: est la variable d'état qui contient les données sur les modes de transport
 - lineStops, setLineStops: est la variable d'état qui contient les données sur l'ordonnancement des arrêts
-- lineCosts, setLineCosts: est la variable d'état contenant les couts des ligness de transports
+- lineCosts, setLineCosts: est la variable d'état contenant les couts des lignes de transports
 
 ### États des variables de l'interface utilisateur
 À ces dernières s'ajoutent des interfaces qui servent à gérer l'interface utilisateur, avec leur fonction de changement

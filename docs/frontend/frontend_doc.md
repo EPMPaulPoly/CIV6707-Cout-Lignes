@@ -60,6 +60,38 @@ flowchart LR
     end;
 ```
 
+## Table des matières 
+<!-- code_chunk_output -->
+- [Frontend](#frontend)
+    - [Table des matières](#table-des-matières)
+    - [États de l'application utilisés dans l'entièreté de l'application](#états-de-lapplication-utilisés-dans-lentièreté-de-lapplication)  
+      - [États des variables pertinentes](#états-des-variables-pertinentes)  
+      - [États des variables de l'interface utilisateur](#états-des-variables-de-linterface-utilisateur)  
+    - [Fonctions d'utililtaires](#fonctions-dutilitaires)  
+    - [Composants principaux](#composants-principaux)  
+      - [ResizableLayout - Composant central de l'application](#resizablelayout---composant-central-de-lapplication)  
+      - [Map - Gestion cartographique](#map---gestion-cartographique)  
+      - [Table & StaticTable - Gestion des données](#table--statictable---gestion-des-données)  
+    - [Gestion des types](#gestion-des-types)  
+      - [Types principaux](#types-principaux)  
+      - [Types de gestion d'état](#types-de-gestion-détat)  
+    - [Gestion des données](#gestion-des-données)  
+      - [Services API](#services-api)  
+        - [Configuration de base (api.ts)](#configuration-de-base-apits)  
+        - [Service des lignes (lineService)](#service-des-lignes-lineservice)  
+        - [Service des arrêts (stopService)](#service-des-arrêts-stopservice)  
+        - [Service des modes (modeService)](#service-des-modes-modeservice)  
+        - [Service cadastral (cadastreService)](#service-cadastral-cadastreservice)  
+        - [Service du rôle foncier (taxLotService)](#service-du-rôle-foncier-taxlotservice)  
+      - [Gestion des coordonnées](#gestion-des-coordonnées)  
+    - [Flux de données](#flux-de-données)  
+      - [Ajout d'éléments](#ajout-déléments)  
+      - [Suppression sécurisée](#suppression-sécurisée)  
+      - [Gestion des modifications](#gestion-des-modifications)
+
+<!-- code_chunk_output -->
+
+
 ## États de l'application utilisés dans l'entièreté de l'application
 Plusieurs états permettent à l'application de mettre à jour les géométries et tables requises pour faire fonctionner l'interface. Chaque état se voit attribuer une fonction de remise à jour. 
 ### États des variables pertinentes

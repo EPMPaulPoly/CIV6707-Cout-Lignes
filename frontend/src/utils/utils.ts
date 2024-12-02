@@ -442,6 +442,8 @@ export const createMapHandlers = (
     handleStopAdd: async (position: Position) => {
       if (editingItem.table === 'transitStops' && editingItem.id === null) {
         try {
+          console.log(`reading new Item creation ${newItemCreation}`)
+          setNewItemCreation(true)
           const newStop: Omit<TransitStop, 'id' | 'isComplete'> = {
             name: newStopName || `New Stop ${transitStops.length + 1}`,
             position,
@@ -455,6 +457,9 @@ export const createMapHandlers = (
           }
         } catch (error) {
           console.error('Error adding stop:', error);
+        } finally{
+          setNewItemCreation(false)
+          console.log(`Exiting stop add newItemCreation ${newItemCreation}`)
         }
       }
     },

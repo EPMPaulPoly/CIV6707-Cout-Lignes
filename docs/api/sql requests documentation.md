@@ -61,9 +61,10 @@ Pour analyser les intersections entre les lignes de transit, les parcelles cadas
 - Un **buffer** de 50 m a été créé autour des lignes de transit.
 - Les étapes suivantes ont été réalisées :
   1. Création d'un buffer autour d’une ligne de transit.
-  2. Identification des intersections entre les parcelles cadastrales et les données foncières.
-  3. Calcul des intersections entre ces résultats et le buffer.
-  4. Extraction du **nombre de parcelles** et de leur **coût total** dans la zone tampon.
+  2. Identification des intersections entre les parcelles cadastrales et les données foncières. 
+  3. Calcul des intersections entre ces résultats et le buffer.Pour les petits lots (<5000m²) : on considère une expropriation totale.Pour les grands lots (>5000m²) : on calcule une valeur proportionnelle à la surface touchée
+  4. Ensuite on estime les coûts d'infrastructures basée sur : La longueur de la ligne (coût au kilomètre) et Le nombre de stations (coût unitaire par station) 
+  5. Extraction du **coût total** dans la zone tampon pour chaque ligne avec les parcelles impactées
 
 ---
 

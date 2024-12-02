@@ -1,7 +1,7 @@
 # Création des modes
 [Retour au README.md](../../README.md)
 
-[Prochaine Étape: Arrets](../STOP_CREATION.md)
+[Prochaine Étape: Arrets](STOP_CREATION.md)
 
 
 Aller à l'onglet Transport Modes

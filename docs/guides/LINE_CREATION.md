@@ -1,4 +1,9 @@
 # Création de ligne
+[Retour au README.md](../../README.md)
+
+[Étape précédente: Arrêts](MODE_CREATION.md)
+
+[Étape suivante: Tracé de la ligne](LINE_STOPS_CREATION.md)
 
 Aller à l'onglet Transit lines et appuyez sur le bouton Add New
 

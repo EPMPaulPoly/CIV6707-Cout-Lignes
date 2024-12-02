@@ -1,4 +1,9 @@
 # Création d'arrêts
+[Retour au README.md](../../README.md)
+
+[Étape précédente: Modes](MODE_CREATION.md)
+
+[Étape suivante: Lignes](LINE_CREATION.md)
 
 Aller à l'onglet transit stops:
 

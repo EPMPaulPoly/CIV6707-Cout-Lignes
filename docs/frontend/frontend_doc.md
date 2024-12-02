@@ -61,6 +61,7 @@ flowchart LR
 ```
 
 ## Table des matières 
+
 <!-- code_chunk_output -->
 - [Frontend](#frontend)
     - [Table des matières](#table-des-matières)
@@ -101,6 +102,8 @@ Les états suivants sont utilisés pour gérer les données reliées à ce qu'on
 - transportModes, setTransportModes: est la variable d'état qui contient les données sur les modes de transport
 - lineStops, setLineStops: est la variable d'état qui contient les données sur l'ordonnancement des arrêts
 - lineCosts, setLineCosts: est la variable d'état contenant les couts des lignes de transports
+
+[Retour à la table des matières](#table-des-matières)
 
 ### États des variables de l'interface utilisateur
 À ces dernières s'ajoutent des interfaces qui servent à gérer l'interface utilisateur, avec leur fonction de changement

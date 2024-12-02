@@ -61,7 +61,6 @@ flowchart LR
 ```
 
 ## Table des matières 
-
 <!-- code_chunk_output -->
 - [Frontend](#frontend)
     - [Table des matières](#table-des-matières)
@@ -89,9 +88,7 @@ flowchart LR
       - [Ajout d'éléments](#ajout-déléments)  
       - [Suppression sécurisée](#suppression-sécurisée)  
       - [Gestion des modifications](#gestion-des-modifications)
-
 <!-- code_chunk_output -->
-
 
 ## États de l'application utilisés dans l'entièreté de l'application
 Plusieurs états permettent à l'application de mettre à jour les géométries et tables requises pour faire fonctionner l'interface. Chaque état se voit attribuer une fonction de remise à jour. 
@@ -113,6 +110,8 @@ Les états suivants sont utilisés pour gérer les données reliées à ce qu'on
 - selectedLine,setSelectedLine: nombre qui dénomine quelle ligne on modifie en éditant la table linestops
 - newItemCreation,setNewItemCreation: état qui change les boutons lorqu'un élément est en train d'être créé
 
+[Retour à la table des matières](#table-des-matières)
+
 ## Fonctions d'utililtaires
 Les fonctions d'utililitaires gèrent la majeure partie de la logique en termes de modifications des diverses tables de données. La liste suivante donne un survol:
 - handleChange: gère le changement de valeurs dans les différents objets et met à jour les états locaux lorsqu'on modifie l'item
@@ -127,8 +126,9 @@ En plus de la gestion de données, des fonctions anciliaires sont gérées par l
 - wkbHexToPosition: permet de changer les données hexa décimales à des positions lisibles par leaflet
 - getContrastColor: génère une couleur contrastée pour les dropdown list de couleurs
 
-## Composants principaux
+[Retour à la table des matières](#table-des-matières)
 
+## Composants principaux
 ### ResizableLayout - Composant central de l'application
 - Gère la mise en page adaptative (carte + panneau de configuration)
 - Coordonne les interactions entre composants
@@ -138,6 +138,8 @@ En plus de la gestion de données, des fonctions anciliaires sont gérées par l
   - Transit Stops
   - Line Stops
   - Line Costs
+
+[Retour à la table des matières](#table-des-matières)
 
 ### Map - Gestion cartographique
 - Utilise React-Leaflet avec projection EPSG:3857
@@ -150,13 +152,16 @@ En plus de la gestion de données, des fonctions anciliaires sont gérées par l
   - Mode édition avec marqueurs déplaçables
   - Mode sélection pour l'ajout d'arrêts aux lignes
 
+[Retour à la table des matières](#table-des-matières)
+
 ### Table & StaticTable - Gestion des données
 - Table : Composant générique d'édition CRUD
 - StaticTable : Version lecture seule pour coûts
 - Système de colonnes configurable via COLUMN_MAPPINGS
 
-## Gestion des types
+[Retour à la table des matières](#table-des-matières)
 
+## Gestion des types
 ### Types principaux
 ```typescript
 interface TransitStop {
@@ -191,6 +196,8 @@ interface LineStop {
 }
 ```
 
+[Retour à la table des matières](#table-des-matières)
+
 ### Types de gestion d'état
 ```typescript
 interface EditingItem {
@@ -204,8 +211,9 @@ interface InsertPosition {
 }
 ```
 
-## Gestion des données
+[Retour à la table des matières](#table-des-matières)
 
+## Gestion des données
 ### Services API
 L'application utilise plusieurs services spécialisés pour communiquer avec le backend.
 
@@ -220,6 +228,8 @@ const api = axios.create({
 - Intercepteurs pour logging des requêtes/réponses
 - Gestion centralisée des erreurs
 - Configuration du baseURL via variables d'environnement
+
+[Retour à la table des matières](#table-des-matières)
 
 #### Service des lignes (lineService)
 ```typescript
@@ -247,6 +257,8 @@ lineService = {
 - Gestion de l'association lignes-arrêts avec ordonnancement
 - Calcul des coûts d'infrastructure et d'expropriation
 
+[Retour à la table des matières](#table-des-matières)
+
 #### Service des arrêts (stopService)
 ```typescript
 stopService = {
@@ -260,6 +272,8 @@ stopService = {
 - Transformation automatique des coordonnées EPSG:3857
 - Gestion du statut station/point de passage
 - Validation des données avant envoi
+
+[Retour à la table des matières](#table-des-matières)
 
 #### Service des modes (modeService)
 ```typescript
@@ -275,6 +289,8 @@ modeService = {
 - Conversion camelCase (frontend) ↔ snake_case (backend)
 - Transformation bidirectionnelle des données
 
+[Retour à la table des matières](#table-des-matières)
+
 #### Service cadastral (cadastreService)
 ```typescript
 cadastreService = {
@@ -288,6 +304,8 @@ cadastreService = {
 - Calcul des intersections avec les tracés
 - Récupération des informations foncières
 
+[Retour à la table des matières](#table-des-matières)
+
 #### Service du rôle foncier (taxLotService)
 ```typescript
 taxLotService = {
@@ -300,6 +318,8 @@ taxLotService = {
 - Analyse des lots impactés par les lignes
 - Calcul des coûts d'expropriation
 
+[Retour à la table des matières](#table-des-matières)
+
 ### Gestion des coordonnées
 Utilitaires de conversion entre systèmes de coordonnées :
 ```typescript
@@ -308,6 +328,7 @@ positionToLeaflet: Position → LatLng
 positionToGeoJSON: Position → [lng, lat]
 geoJSONToPosition: [lng, lat] → Position
 ```
+[Retour à la table des matières](#table-des-matières)
 
 ## Flux de données
 
@@ -321,6 +342,8 @@ handleAdd(table, data) →
   5. Mise à jour état local
 ```
 
+[Retour à la table des matières](#table-des-matières)
+
 ### Suppression sécurisée
 ```typescript
 handleDelete(table, id) →
@@ -330,10 +353,14 @@ handleDelete(table, id) →
   4. Mise à jour état local
 ```
 
+[Retour à la table des matières](#table-des-matières)
+
 ### Gestion des modifications
 - Modifications locales via le système d'état React
 - Validation et persistence via les services API
 - Utilisation de handleChange, handleSave, handleCancel
+
+[Retour à la table des matières](#table-des-matières)
 
 ## Optimisations techniques
 
@@ -341,13 +368,19 @@ handleDelete(table, id) →
 - Chargement des données cadastrales à la demande
 - Memorization des handlers fréquents
 - Mise à jour sélective des états React
-- 
+
+[Retour à la table des matières](#table-des-matières)
+
 ### Sécurité des données
 - Validation des entrées avant envoi API
 - Vérification des dépendances avant suppression
 - Gestion des sessions et autorisations
 
+[Retour à la table des matières](#table-des-matières)
+
 ### Gestion d'erreurs
 - Typage fort avec TypeScript
 - Vérification des réponses API
 - Retours utilisateur sur erreurs
+
+[Retour à la table des matières](#table-des-matières)

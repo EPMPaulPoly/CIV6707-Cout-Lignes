@@ -13,7 +13,7 @@ Dans le dossier principal se trouvent les fichiers suivants qui servent à faire
 
 Le backend est structuré selon le graphique suivant. En réalité, les fonctions de validation sont parfois implémentées directement dans la fonction de l'API ce qui n'est pas une bonne pratique mais est arrivé au fil du temps du fait de l'utilsiation de l'IA générative qui n'était pas nécessairement contrainte. D'autre part la compréhension limité des auteurs en début de projet.
 ```mermaid
-graph TD;
+graph LR;
     subgraph entree["Intégration"]
     server.ts-->config.ts;
     server.ts-->api;
@@ -34,7 +34,7 @@ graph TD;
     validators-->stops.ts_valid;
     validators-->modes.ts_valid;
     validators-->lines.ts_valid;
-    validators-->tax-lots.ts_valid;
+    validators-->cadastre.ts_valid;
     end;
 ```
 ### [server.ts](../../backend/src/server.ts)

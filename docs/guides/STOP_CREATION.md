@@ -25,6 +25,6 @@ Si vous voulez le transformer en point de controle plutôt qu'un arret, vous pou
 
 ![image](https://github.com/user-attachments/assets/4a3dc959-10b7-4e96-bb7d-197df0c2ef90)
 
-L'opération est répétée jusqu'à obtenir le tracé de la ligne
+L'opération est répétée jusqu'à obtenir le tracé de la ligne. Notez que des bugs persistent dans l'édition qui font en sorte que doublons apparaissent. Il est recommandé de rafraichir la page et supprimer les arrets doublés
 
 ![image](https://github.com/user-attachments/assets/50d63cf6-c7cf-42ed-b201-0fa07c7cdd09)

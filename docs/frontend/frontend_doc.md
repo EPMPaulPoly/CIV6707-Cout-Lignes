@@ -321,7 +321,13 @@ taxLotService = {
 [Retour à la table des matières](#table-des-matières)
 
 ### Gestion des coordonnées
-Utilitaires de conversion entre systèmes de coordonnées :
+Le système gère trois types de coordonnées :
+```typescript
+1. EPSG:3857 (Position) - Utilisé en interne et pour l'API
+2. LatLng (Leaflet) - Utilisé pour l'affichage sur la carte
+3. GeoJSON [longitude, latitude] - Utilisé pour les données cadastrales
+```
+Les utilitaires de conversion entre systèmes de coordonnées sont :
 ```typescript
 leafletToPosition: LatLng → Position (EPSG:3857)
 positionToLeaflet: Position → LatLng

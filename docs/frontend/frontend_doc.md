@@ -66,8 +66,8 @@ flowchart LR
     - [Table des matières](#table-des-matières)
     - [États de l'application utilisés dans l'entièreté de l'application](#états-de-lapplication-utilisés-dans-lentièreté-de-lapplication)  
       - [États des variables pertinentes](#états-des-variables-pertinentes)  
-      - [États des variables de l'interface utilisateur](#états-des-variables-de-linterface-utilisateur)  
-    - [Fonctions utililtaires](#fonctions-utilitaires)  
+      - [États des variables de l'interface utilisateur](#états-des-variables-de-linterface-utilisateur)
+    - [Fonctions d'utilitaires](#fonctions-dutilitaires)  
     - [Composants principaux](#composants-principaux)  
       - [ResizableLayout - Composant central de l'application](#resizablelayout---composant-central-de-lapplication)  
       - [Map - Gestion cartographique](#map---gestion-cartographique)  
@@ -112,7 +112,7 @@ Les états suivants sont utilisés pour gérer les données reliées à ce qu'on
 
 [Retour à la table des matières](#table-des-matières)
 
-## Fonctions utililtaires
+## Fonctions d'utililtaires
 Les fonctions d'utililitaires gèrent la majeure partie de la logique en termes de modifications des diverses tables de données. La liste suivante donne un survol:
 - handleChange: gère le changement de valeurs dans les différents objets et met à jour les états locaux lorsqu'on modifie l'item
 - handleAdd: gère la création de nouveaux éléments dans les états

@@ -24,12 +24,12 @@ graph LR;
     index.ts-->stops.ts;
     index.ts-->lines.ts;
     index.ts-->modes.ts;
-    index.ts-->tax-lots.ts;
+    index.ts-->cadastre.ts;
     end;
     stops.ts-->validators;
     lines.ts-->validators;
     modes.ts-->validators;
-    tax-lots.ts-->validators;
+    cadastre.ts-->validators;
     subgraph validation["Validation requetes/réponses"]
     validators-->stops.ts_valid;
     validators-->modes.ts_valid;

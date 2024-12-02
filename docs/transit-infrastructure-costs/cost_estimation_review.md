@@ -43,7 +43,7 @@ D'autres études dans le contexte canadien (Wickens, 2020)ont regardé les coût
 10. Créer des produits, processus et incitatifs qui permettent aux stations et les aires à proximité d'être mieux valorisées
 
 ## Points de départs pour les coûts
-Les points de départ sont suggérés selon les modes et pour des juridictions à bas coût qui ont de forts pouvoirs d'achat:
+Les points de départ sont suggérés selon les modes et pour des juridictions à bas coût qui ont de forts pouvoirs d'achat. Basé principalement sur les données de Goldwyn et al(2023):
 - Métro souterrain: Suède: 230M$ /km pas de cout de station pris en compte
 - Métro surélevé: Vancouver : 135M$ /km . Aucun prix pour les stations 
 - Train de banlieue: Toronto: 40M$ /km . Prix provenant de l'expansion (Durham Region, 2023)

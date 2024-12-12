@@ -22,6 +22,7 @@ Estimations du cout de nouvelles infrastructures de transport à partir du rôle
 
 [Structure du frontend](docs/frontend/frontend_doc.md)
 
+[Présentation en classe](docs/CIV6707 Projet B Prédiction couts Lignes de transport.pdf)
 ## Guides d'utilisation
 Les guides d'utilisation montrent la procédure pour obtenir des couts. 
 ```mermaid

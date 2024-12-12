@@ -36,7 +36,7 @@ Les documents suivants donne un aperçu de la procédure pour chaque étape:
 
 [Création Modes](docs/guides/MODE_CREATION.md)
 
-[Création Arrêts](docs/guides/STOPS_CREATION.md)
+[Création Arrêts](docs/guides/STOP_CREATION.md)
 
 [Création Ligne](docs/guides/LINE_CREATION.md)
 
